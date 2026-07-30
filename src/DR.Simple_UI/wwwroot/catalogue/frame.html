@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shell &amp; nav — DR.Simple_UI catalogue</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="../lib/remixicon/remixicon.css">
+<link rel="stylesheet" href="../css/DR.Simple_UI.css">
+<link rel="stylesheet" href="catalogue.css">
+</head>
+<body>
+<div class="layout">
+<div class="cat-drawer"><aside class="sidebar" id="cat-sidebar"></aside></div>
+<button class="cat-scrim" id="cat-scrim" type="button" aria-label="Close navigation" hidden></button>
+<div class="content">
+<header class="topbar" id="cat-topbar"></header>
+<div class="page">
+<main class="cat-main">
+
+    <div class="cat-head">
+        <h1>Shell &amp; nav</h1>
+        <span class="cat-tier">tier 1 — the frame</span>
+    </div>
+    <p class="cat-lede">
+        The layout chrome: shell, sidebar, nav, topbar, user widget. This must look identical in
+        every app, and nobody — human or AI — should restyle it per project.
+    </p>
+
+
+    <div class="cat-note">
+        <strong>In <code>0.1.0</code> these are CSS classes.</strong> The
+        <code>&lt;AppShell&gt;</code> / <code>&lt;Sidebar&gt;</code> / <code>&lt;AppHeader&gt;</code> /
+        <code>&lt;UserWidget&gt;</code> components arrive in <code>0.2.0</code> and replace this markup
+        without changing its appearance. Copy the structure below as it is, and do not add local
+        overrides for it — report frame problems against the library.
+    </div>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Full shell</h2>
+        <p>
+            <code>.layout</code> is the flex row that fills the viewport; <code>.content</code> is
+            the column beside the sidebar; <code>.page</code> is the only scroll container. Shown
+            here at a fixed height — in an app the layout fills the window.
+        </p>
+        <template>
+            <div class="layout" style="height:460px">
+                <aside class="sidebar">
+                    <div class="brand">
+                        <div class="brand-logo" style="background:var(--brand)"></div>
+                        <div class="brand-text">
+                            <strong>Approval Console</strong>
+                            <span class="brand-sub">Netpoint</span>
+                        </div>
+                    </div>
+                    <nav class="nav">
+                        <div class="nav-scroll">
+                            <a class="nav-link active" href="#"><i class="ri-inbox-line"></i><span>Queue</span><span class="nav-count">3</span></a>
+                            <a class="nav-link" href="#"><i class="ri-chat-3-line"></i><span>Topics</span></a>
+                            <a class="nav-link" href="#"><i class="ri-check-double-line"></i><span>Decided</span></a>
+
+                            <div class="nav-section">
+                                <span class="nav-section-label">Administration</span>
+                                <a class="nav-link" href="#"><i class="ri-robot-line"></i><span>Autonomy</span></a>
+                                <a class="nav-link" href="#"><i class="ri-settings-3-line"></i><span>Settings</span></a>
+                            </div>
+
+                            <a class="nav-status-card nav-status-card--ok" href="#">
+                                <span class="nav-status-label">n8n API</span>
+                                <span class="nav-status-row">
+                                    <span class="nav-status-dot"></span>
+                                    <span class="nav-status-state">Connected</span>
+                                </span>
+                            </a>
+                            <a class="nav-status-card nav-status-card--fail" href="#">
+                                <span class="nav-status-label">MySQL</span>
+                                <span class="nav-status-row">
+                                    <span class="nav-status-dot"></span>
+                                    <span class="nav-status-state">Unreachable</span>
+                                </span>
+                            </a>
+                        </div>
+                        <div class="nav-tools">
+                            <a class="nav-link nav-link-tool" href="#"><i class="ri-book-2-line"></i><span>Documentation</span><i class="ri-external-link-line nav-link-ext"></i></a>
+                        </div>
+                    </nav>
+                </aside>
+
+                <div class="content">
+                    <header class="topbar">
+                        <button class="topbar-btn topbar-btn--start" aria-label="Collapse sidebar" data-tip="Collapse the sidebar to an icon rail."><i class="ri-side-bar-line"></i></button>
+                        <div class="topbar-spacer"></div>
+                        <div class="topbar-section">
+                            <span class="health-badge health-badge--healthy"><span class="health-dot"></span> Live</span>
+                        </div>
+                        <button class="topbar-btn" aria-label="Help" data-tip="What is this console?"><i class="ri-question-line"></i></button>
+                        <div class="user-widget">
+                            <button class="user-trigger">
+                                <span class="user-avatar"><i class="ri-user-line"></i></span>
+                                <span class="user-info">
+                                    <span class="user-name">Dennis Rahmen</span>
+                                    <span class="user-email">rahmen@netpoint.de</span>
+                                </span>
+                            </button>
+                            <a class="user-signout" href="#" aria-label="Sign out" data-tip="Sign out of the console."><i class="ri-logout-box-r-line"></i></a>
+                        </div>
+                    </header>
+
+                    <div class="page">
+                        <h1>Approval queue</h1>
+                        <p class="lede">Items the AI proposed and is waiting on a human decision for.</p>
+                        <div class="card">
+                            <div class="card-head">
+                                <strong>INC0031209</strong>
+                                <span class="badge badge-warn">Pending</span>
+                            </div>
+                            <div class="card-body">
+                                <p class="form-hint">Proposal: reroute to SD-Network (confidence 0.87).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Collapsed rail</h2>
+        <p>
+            Add <code>.collapsed</code> to <code>.sidebar</code> — no other markup changes. Labels
+            and status text drop out, the count pill moves onto the icon, and each item's
+            <code>data-tip</code> becomes a CSS flyout that escapes the 56px rail. Hover an icon to
+            see it.
+        </p>
+        <template>
+            <div class="layout" style="height:300px">
+                <aside class="sidebar collapsed">
+                    <div class="brand">
+                        <div class="brand-logo" style="background:var(--brand)"></div>
+                        <div class="brand-text">
+                            <strong>Approval Console</strong>
+                            <span class="brand-sub">Netpoint</span>
+                        </div>
+                    </div>
+                    <nav class="nav">
+                        <div class="nav-scroll">
+                            <a class="nav-link active" href="#" data-tip="Queue — items waiting on a decision."><i class="ri-inbox-line"></i><span>Queue</span><span class="nav-count">3</span></a>
+                            <a class="nav-link" href="#" data-tip="Topics — every open conversation."><i class="ri-chat-3-line"></i><span>Topics</span></a>
+                            <a class="nav-link" href="#" data-tip="Decided — the audit trail."><i class="ri-check-double-line"></i><span>Decided</span></a>
+                            <a class="nav-status-card nav-status-card--ok" href="#" data-tip="n8n API: connected.">
+                                <span class="nav-status-label">n8n API</span>
+                                <span class="nav-status-row">
+                                    <span class="nav-status-dot"></span>
+                                    <span class="nav-status-state">Connected</span>
+                                </span>
+                            </a>
+                        </div>
+                    </nav>
+                </aside>
+                <div class="content">
+                    <header class="topbar">
+                        <button class="topbar-btn topbar-btn--start" aria-label="Expand sidebar"><i class="ri-side-bar-line"></i></button>
+                        <div class="topbar-spacer"></div>
+                    </header>
+                    <div class="page"><p class="lede">Content sits beside the rail.</p></div>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Bare shell</h2>
+        <p>
+            <code>.bare-layout</code> — topbar and body, no sidebar. For sign-in, access-denied and
+            error pages, where there is no navigation to offer yet.
+        </p>
+        <template>
+            <div class="bare-layout" style="height:240px">
+                <header class="topbar">
+                    <div class="bare-brand">
+                        <div class="brand-logo" style="background:var(--brand)"></div>
+                        <span>Approval Console</span>
+                    </div>
+                </header>
+                <div class="page">
+                    <div class="card" style="max-width:420px">
+                        <div class="card-head"><strong>No access</strong></div>
+                        <div class="card-body">
+                            <p class="form-hint">Your account is not a member of a console role. Ask an administrator to grant you the <code>viewer</code> role.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Reconnect banner</h2>
+        <p>
+            Supply the three banner rows in your host page; Blazor Server toggles the state classes on
+            <code>#components-reconnect-modal</code> itself. Shown here with those classes applied. The
+            banner stays dark in the light theme.
+        </p>
+        <template>
+            <div>
+                <div class="reconnect-banner reconnect-attempting" style="display:flex; position:static">
+                    <i class="ri-wifi-off-line"></i><span>Connection lost. Reconnecting…</span>
+                </div>
+                <div class="reconnect-banner reconnect-failed" style="display:flex; position:static">
+                    <i class="ri-close-circle-line"></i><span>Could not reconnect.</span>
+                    <button class="btn btn-sm btn-danger"><i class="ri-refresh-line"></i> Reload</button>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <div class="cat-note">
+        <strong>Hover hints.</strong> Add <code>data-tip="what it does and its consequence"</code> to
+        actionable controls, plus <code>aria-label</code> on icon-only buttons.
+        <code>DR.Simple_UI.js</code> renders one bubble for the whole page through event delegation, so
+        content rendered later needs no wiring. Use
+        <code>data-tip-pos="left|right|top|bottom"</code> to set a side.
+        Elements inside <code>.sidebar</code> are skipped; the collapsed rail uses a CSS flyout instead.
+    </div>
+
+</main>
+</div>
+</div>
+</div>
+<script src="../js/DR.Simple_UI.js"></script>
+<script src="catalogue.js"></script>
+</body>
+</html>

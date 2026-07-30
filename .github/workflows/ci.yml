@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore DR.Simple_UI.slnx
+
+      - name: Build
+        run: dotnet build DR.Simple_UI.slnx -c Release --no-restore
+
+      # Includes the token-contract guard (no hard-coded colours outside the
+      # :root blocks) and the catalogue guards (every page links the shipped
+      # stylesheet, every page is reachable from the nav).
+      - name: Test
+        run: dotnet test DR.Simple_UI.slnx -c Release --no-build --verbosity normal
+
+      # Packing on every build, not just on a tag: a packaging mistake should
+      # fail the PR that introduced it, not the release three weeks later.
+      - name: Pack
+        run: dotnet pack src/DR.Simple_UI/DR.Simple_UI.csproj -c Release --no-build -o artifacts
+
+      # Invoked through bash so it does not depend on the executable bit, which
+      # git on Windows generally does not record.
+      - name: Verify package contents
+        run: bash build/verify-package.sh artifacts/*.nupkg
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+          if-no-files-found: error

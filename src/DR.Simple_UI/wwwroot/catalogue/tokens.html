@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tokens — DR.Simple_UI catalogue</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="../lib/remixicon/remixicon.css">
+<link rel="stylesheet" href="../css/DR.Simple_UI.css">
+<link rel="stylesheet" href="catalogue.css">
+</head>
+<body>
+<div class="layout">
+<div class="cat-drawer"><aside class="sidebar" id="cat-sidebar"></aside></div>
+<button class="cat-scrim" id="cat-scrim" type="button" aria-label="Close navigation" hidden></button>
+<div class="content">
+<header class="topbar" id="cat-topbar"></header>
+<div class="page">
+<main class="cat-main">
+
+    <div class="cat-head">
+        <h1>Tokens</h1>
+        <span class="cat-tier">the contract</span>
+    </div>
+    <p class="cat-lede">
+        Every colour in the library resolves through one of these. Each swatch reads its value from the
+        loaded stylesheet, so the values below are the live ones. Use the toggles to see them remap.
+    </p>
+
+
+    <div class="cat-note">
+        <strong>Overriding:</strong> redefine tokens in your app's own stylesheet, loaded after the
+        library — normally the <code>--brand*</code> family, <code>--accent</code> and
+        <code>--sidebar-active</code>. The <a href="index.html">overview</a> has a complete override file.
+        Do not declare new token names in an app; add them to the library, release, and upgrade.
+    </div>
+
+    <div id="cat-token-groups"></div>
+
+</main>
+</div>
+</div>
+</div>
+<script src="../js/DR.Simple_UI.js"></script>
+<script src="catalogue.js"></script>
+<script>
+/* The token inventory. Rendered with live computed values, so a renamed or
+   deleted token shows up as "not defined" here instead of silently rotting. */
+const TOKEN_GROUPS = [
+    ['Typography', ['--font-sans', '--font-mono']],
+    ['Surfaces, text, lines', [
+        '--bg', '--bg-elevated', '--bg-hover', '--fg', '--fg-soft', '--muted',
+        '--border', '--border-strong', '--border-hover', '--divider', '--card-bg',
+        '--surface-soft', '--surface-strong', '--on-solid', '--redacted'
+    ]],
+    ['Brand — the app override point', [
+        '--brand', '--brand-hover', '--brand-active', '--brand-soft', '--brand-text',
+        '--brand-tint', '--brand-ring', '--brand-ring-soft', '--brand-ring-check',
+        '--brand-glow', '--accent'
+    ]],
+    ['Sidebar', ['--sidebar-bg', '--sidebar-border', '--sidebar-fg', '--sidebar-active']],
+    ['Status — go (sends outward)', [
+        '--go-solid', '--go-hover', '--go-active', '--go-bg', '--go-border', '--go-fg', '--go-ring'
+    ]],
+    ['Status — warn (control changes)', [
+        '--warn-solid', '--warn-hover', '--warn-active', '--warn-bg', '--warn-bg-hover',
+        '--warn-bg-active', '--warn-border', '--warn-fg', '--warn-ring', '--warn-ring-solid'
+    ]],
+    ['Status — danger', [
+        '--danger-solid', '--danger-bg', '--danger-bg-hover', '--danger-bg-active',
+        '--danger-border', '--danger-border-strong', '--danger-fg'
+    ]],
+    ['Status — info & secret', [
+        '--info-bg', '--info-border', '--info-fg', '--secret-bg', '--secret-border', '--secret-fg'
+    ]],
+    ['Categorical badge hues', [
+        '--badge-cyan-bg', '--badge-cyan-border', '--badge-cyan-fg',
+        '--badge-orange-bg', '--badge-orange-border', '--badge-orange-fg',
+        '--badge-teal-bg', '--badge-teal-border', '--badge-teal-fg'
+    ]],
+    ['Component surfaces', [
+        '--badge-bg', '--table-head-bg', '--btn-active-bg', '--code-fg', '--code-bg',
+        '--backdrop', '--overlay', '--spotlight-dim', '--tip-bg', '--tip-border', '--tip-fg',
+        '--scrollbar', '--scrollbar-hover', '--scroll-shade'
+    ]],
+    ['Shadows', [
+        '--shadow-topbar', '--shadow-nav-tools', '--shadow-modal', '--shadow-tip',
+        '--shadow-flyout', '--shadow-dropdown', '--shadow-float', '--shadow-pop'
+    ]],
+    ['Reconnect banner', [
+        '--reconnect-warn-bg', '--reconnect-warn-border', '--reconnect-warn-fg',
+        '--reconnect-fail-bg', '--reconnect-fail-border', '--reconnect-fail-fg'
+    ]],
+    ['Metrics', ['--page-max']]
+];
+
+function renderTokens() {
+    const host = document.getElementById('cat-token-groups');
+    host.textContent = '';
+    const cs = getComputedStyle(document.documentElement);
+
+    for (const [title, names] of TOKEN_GROUPS) {
+        const h = document.createElement('h2');
+        h.textContent = title;
+        host.appendChild(h);
+
+        const grid = document.createElement('div');
+        grid.className = 'cat-swatches';
+
+        for (const name of names) {
+            const value = cs.getPropertyValue(name).trim();
+            const row = document.createElement('div');
+            row.className = 'cat-swatch';
+
+            const chip = document.createElement('span');
+            chip.className = 'cat-chip';
+            // Shadows and fonts have no single colour to show — render the shadow
+            // on a neutral chip, and leave type/metric tokens without one.
+            if (name.startsWith('--shadow')) chip.style.boxShadow = value;
+            else if (name.startsWith('--font') || name === '--page-max') chip.style.display = 'none';
+            else chip.style.background = value;
+
+            const text = document.createElement('div');
+            const nameEl = document.createElement('div');
+            nameEl.className = 'cat-swatch-name';
+            nameEl.textContent = name;
+            const valEl = document.createElement('div');
+            valEl.style.color = 'var(--muted)';
+            valEl.style.fontSize = '11px';
+            valEl.textContent = value || 'not defined';
+            text.append(nameEl, valEl);
+
+            row.append(chip, text);
+            grid.appendChild(row);
+        }
+        host.appendChild(grid);
+    }
+}
+
+renderTokens();
+// Re-read after a theme/CVD/density toggle so the values stay honest.
+new MutationObserver(renderTokens).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme', 'data-cvd', 'data-density']
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+name: Pages
+
+# Publishes the catalogue to GitHub Pages for humans to browse.
+#
+# This does NOT change where the source of truth lives. Per CLAUDE.md, the
+# catalogue inside the .nupkg stays authoritative — it is the same version as the
+# CSS by definition, whereas this site always shows `main` and can therefore be
+# ahead of whatever an app has installed. The hosted pages say so themselves (see
+# catHostedNotice in catalogue.js).
+#
+# Nothing here is a runtime dependency for a consuming app. Apps always load a
+# pinned copy from their own package, so this site going down cannot affect them.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/DR.Simple_UI/wwwroot/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a deployment mid-flight; a half-published site is worse than a
+# slightly stale one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The catalogue pages link ../css/DR.Simple_UI.css and ../js/*, exactly as
+      # they resolve inside the package and in a running app. So wwwroot's shape
+      # has to be preserved here too: catalogue/ one level below css/ and js/.
+      # That one relative path working in all three places is the whole reason
+      # the catalogue lives under wwwroot.
+      - name: Stage the site
+        run: |
+          mkdir -p _site
+          # Copy the whole of wwwroot rather than naming directories. Enumerating
+          # them meant adding lib/remixicon/ silently 404'd the icon font on the
+          # hosted site while working everywhere else.
+          cp -r src/DR.Simple_UI/wwwroot/. _site/
+
+          # Skip Jekyll: it would ignore any underscore-prefixed path and adds
+          # nothing to a hand-written static site.
+          touch _site/.nojekyll
+
+          # Custom domain. For a workflow-based Pages build the domain has to be
+          # in the deployed artifact — GitHub can otherwise drop it on a deploy,
+          # and the site starts 404ing on its own hostname. Staged only, never
+          # added to wwwroot, which would ship it inside the NuGet package.
+          #
+          # MUST match the domain configured on the repo's Pages settings, and
+          # needs a DNS record:  github.dennisrahmen.de  CNAME  dennisrahmen.github.io
+          echo 'github.dennisrahmen.de' > _site/CNAME
+
+          # Root redirect. Staged only — deliberately NOT added to wwwroot, which
+          # would ship it in the package as _content/DR.Simple_UI/index.html.
+          cat > _site/index.html <<'HTML'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+          <meta charset="utf-8">
+          <title>DR.Simple_UI</title>
+          <link rel="canonical" href="catalogue/index.html">
+          <meta http-equiv="refresh" content="0; url=catalogue/index.html">
+          </head>
+          <body><p><a href="catalogue/index.html">Continue to the DR.Simple_UI catalogue</a></p></body>
+          </html>
+          HTML
+
+          echo "Staged $(find _site -type f | wc -l) files."
+
+      - name: Verify the site is self-contained
+        run: |
+          # The site must not be missing the stylesheet the pages link to — that
+          # would publish an unstyled catalogue, which looks like a broken design
+          # system rather than a broken deployment.
+          test -f _site/css/DR.Simple_UI.css || { echo "::error::Stylesheet missing from the staged site."; exit 1; }
+          test -f _site/js/DR.Simple_UI.js   || { echo "::error::Script missing from the staged site."; exit 1; }
+          test -f _site/catalogue/index.html || { echo "::error::Catalogue index missing from the staged site."; exit 1; }
+          test -f _site/lib/remixicon/remixicon.css   || { echo "::error::Icon stylesheet missing; every icon would render blank."; exit 1; }
+          test -f _site/lib/remixicon/remixicon.woff2 || { echo "::error::Icon font missing; every icon would render blank."; exit 1; }
+
+          # Every asset the pages reference must resolve in the staged site.
+          # Catches a new subresource added to a page but not staged here.
+          missing=0
+          for ref in $(grep -rhoE '(href|src)="\.\./[^"]+"' _site/catalogue/*.html \
+                       | sed -E 's/^(href|src)="\.\.\///; s/"$//' | sort -u); do
+              if [ ! -f "_site/$ref" ]; then
+                  echo "::error::Catalogue references ../$ref, which is not in the staged site."
+                  missing=1
+              fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+          echo "  every ../ reference from the catalogue resolves"
+
+          repo_pages=$(find src/DR.Simple_UI/wwwroot/catalogue -name '*.html' | wc -l)
+          site_pages=$(find _site/catalogue -name '*.html' | wc -l)
+          [ "$repo_pages" = "$site_pages" ] || { echo "::error::Staged $site_pages of $repo_pages catalogue pages."; exit 1; }
+          echo "All $site_pages catalogue pages staged, stylesheet and script present."
+
+          # A missing CNAME un-sets the custom domain on deploy, which takes the
+          # whole site offline on its own hostname — worth failing loudly for.
+          test -s _site/CNAME || { echo "::error::CNAME missing from the staged site; the custom domain would be dropped."; exit 1; }
+          echo "Custom domain: $(cat _site/CNAME)"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

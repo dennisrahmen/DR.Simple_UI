@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/DR.Simple_UI/DR.Simple_UI.csproj" />
+  <Project Path="src/DR.Simple_UI.Tests/DR.Simple_UI.Tests.csproj" />
+</Solution>

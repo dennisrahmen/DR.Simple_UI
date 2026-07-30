@@ -1,0 +1,1107 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   DR.Simple_UI — the shared stylesheet
+   ───────────────────────────────────────────────────────────────────────────
+   ONE file: the token layer + every tier-2 (page content) class + the CSS for
+   the tier-1 frame components.
+
+   Two rules govern every edit here:
+
+   1. NO HARD-CODED COLOURS outside the token blocks below. Every colour,
+      shadow and tint is a `var(--…)`. A test (CssTokenContractTests) fails the
+      build if a hex or rgb() literal appears past the `:root` blocks — that is
+      what makes an app able to rebrand by redefining a handful of tokens.
+   2. Content UI is a CLASS, never a component. If you want `<DataTable>`,
+      stop — see CLAUDE.md §"The two tiers".
+
+   Consuming apps load this file first, then their own override file which
+   redefines only the tokens it needs (typically the --brand* family, --accent
+   and --sidebar-active). Apps must not invent tokens; a missing token is added
+   here, the version is bumped, and the app upgrades.
+
+   Because every theme difference is expressed as a token, the light / colour-
+   blind / density blocks below contain NO selector overrides. Load order is
+   therefore not load-bearing, unlike the two-file site.css + app.css setup
+   this library was extracted from.
+
+   Icons: classes size `i` elements (`.btn i`, `.nav-link i`, …). Remix Icon is
+   bundled at ../lib/remixicon/ and is the only icon set; link its stylesheet
+   alongside this one. See THIRD-PARTY-NOTICES.md for its licence.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+
+/* ═══ Tokens — the contract ═════════════════════════════════════════════════
+   Everything below this block references these and nothing else. */
+:root {
+    /* ── Typography ─────────────────────────────────────────────────────── */
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: "SF Mono", Menlo, Consolas, monospace;
+
+    /* ── Surfaces, text, lines ──────────────────────────────────────────── */
+    --bg:              #111827;
+    --bg-elevated:     #1f2937;
+    --bg-hover:        #283346;
+    --fg:              #f3f4f6;
+    --fg-soft:         #d1d5db;          /* body copy on cards */
+    --muted:           #9ca3af;
+    --border:          #374151;
+    --border-strong:   #4b5563;
+    --border-hover:    #6b7280;
+    --divider:         rgba(255, 255, 255, 0.06);
+    --card-bg:         #1f2937;
+    --surface-soft:    rgba(255, 255, 255, 0.03);
+    --surface-strong:  rgba(255, 255, 255, 0.05);
+    --on-solid:        #ffffff;          /* text on any filled/solid button */
+    --redacted:        #f87171;
+
+    /* ── Brand — THE app override point ─────────────────────────────────────
+       Neutral blue by default. An app redefines this family (and --accent /
+       --sidebar-active) in its own override file; nothing else needs touching.
+       The four ring tokens are separate because the alphas differ per control. */
+    --brand:            #2563eb;
+    --brand-hover:      #1d4ed8;
+    --brand-active:     #1e40af;
+    --brand-soft:       #60a5fa;         /* icons/spinners on tinted surfaces */
+    --brand-text:       #93c5fd;         /* readable brand text on the theme bg */
+    --brand-tint:       rgba(37, 99, 235, 0.14);
+    --brand-ring:       rgba(37, 99, 235, 0.5);    /* filled primary focus ring */
+    --brand-ring-soft:  rgba(37, 99, 235, 0.4);    /* neutral button / card focus */
+    --brand-ring-check: rgba(37, 99, 235, 0.35);   /* checkbox focus */
+    --brand-glow:       rgba(37, 99, 235, 0.18);   /* text-input focus glow */
+    --accent:           #60a5fa;         /* links, decorative icons */
+
+    /* ── Sidebar ───────────────────────────────────────────────────────── */
+    --sidebar-bg:      #111827;
+    --sidebar-border:  #1f2937;
+    --sidebar-fg:      #e5e7eb;
+    --sidebar-active:  #2563eb;
+
+    /* ── Semantic status families ───────────────────────────────────────────
+       "go"     — the action that sends something outward (approve, apply, send)
+       "warn"   — the action that changes who is in control (take over)
+       "danger" — destructive / failed
+       "info", "secret" — informational and sensitive-value surfaces
+       [data-cvd="1"] swaps ONLY the go family to blue, so go-vs-danger reads as
+       blue-vs-red for deuteranopia/protanopia. Amber and brand keep their roles. */
+    --go-solid:   #16a34a;
+    --go-hover:   #15803d;
+    --go-active:  #166534;
+    --go-bg:      rgba(34, 197, 94, 0.12);
+    --go-border:  #166534;
+    --go-fg:      #4ade80;
+    --go-ring:    rgba(34, 197, 94, 0.5);
+
+    --warn-solid:      #d97706;
+    --warn-hover:      #b45309;
+    --warn-active:     #92400e;
+    --warn-bg:         rgba(245, 158, 11, 0.12);
+    --warn-bg-hover:   rgba(245, 158, 11, 0.2);
+    --warn-bg-active:  rgba(245, 158, 11, 0.28);
+    --warn-border:     #854d0e;
+    --warn-fg:         #fbbf24;
+    --warn-ring:       rgba(245, 158, 11, 0.4);
+    --warn-ring-solid: rgba(245, 158, 11, 0.5);
+
+    --danger-solid:         #ef4444;
+    --danger-bg:            rgba(127, 29, 29, 0.15);
+    --danger-bg-hover:      rgba(185, 28, 28, 0.25);
+    --danger-bg-active:     rgba(185, 28, 28, 0.35);
+    --danger-border:        rgba(153, 27, 27, 0.6);
+    --danger-border-strong: #991b1b;
+    --danger-fg:            #f87171;
+
+    --info-bg:      rgba(96, 165, 250, 0.12);
+    --info-border:  #1e40af;
+    --info-fg:      #93c5fd;
+
+    --secret-bg:     rgba(124, 58, 237, 0.12);
+    --secret-border: #5b21b6;
+    --secret-fg:     #c4b5fd;
+
+    /* Extra badge hues — categorical only, no semantics attached. */
+    --badge-cyan-bg:     rgba(6, 182, 212, 0.15);
+    --badge-cyan-border: #0e7490;
+    --badge-cyan-fg:     #67e8f9;
+    --badge-orange-bg:     rgba(234, 88, 12, 0.15);
+    --badge-orange-border: #9a3412;
+    --badge-orange-fg:     #fb923c;
+    --badge-teal-bg:     rgba(15, 118, 110, 0.15);
+    --badge-teal-border: #134e4a;
+    --badge-teal-fg:     #2dd4bf;
+
+    /* ── Component surfaces ─────────────────────────────────────────────── */
+    --badge-bg:      rgba(255, 255, 255, 0.07);
+    --table-head-bg: rgba(255, 255, 255, 0.04);
+    --btn-active-bg: #1a2232;
+    --code-fg:       #a5b4fc;
+    --code-bg:       rgba(99, 102, 241, 0.1);
+    --backdrop:      rgba(0, 0, 0, 0.65);       /* modal backdrop */
+    --overlay:       rgba(17, 24, 39, 0.66);    /* in-card blocking overlay */
+    --spotlight-dim: rgba(3, 7, 18, 0.62);      /* guided-tour / spotlight dim */
+    --tip-bg:        #0b1220;
+    --tip-border:    #4b5563;
+    --tip-fg:        #f3f4f6;                   /* the tip stays dark in both themes */
+    --scrollbar:       #374151;
+    --scrollbar-hover: #4b5563;
+    --scroll-shade:    rgba(0, 0, 0, 0.3);      /* scroll-edge fade */
+
+    /* ── Shadows (full box-shadow values — themes swap the colour) ───────── */
+    --shadow-topbar:    0 3px 8px rgba(0, 0, 0, 0.28);
+    --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.18);
+    --shadow-modal:     0 24px 64px rgba(0, 0, 0, 0.6);
+    --shadow-tip:       0 8px 22px rgba(0, 0, 0, 0.5);
+    --shadow-flyout:    0 6px 18px rgba(0, 0, 0, 0.45);
+    --shadow-dropdown:  0 10px 30px rgba(0, 0, 0, 0.35);
+    --shadow-float:     0 10px 30px rgba(0, 0, 0, 0.4);
+    --shadow-pop:       0 14px 40px rgba(0, 0, 0, 0.55);
+
+    /* ── Blazor reconnect banner (deliberately dark in both themes) ─────── */
+    --reconnect-warn-bg:     #422006;
+    --reconnect-warn-border: #d97706;
+    --reconnect-warn-fg:     #fde68a;
+    --reconnect-fail-bg:     #450a0a;
+    --reconnect-fail-border: #dc2626;
+    --reconnect-fail-fg:     #fca5a5;
+
+    /* ── Metrics ────────────────────────────────────────────────────────── */
+    --page-max: 1800px;    /* content column cap on ultra-wide screens */
+}
+
+/* ═══ Light theme ═══════════════════════════════════════════════════════════
+   Pure token remapping — no selector overrides. `data-theme` rides on <html>;
+   apply it before first paint (see README) so no dark flash occurs. */
+:root[data-theme="light"] {
+    --bg:             #f3f4f6;
+    --bg-elevated:    #ffffff;
+    --bg-hover:       #e5e7eb;
+    --fg:             #111827;
+    --fg-soft:        #374151;
+    --muted:          #6b7280;
+    --border:         #d1d5db;
+    --border-strong:  #9ca3af;
+    --divider:        rgba(0, 0, 0, 0.07);
+    --card-bg:        #ffffff;
+    --surface-soft:   rgba(0, 0, 0, 0.03);
+    --surface-strong: rgba(0, 0, 0, 0.055);
+    --redacted:       #b91c1c;
+
+    --brand-soft: #2563eb;
+    --brand-text: #1d4ed8;
+    --brand-tint: rgba(37, 99, 235, 0.1);
+    --accent:     #1d4ed8;
+
+    --sidebar-bg:     #ffffff;
+    --sidebar-border: #e5e7eb;
+    --sidebar-fg:     #374151;
+
+    --go-bg:     rgba(22, 163, 74, 0.1);
+    --go-border: #86efac;
+    --go-fg:     #15803d;
+
+    --warn-bg:     rgba(217, 119, 6, 0.1);
+    --warn-border: #fcd34d;
+    --warn-fg:     #b45309;
+
+    --danger-solid: #dc2626;
+    --danger-bg:     rgba(220, 38, 38, 0.08);
+    --danger-border: #fca5a5;
+    --danger-fg:     #b91c1c;
+
+    --info-bg:     rgba(37, 99, 235, 0.08);
+    --info-border: #93c5fd;
+    --info-fg:     #1d4ed8;
+
+    --secret-bg:     rgba(124, 58, 237, 0.08);
+    --secret-border: #c4b5fd;
+    --secret-fg:     #6d28d9;
+
+    --badge-cyan-bg:     rgba(6, 182, 212, 0.08);
+    --badge-cyan-border: #67e8f9;
+    --badge-cyan-fg:     #0e7490;
+    --badge-orange-bg:     rgba(234, 88, 12, 0.08);
+    --badge-orange-border: #fdba74;
+    --badge-orange-fg:     #c2410c;
+    --badge-teal-bg:     rgba(15, 118, 110, 0.08);
+    --badge-teal-border: #5eead4;
+    --badge-teal-fg:     #0f766e;
+
+    --badge-bg:      rgba(0, 0, 0, 0.04);
+    --table-head-bg: rgba(0, 0, 0, 0.03);
+    --btn-active-bg: #d1d5db;
+    --code-fg:       #4338ca;
+    --code-bg:       rgba(99, 102, 241, 0.08);
+    --backdrop:      rgba(17, 24, 39, 0.35);
+    --overlay:       rgba(243, 244, 246, 0.66);
+    --spotlight-dim: rgba(17, 24, 39, 0.42);
+    --tip-bg:        #111827;
+    --tip-border:    #374151;
+    --scrollbar:       #d1d5db;
+    --scrollbar-hover: #9ca3af;
+    --scroll-shade:    rgba(17, 24, 39, 0.16);
+
+    --shadow-topbar:    0 3px 8px rgba(17, 24, 39, 0.1);
+    --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.06);
+    --shadow-modal:     0 24px 64px rgba(17, 24, 39, 0.25);
+    --shadow-tip:       0 8px 22px rgba(0, 0, 0, 0.25);
+    --shadow-pop:       0 14px 40px rgba(17, 24, 39, 0.22);
+    --shadow-float:     0 10px 30px rgba(17, 24, 39, 0.18);
+}
+
+/* ═══ Colour-blind-safe palette ═════════════════════════════════════════════
+   Independent toggle, composes with either theme. Only the go family moves. */
+:root[data-cvd="1"] {
+    --go-solid:  #2563eb;
+    --go-hover:  #1d4ed8;
+    --go-active: #1e40af;
+    --go-bg:     rgba(37, 99, 235, 0.14);
+    --go-border: #1e40af;
+    --go-fg:     #93c5fd;
+    --go-ring:   rgba(37, 99, 235, 0.5);
+}
+:root[data-theme="light"][data-cvd="1"] {
+    --go-bg:     rgba(37, 99, 235, 0.08);
+    --go-border: #93c5fd;
+    --go-fg:     #1d4ed8;
+}
+
+
+/* ═══ Base elements ═════════════════════════════════════════════════════════ */
+* { box-sizing: border-box; }
+
+html, body { margin: 0; height: 100%; }
+
+body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--code-fg);
+    background: var(--code-bg);
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+h1 { font-size: 22px; margin: 0 0 8px; }
+h2 { font-size: 16px; margin: 24px 0 8px; }
+p.lede { color: var(--muted); margin: 0 0 16px; }
+
+/* Keyboard focus keeps a ring; mouse/programmatic focus (e.g. focus restored on
+   reload) does not — otherwise an auto-selected block shows a stray outline. */
+:focus:not(:focus-visible) { outline: none; }
+
+@keyframes dr-spin  { to { transform: rotate(360deg); } }
+@keyframes dr-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+
+/* ═══ TIER 1 — the frame ════════════════════════════════════════════════════
+   Layout chrome that must be pixel-identical in every app. Do not restyle any
+   of this per project; if it is wrong, it is wrong here. */
+
+/* ── Shell ──────────────────────────────────────────────────────────────── */
+/* 100dvh excludes mobile browser chrome, so the shell is never partly hidden
+   behind it. The 100vh line stays as the fallback for browsers without dvh. */
+.layout {
+    display: flex;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+.content { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+
+/* Bare shell (unauthenticated / minimal pages): topbar + body, no sidebar. */
+.bare-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+.bare-brand  { display: flex; align-items: center; gap: 10px; padding: 0 16px; font-size: 15px; }
+.bare-brand .brand-logo { width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; }
+
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+.sidebar {
+    width: 220px;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-fg);
+    padding: 0;
+    flex-shrink: 0;
+    border-right: 1px solid var(--sidebar-border);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.14s ease;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--sidebar-border);
+    color: inherit;
+    text-decoration: none;
+}
+.brand:hover { text-decoration: none; }
+.brand-logo { width: 30px; height: 30px; border-radius: 6px; flex-shrink: 0; }
+.brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+.brand-sub {
+    display: block; font-size: 10px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px;
+}
+
+.nav { display: flex; flex-direction: column; flex: 1; margin-top: 8px; overflow: hidden; }
+.nav-scroll { flex: 1; overflow-y: auto; min-height: 0; }
+.nav-section { margin-bottom: 4px; }
+.nav-section-label {
+    display: block;
+    padding: 8px 16px 3px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    pointer-events: none;
+}
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 16px;
+    color: var(--sidebar-fg);
+    font-size: 13px;
+}
+.nav-section .nav-link { padding-left: 28px; }
+.nav-link i { font-size: 16px; flex-shrink: 0; opacity: 0.6; }
+.nav-link:hover { background: var(--bg-elevated); text-decoration: none; }
+.nav-link:hover i { opacity: 1; }
+/* Tinted rather than a solid brand pill: a saturated fill made the count badge
+   unreadable and fought every brand colour. */
+.nav-link.active { background: var(--brand-tint); color: var(--brand-text); }
+.nav-link.active i { opacity: 1; color: var(--brand-text); }
+.nav-link-ext { margin-left: auto; font-size: 11px !important; opacity: 0.35 !important; }
+
+/* Count pill on a nav link (pending items, unread, …). */
+.nav-count {
+    margin-left: auto;
+    background: var(--brand);
+    color: var(--on-solid);
+    border-radius: 999px;
+    font-size: 11px; font-weight: 600; line-height: 1.6;
+    padding: 0 7px; min-width: 18px; text-align: center;
+}
+
+.nav-tools {
+    flex-shrink: 0;
+    border-top: 1px solid var(--sidebar-border);
+    padding: 4px 0 8px;
+    box-shadow: var(--shadow-nav-tools);
+}
+.nav-link-tool { font-size: 12px; opacity: 0.55; }
+.nav-link-tool:hover { opacity: 1; }
+.nav-tools-sep { border: none; border-top: 1px solid var(--sidebar-border); margin: 10px 20px 4px; }
+
+/* Sidebar status card (a monitored dependency: API reachable, DB connected, …).
+   The --ok / --fail modifiers are commonly composed dynamically in the nav. */
+.nav-status-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 6px 8px;
+    padding: 8px 10px;
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-left-width: 3px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.12s, border-color 0.12s;
+}
+.nav-status-card:hover { background: var(--bg-hover); text-decoration: none; }
+.nav-status-label {
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted);
+}
+.nav-status-row { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; }
+.nav-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--border-hover); }
+.nav-status-state { flex: 1; }
+.nav-status-card--ok   { border-left-color: var(--go-solid); }
+.nav-status-card--ok   .nav-status-dot   { background: var(--go-solid); box-shadow: 0 0 5px var(--go-ring); }
+.nav-status-card--ok   .nav-status-state { color: var(--go-fg); }
+.nav-status-card--fail { border-left-color: var(--danger-solid); }
+.nav-status-card--fail .nav-status-dot   { background: var(--danger-solid); }
+.nav-status-card--fail .nav-status-state { color: var(--danger-fg); }
+
+/* ── Collapsed sidebar rail ─────────────────────────────────────────────── */
+.sidebar.collapsed { width: 56px; }
+.sidebar.collapsed .brand { justify-content: center; padding: 0; gap: 0; }
+.sidebar.collapsed .brand-text { display: none; }
+.sidebar.collapsed .nav-section-label { display: none; }
+.sidebar.collapsed .nav-section { margin-bottom: 8px; }
+/* let the rail flyouts escape the 56px column */
+.sidebar.collapsed .nav, .sidebar.collapsed .nav-scroll { overflow: visible; }
+.sidebar.collapsed .nav-link { justify-content: center; padding: 9px 0; gap: 0; position: relative; }
+.sidebar.collapsed .nav-section .nav-link { padding-left: 0; }
+.sidebar.collapsed .nav-link > span:not(.nav-count) { display: none; }
+.sidebar.collapsed .nav-link-ext { display: none; }
+.sidebar.collapsed .nav-count {
+    position: absolute; top: 2px; right: 6px; margin-left: 0;
+    min-width: 15px; padding: 0 4px; font-size: 9px; line-height: 1.6;
+}
+.sidebar.collapsed .nav-status-card { align-items: center; padding: 8px 0; position: relative; }
+.sidebar.collapsed .nav-status-label,
+.sidebar.collapsed .nav-status-state { display: none; }
+.sidebar.collapsed .nav-status-dot { width: 9px; height: 9px; }
+.sidebar.collapsed .nav-tools-sep { margin: 8px 14px 4px; }
+
+/* Rail-only hover flyout. The JS tip engine skips .sidebar precisely so this
+   pure-CSS variant owns the collapsed rail (no double tooltip). */
+.sidebar.collapsed [data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%);
+    background: var(--card-bg); color: var(--fg); border: 1px solid var(--border);
+    padding: 5px 9px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    white-space: nowrap; z-index: 400; box-shadow: var(--shadow-flyout);
+    pointer-events: none;
+}
+
+/* ── Topbar ─────────────────────────────────────────────────────────────────
+   z-index 60 keeps the header (and its own dropdowns) above page content,
+   while staying far below the modal/spotlight/toast/tip chain documented at
+   "Z-order" in CLAUDE.md. */
+.topbar {
+    display: flex;
+    align-items: stretch;
+    height: 44px;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 60;
+    box-shadow: var(--shadow-topbar);
+}
+.topbar-spacer { flex: 1; }
+.topbar-section {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 20px;
+    border-left: 1px solid var(--border);
+}
+
+/* Square icon button living in the topbar. --start carries its divider on the
+   right (for the leading sidebar toggle); the default divides on the left. */
+.topbar-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; flex-shrink: 0;
+    background: none; border: none; border-left: 1px solid var(--border);
+    color: var(--muted); cursor: pointer; font-size: 18px;
+    text-decoration: none;
+}
+.topbar-btn:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.topbar-btn--start { border-left: none; border-right: 1px solid var(--border); }
+
+/* ── Health indicator ───────────────────────────────────────────────────── */
+.health-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; white-space: nowrap;
+}
+.health-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.health-badge--healthy  { color: var(--go-fg); }
+.health-badge--healthy  .health-dot { background: var(--go-solid); box-shadow: 0 0 6px var(--go-ring); }
+.health-badge--degraded { color: var(--warn-fg); }
+.health-badge--degraded .health-dot { background: var(--warn-solid); }
+
+/* ── User widget ────────────────────────────────────────────────────────────
+   Stretches to the full topbar height so the hover highlight covers the whole
+   header area rather than a content strip inside it. */
+.user-widget {
+    position: relative;
+    z-index: 200;
+    display: flex;
+    align-items: stretch;
+    border-left: 1px solid var(--border);
+}
+.user-trigger {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 14px;
+    background: none; border: none; cursor: pointer;
+    color: var(--fg); white-space: nowrap;
+}
+.user-trigger:hover { background: var(--bg-hover); text-decoration: none; }
+.user-info  { display: flex; flex-direction: column; align-items: flex-start; }
+.user-name  { font-size: 13px; font-weight: 500; line-height: 1.2; }
+.user-email { font-size: 11px; color: var(--muted); line-height: 1.2; }
+.user-avatar {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--brand-tint); color: var(--brand-text); font-size: 15px;
+}
+.user-signout {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 46px; flex-shrink: 0;
+    color: var(--muted); font-size: 17px; text-decoration: none;
+    transition: background 0.12s, color 0.12s;
+}
+.user-signout:hover, .user-signout:focus, .user-signout:hover:focus {
+    background: var(--bg-hover); color: var(--fg); text-decoration: none;
+}
+
+/* ── Page surface + scrolling ───────────────────────────────────────────────
+   .page is the scroll container. Its width stays 100% and the horizontal
+   padding grows instead of capping the width, so the scrollbar stays pinned to
+   the far right of the screen while the content is held to --page-max and
+   centred. On narrow screens the padding floors at 24px. */
+.page {
+    padding: 24px;
+    padding-inline: max(24px, calc((100% - var(--page-max)) / 2));
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.back-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; color: var(--muted); text-decoration: none; margin-bottom: 12px;
+}
+.back-link:hover { color: var(--fg); }
+
+/* Themed scrollbars — the OS-default chunky grey bar looks wrong on these
+   surfaces. Thin, track-less thumb with breathing room from a transparent,
+   clipped border. Apply .dr-scroll to any nested scroller. */
+.page, .dr-scroll { scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
+.page::-webkit-scrollbar,
+.dr-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.page::-webkit-scrollbar-track,
+.dr-scroll::-webkit-scrollbar-track { background: transparent; }
+.page::-webkit-scrollbar-thumb,
+.dr-scroll::-webkit-scrollbar-thumb {
+    background: var(--scrollbar); border-radius: 999px;
+    border: 2px solid transparent; background-clip: padding-box;
+}
+.page::-webkit-scrollbar-thumb:hover,
+.dr-scroll::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+.page::-webkit-scrollbar-corner,
+.dr-scroll::-webkit-scrollbar-corner { background: transparent; }
+
+/* Soft top/bottom scroll shadows so the scroll edge fades instead of cutting
+   hard. The two solid cover gradients (background-attachment: local) ride the
+   content and hide the shadow at the very top/bottom; the two radial shadows
+   (attachment: scroll) are pinned to the box and only show when there IS more
+   content that way. --scroll-bg MUST match the surface the scroller sits on, or
+   the cover itself reads as a permanent dark band. */
+.page, .dr-scroll {
+    --scroll-bg: var(--bg);
+    background:
+        linear-gradient(var(--scroll-bg) 30%, transparent) center top,
+        linear-gradient(transparent, var(--scroll-bg) 70%) center bottom,
+        radial-gradient(farthest-side at 50% 0, var(--scroll-shade), transparent) center top,
+        radial-gradient(farthest-side at 50% 100%, var(--scroll-shade), transparent) center bottom;
+    background-repeat: no-repeat;
+    background-size: 100% 26px, 100% 26px, 100% 10px, 100% 10px;
+    background-attachment: local, local, scroll, scroll;
+}
+/* Scrollers hosted on an elevated surface (modal bodies) match that surface. */
+.modal .dr-scroll { --scroll-bg: var(--bg-elevated); }
+
+/* ── Hover hints ────────────────────────────────────────────────────────────
+   One floating bubble, created and positioned by DR.Simple_UI.js (fixed and
+   appended to <body>, so a card's or table's overflow never clips it).
+   Put data-tip="plain-language what-it-does + consequence" on the control. */
+.dr-tip {
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 1000;
+    max-width: 280px;
+    padding: 6px 10px;
+    background: var(--tip-bg);
+    color: var(--tip-fg);
+    border: 1px solid var(--tip-border);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.45;
+    box-shadow: var(--shadow-tip);
+    pointer-events: none;      /* never intercept the hover it describes */
+    opacity: 0;
+    transform: translateY(2px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+.dr-tip--visible { opacity: 1; transform: none; }
+.btn[data-tip] { cursor: pointer; }
+
+/* ── Blazor reconnect banner ────────────────────────────────────────────── */
+#components-reconnect-modal {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 1000;
+}
+#components-reconnect-modal.components-reconnect-show,
+#components-reconnect-modal.components-reconnect-failed,
+#components-reconnect-modal.components-reconnect-rejected { display: block; }
+
+.reconnect-banner {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+}
+.reconnect-banner i { font-size: 16px; flex-shrink: 0; }
+.reconnect-banner .btn { margin-left: auto; }
+
+#components-reconnect-modal.components-reconnect-show     .reconnect-attempting { display: flex; }
+#components-reconnect-modal.components-reconnect-failed   .reconnect-failed     { display: flex; }
+#components-reconnect-modal.components-reconnect-rejected .reconnect-rejected   { display: flex; }
+
+.reconnect-attempting {
+    background: var(--reconnect-warn-bg);
+    border-top: 1px solid var(--reconnect-warn-border);
+    color: var(--reconnect-warn-fg);
+}
+.reconnect-attempting i { animation: dr-pulse 1.6s ease-in-out infinite; }
+
+.reconnect-failed,
+.reconnect-rejected {
+    background: var(--reconnect-fail-bg);
+    border-top: 1px solid var(--reconnect-fail-border);
+    color: var(--reconnect-fail-fg);
+}
+
+
+/* ═══ TIER 2 — the paint ════════════════════════════════════════════════════
+   Page content. Classes only, never components: pages write plain open HTML
+   and apply these, so the markup — and therefore the spacing that emerges —
+   stays visible and reasonable-about in the .razor file. Copy-pasteable
+   examples for every class below live in the catalogue/ folder of this
+   package. */
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+.card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+.card-head-right { display: flex; align-items: center; gap: 8px; }
+.card-body { padding: 12px 16px; }
+
+/* Key/value row inside a card body. */
+.kv { display: flex; justify-content: space-between; padding: 4px 0; }
+.kv .k { color: var(--muted); }
+.kv .v { font-family: var(--font-mono); }
+
+/* ── Badges ─────────────────────────────────────────────────────────────────
+   .badge is the neutral pill; the modifiers are the semantic families plus
+   three categorical hues that carry no meaning of their own. */
+.badge {
+    background: var(--badge-bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 11px;
+    padding: 2px 8px;
+    color: var(--muted);
+}
+.badge-go     { background: var(--go-bg);     border-color: var(--go-border);     color: var(--go-fg); }
+.badge-warn   { background: var(--warn-bg);   border-color: var(--warn-border);   color: var(--warn-fg); }
+.badge-danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-fg); }
+.badge-info   { background: var(--info-bg);   border-color: var(--info-border);   color: var(--info-fg); }
+.badge-secret { background: var(--secret-bg); border-color: var(--secret-border); color: var(--secret-fg); }
+.badge-cyan   { background: var(--badge-cyan-bg);   border-color: var(--badge-cyan-border);   color: var(--badge-cyan-fg); }
+.badge-orange { background: var(--badge-orange-bg); border-color: var(--badge-orange-border); color: var(--badge-orange-fg); }
+.badge-teal   { background: var(--badge-teal-bg);   border-color: var(--badge-teal-border);   color: var(--badge-teal-fg); }
+
+/* ── Tables ─────────────────────────────────────────────────────────────── */
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+}
+.table th {
+    background: var(--table-head-bg);
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.tr-clickable { cursor: pointer; user-select: none; }
+.tr-clickable:hover > td { background: var(--bg-hover); }
+.col-muted { color: var(--muted); font-size: 12px; white-space: nowrap; }
+
+/* ── Buttons ────────────────────────────────────────────────────────────────
+   Colour language — a panel's primary CTA is always a FILLED button in its
+   semantic colour:
+     .btn-primary    filled brand   — the neutral primary
+     .btn-go         filled green   — sends something outward (approve, apply)
+     .btn-warn-solid filled amber   — changes who is in control (take over)
+     .btn-warn       tinted amber   — a SECONDARY of the above, beside a primary
+     .btn-danger     tinted red     — destructive
+   The min-heights pin icon-only buttons to the height of their text siblings:
+   a bare icon's line box (15px/1) is shorter than the 1.4-line text next to it,
+   so without them an icon-only button sits ~3px short in a mixed row. */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 33px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--bg-elevated);
+    color: var(--fg);
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    line-height: 1.4;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+}
+.btn i { font-size: 15px; line-height: 1; }
+.btn:hover         { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
+.btn:active        { background: var(--btn-active-bg); }
+.btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.btn:disabled      { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+.btn-sm   { min-height: 27px; padding: 4px 10px; font-size: 12px; }
+.btn-sm i { font-size: 13px; }
+
+.btn-primary        { background: var(--brand); border-color: var(--brand); color: var(--on-solid); }
+.btn-primary:hover  { background: var(--brand-hover); border-color: var(--brand-hover); }
+.btn-primary:active { background: var(--brand-active); border-color: var(--brand-active); }
+.btn-primary:focus-visible { box-shadow: 0 0 0 2px var(--brand-ring); }
+
+.btn-go        { background: var(--go-solid); border-color: var(--go-solid); color: var(--on-solid); }
+.btn-go:hover  { background: var(--go-hover); border-color: var(--go-hover); }
+.btn-go:active { background: var(--go-active); border-color: var(--go-active); }
+.btn-go:focus-visible { box-shadow: 0 0 0 2px var(--go-ring); }
+
+.btn-warn-solid        { background: var(--warn-solid); border-color: var(--warn-solid); color: var(--on-solid); }
+.btn-warn-solid:hover  { background: var(--warn-hover); border-color: var(--warn-hover); }
+.btn-warn-solid:active { background: var(--warn-active); border-color: var(--warn-active); }
+.btn-warn-solid:focus-visible { box-shadow: 0 0 0 2px var(--warn-ring-solid); }
+
+.btn-warn        { color: var(--warn-fg); border-color: var(--warn-border); background: var(--warn-bg); }
+.btn-warn:hover  { background: var(--warn-bg-hover); border-color: var(--warn-border); }
+.btn-warn:active { background: var(--warn-bg-active); }
+.btn-warn:focus-visible { box-shadow: 0 0 0 2px var(--warn-ring); }
+
+.btn-danger        { color: var(--danger-fg); border-color: var(--danger-border); background: var(--danger-bg); }
+.btn-danger:hover  { background: var(--danger-bg-hover); border-color: var(--danger-border-strong); }
+.btn-danger:active { background: var(--danger-bg-active); }
+
+/* ── Forms ──────────────────────────────────────────────────────────────── */
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+
+.form-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+}
+
+.form-input {
+    padding: 8px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--fg);
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.4;
+    width: 100%;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.form-input:focus {
+    outline: none;
+    border-color: var(--brand-soft);
+    box-shadow: 0 0 0 2px var(--brand-glow);
+}
+.form-input::placeholder { color: var(--border-strong); }
+
+/* A read-only value rendered in the shape of an input. */
+.form-value-display {
+    padding: 7px 10px;
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+.form-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+}
+.form-check input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    cursor: pointer;
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    position: relative;
+    transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+}
+.form-check input[type="checkbox"]:hover { border-color: var(--border-hover); }
+.form-check input[type="checkbox"]:checked {
+    background: var(--brand);
+    border-color: var(--brand);
+}
+.form-check input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 4px; height: 8px;
+    border-right: 2px solid var(--on-solid);
+    border-bottom: 2px solid var(--on-solid);
+    transform: translate(-50%, -60%) rotate(45deg);
+}
+.form-check input[type="checkbox"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--brand-ring-check);
+}
+
+.form-hint { font-size: 12px; color: var(--muted); margin: 0; }
+
+/* ── Toolbar (the filter bar above a table or list) ─────────────────────── */
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+.toolbar-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.toolbar-input { width: 160px; }
+.toolbar-count { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+/* ── Modal ──────────────────────────────────────────────────────────────── */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: var(--backdrop);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    backdrop-filter: blur(2px);
+}
+.modal {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: var(--shadow-modal);
+    animation: dr-modal-in 0.14s ease;
+}
+@keyframes dr-modal-in {
+    from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+}
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+    transition: background 0.1s, color 0.1s;
+}
+.modal-close:hover { background: var(--bg-hover); color: var(--fg); }
+.modal-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.modal-body p { margin: 0; }
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+}
+
+/* ── Inline alert banner ────────────────────────────────────────────────── */
+.alert {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    border: 1px solid;
+}
+.alert i { font-size: 16px; flex-shrink: 0; }
+.alert-go     { background: var(--go-bg);     border-color: var(--go-hover);     color: var(--go-fg); }
+.alert-warn   { background: var(--warn-bg);   border-color: var(--warn-hover);   color: var(--warn-fg); }
+.alert-danger { background: var(--danger-bg); border-color: var(--danger-border-strong); color: var(--danger-fg); }
+.alert-info   { background: var(--info-bg);   border-color: var(--info-border);   color: var(--info-fg); }
+
+/* ── Content grids ──────────────────────────────────────────────────────────
+   Layout primitives. Page-specific grids belong in the app, not here. */
+
+/* Cards of similar height flow across as many balanced columns as the width
+   allows and stack to fill each column, instead of piling into one strip. Every
+   child is kept whole. auto-fit collapses empty tracks, so the cards that ARE
+   present always stretch to fill the row — no stranded empty column. */
+.card-masonry {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+
+/* Two-up field rows that collapse to one column when there isn't room. */
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+/* ── Markdown editor ────────────────────────────────────────────────────────
+   Toolbar + textarea + rendered preview in one bordered box. The Write/Preview
+   tabs flip [data-md-view] on the root (done by the JS). */
+.md-editor {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--card-bg);
+}
+.md-toolbar {
+    display: flex; align-items: center; gap: 2px; flex-wrap: wrap;
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elevated);
+}
+.md-tool {
+    background: none; border: none; border-radius: 5px; cursor: pointer;
+    color: var(--fg-soft); font-size: 15px;
+    width: 28px; height: 28px;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.md-tool:hover { background: var(--bg-hover); color: var(--fg); }
+.md-tabs { margin-left: auto; display: inline-flex; gap: 4px; }
+.md-tab {
+    background: none; border: 1px solid transparent; border-radius: 5px; cursor: pointer;
+    color: var(--muted); font-size: 12px; padding: 3px 10px;
+}
+.md-tab--active { color: var(--fg); background: var(--card-bg); border-color: var(--border); }
+.md-editor .md-input {
+    border: none; border-radius: 0; background: transparent;
+    width: 100%; display: block;
+    font-family: var(--font-mono); font-size: 12px; resize: vertical;
+}
+.md-editor .md-preview {
+    display: none; box-sizing: border-box;
+    padding: 12px 14px; min-height: 140px;
+    /* height mirrors the textarea (synced in JS); long content scrolls */
+    overflow-y: auto; resize: vertical;
+}
+.md-editor[data-md-view="preview"] .md-input   { display: none; }
+.md-editor[data-md-view="preview"] .md-preview { display: block; }
+
+/* Theme the scroll + resize chrome on both panes so the browser-default white
+   scrollbar corner and resizer grip don't show through. */
+.md-editor .md-input,
+.md-editor .md-preview { scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
+.md-editor .md-input::-webkit-scrollbar,
+.md-editor .md-preview::-webkit-scrollbar { width: 10px; height: 10px; }
+.md-editor .md-input::-webkit-scrollbar-thumb,
+.md-editor .md-preview::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 999px; }
+.md-editor .md-input::-webkit-scrollbar-thumb:hover,
+.md-editor .md-preview::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+.md-editor .md-input::-webkit-scrollbar-track,
+.md-editor .md-preview::-webkit-scrollbar-track,
+.md-editor .md-input::-webkit-scrollbar-corner,
+.md-editor .md-preview::-webkit-scrollbar-corner { background: transparent; }
+.md-editor .md-input::-webkit-resizer,
+.md-editor .md-preview::-webkit-resizer {
+    background: linear-gradient(-45deg, transparent 0 4px, var(--scrollbar) 4px 5px,
+                transparent 5px 7px, var(--scrollbar) 7px 8px, transparent 8px);
+}
+
+/* Rendered Markdown — the preview pane, and anywhere else Markdown is shown. */
+.markdown-body { color: var(--fg-soft); font-size: 13px; line-height: 1.6; word-break: break-word; }
+.markdown-body > :first-child { margin-top: 0; }
+.markdown-body > :last-child  { margin-bottom: 0; }
+.markdown-body h1, .markdown-body h2, .markdown-body h3,
+.markdown-body h4, .markdown-body h5, .markdown-body h6 {
+    color: var(--fg); margin: 0.7em 0 0.3em; line-height: 1.3;
+}
+.markdown-body h1 { font-size: 1.4em; }
+.markdown-body h2 { font-size: 1.25em; }
+.markdown-body h3 { font-size: 1.1em; }
+.markdown-body p  { margin: 0.5em 0; }
+.markdown-body ul, .markdown-body ol { margin: 0.5em 0; padding-left: 1.5em; }
+.markdown-body li { margin: 0.15em 0; }
+.markdown-body a  { color: var(--brand-soft); }
+.markdown-body code {
+    font-family: var(--font-mono); font-size: 0.9em;
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: 4px; padding: 0.1em 0.35em;
+}
+.markdown-body pre {
+    background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 12px; overflow-x: auto; margin: 0.6em 0;
+}
+.markdown-body pre code { background: none; border: none; padding: 0; }
+.markdown-body blockquote {
+    border-left: 3px solid var(--border);
+    margin: 0.6em 0; padding: 0.2em 0 0.2em 0.8em;
+    color: var(--muted);
+}
+
+
+/* ═══ Compact density ═══════════════════════════════════════════════════════
+   [data-density="compact"] on <html>. Only the shared table is tightened here;
+   an app tightens its own page-specific cards in its override file. */
+:root[data-density="compact"] .table th,
+:root[data-density="compact"] .table td { padding: 4px 10px; }

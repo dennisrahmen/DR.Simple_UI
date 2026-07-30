@@ -1,0 +1,24 @@
+# Normalise text in the repository, let each checkout use native endings.
+* text=auto
+
+# Shell scripts MUST be LF. A CRLF script reaching the Linux CI runner fails
+# with "bad interpreter: No such file or directory", which reads like a missing
+# file rather than a line-ending problem.
+*.sh text eol=lf
+
+# Web assets stay LF so the packed files are byte-identical regardless of which
+# machine built them.
+*.css  text eol=lf
+*.js   text eol=lf
+*.html text eol=lf
+*.svg  text eol=lf
+
+*.yml text eol=lf
+
+# Never mangle these. Declared rather than left to `text=auto` detection: a
+# favicon silently corrupted by CRLF conversion is a genuinely awful bug to
+# track down, and it would only appear on a machine configured differently.
+*.png binary
+*.ico binary
+*.woff  binary
+*.woff2 binary

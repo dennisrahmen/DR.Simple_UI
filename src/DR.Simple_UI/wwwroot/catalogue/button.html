@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buttons — DR.Simple_UI catalogue</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="../lib/remixicon/remixicon.css">
+<link rel="stylesheet" href="../css/DR.Simple_UI.css">
+<link rel="stylesheet" href="catalogue.css">
+</head>
+<body>
+<div class="layout">
+<div class="cat-drawer"><aside class="sidebar" id="cat-sidebar"></aside></div>
+<button class="cat-scrim" id="cat-scrim" type="button" aria-label="Close navigation" hidden></button>
+<div class="content">
+<header class="topbar" id="cat-topbar"></header>
+<div class="page">
+<main class="cat-main">
+
+    <div class="cat-head">
+        <h1>Buttons</h1>
+        <span class="cat-tier">tier 2 — classes</span>
+    </div>
+    <p class="cat-lede">
+        <code>.btn</code> is the base; every variant is one extra class. A panel's primary call to
+        action is always a <strong>filled</strong> button in its semantic colour.
+    </p>
+
+
+    <div class="cat-note">
+        <strong>Choose a variant by meaning, not appearance.</strong>
+        <table class="table" style="margin-top:8px">
+            <thead><tr><th>Class</th><th>Use for</th></tr></thead>
+            <tbody>
+                <tr><td><code>.btn-primary</code></td><td>The neutral primary action</td></tr>
+                <tr><td><code>.btn-go</code></td><td>Sends something outward — approve, apply, send, reroute</td></tr>
+                <tr><td><code>.btn-warn-solid</code></td><td>Changes who is in control — accept and take over</td></tr>
+                <tr><td><code>.btn-warn</code></td><td>The same action as a secondary, beside a green primary</td></tr>
+                <tr><td><code>.btn-danger</code></td><td>Destructive</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="cat-note">
+        Icons come from Remix Icon, bundled in the package. Link
+        <code>_content/DR.Simple_UI/lib/remixicon/remixicon.css</code> and use <code>ri-*</code> classes on
+        an <code>&lt;i&gt;</code>. Browse all 3,245 at <a href="https://remixicon.com">remixicon.com</a>.
+    </div>
+
+    <section class="cat-ex" data-example>
+        <h2>Variants</h2>
+        <p>The full set, all at the same height.</p>
+        <template>
+            <button class="btn">Neutral</button>
+            <button class="btn btn-primary">Primary</button>
+            <button class="btn btn-go"><i class="ri-check-line"></i> Approve &amp; send</button>
+            <button class="btn btn-warn-solid"><i class="ri-user-shared-line"></i> Accept &amp; take over</button>
+            <button class="btn btn-warn">Take over</button>
+            <button class="btn btn-danger"><i class="ri-delete-bin-line"></i> Delete</button>
+            <button class="btn" disabled>Disabled</button>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example>
+        <h2>Small</h2>
+        <p>Add <code>.btn-sm</code> for in-row and in-card actions.</p>
+        <template>
+            <button class="btn btn-sm">Neutral</button>
+            <button class="btn btn-sm btn-primary">Primary</button>
+            <button class="btn btn-sm btn-go"><i class="ri-check-line"></i> Approve</button>
+            <button class="btn btn-sm btn-danger"><i class="ri-close-line"></i> Reject</button>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example>
+        <h2>Icon-only, mixed with text</h2>
+        <p>
+            <code>.btn</code> sets a <code>min-height</code> so icon-only buttons match the height of
+            text buttons beside them. Give every icon-only button an <code>aria-label</code>, and a
+            <code>data-tip</code> when its purpose is not obvious.
+        </p>
+        <template>
+            <button class="btn">Return to queue</button>
+            <button class="btn" aria-label="Refresh" data-tip="Reload the list from the server."><i class="ri-refresh-line"></i></button>
+            <button class="btn" aria-label="Copy link" data-tip="Copy a direct link to this item to the clipboard."><i class="ri-link"></i></button>
+            <button class="btn btn-primary" aria-label="Save"><i class="ri-save-line"></i></button>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example>
+        <h2>As a link</h2>
+        <p>
+            <code>.btn</code> works on an <code>&lt;a&gt;</code> — it sets its own
+            <code>text-decoration</code> and colour, so no reset is needed.
+        </p>
+        <template>
+            <a class="btn" href="#"><i class="ri-external-link-line"></i> Open in ServiceNow</a>
+            <a class="btn btn-sm" href="#">Details</a>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example>
+        <h2>In a footer row</h2>
+        <p>Cancel on the left of the primary, primary last — the reading order ends on the action.</p>
+        <template>
+            <div class="modal-footer" style="width:100%; border-top:none; padding:0;">
+                <button class="btn">Cancel</button>
+                <button class="btn btn-go"><i class="ri-send-plane-line"></i> Approve &amp; send</button>
+            </div>
+        </template>
+    </section>
+
+</main>
+</div>
+</div>
+</div>
+<script src="../js/DR.Simple_UI.js"></script>
+<script src="catalogue.js"></script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DR.Simple_UI — catalogue</title>
+<meta name="description" content="Component catalogue for DR.Simple_UI: one design-token contract, semantic CSS, consistent Blazor apps.">
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="../lib/remixicon/remixicon.css">
+<link rel="stylesheet" href="../css/DR.Simple_UI.css">
+<link rel="stylesheet" href="catalogue.css">
+</head>
+<body>
+<div class="layout">
+<div class="cat-drawer"><aside class="sidebar" id="cat-sidebar"></aside></div>
+<button class="cat-scrim" id="cat-scrim" type="button" aria-label="Close navigation" hidden></button>
+<div class="content">
+<header class="topbar" id="cat-topbar"></header>
+<div class="page">
+<main class="cat-main">
+
+    <div class="cat-hero">
+        <img class="cat-hero-logo" src="logo.png" width="76" height="76" alt="">
+        <div class="cat-hero-text">
+            <h1>DR.Simple_UI</h1>
+            <p>One design-token contract. Semantic CSS. Consistent Blazor apps.</p>
+        </div>
+    </div>
+
+    <div class="cat-hero-rule"></div>
+
+    <p class="cat-lede">
+        Copy-pasteable markup for every shared UI class, styled by the stylesheet that ships in the
+        package. An example that renders correctly here renders correctly in your app.
+    </p>
+
+    <div class="cat-actions">
+        <a class="btn btn-primary" href="button.html">Browse the classes <i class="ri-arrow-right-line"></i></a>
+        <a class="btn" href="tokens.html"><i class="ri-palette-line"></i> Tokens</a>
+        <a class="btn" href="https://www.nuget.org/packages/DR.Simple_UI/"><i class="ri-box-3-line"></i> Install</a>
+    </div>
+
+    <div class="cat-facts">
+        <div class="cat-fact"><strong>176</strong><span>design tokens</span></div>
+        <div class="cat-fact"><strong>105</strong><span>CSS classes</span></div>
+        <div class="cat-fact"><strong>3,245</strong><span>bundled icons</span></div>
+        <div class="cat-fact"><strong>0</strong><span>runtime dependencies</span></div>
+    </div>
+
+    <div class="cat-note">
+        <i class="ri-book-2-line"></i>
+        <span>
+            This site is built with <code>DR.Simple_UI</code>. The shell, sidebar, header, buttons and
+            tables around you are the same classes documented on these pages.
+        </span>
+    </div>
+
+    <h2>Install</h2>
+    <p class="cat-lede">Add the package, then reference it from your host page.</p>
+
+    <div class="cat-ex" data-example data-code-only>
+        <template>dotnet add package DR.Simple_UI</template>
+    </div>
+
+    <div class="cat-ex" data-example data-code-only>
+        <template>
+            <!-- In <head> — applies the stored theme before first paint: -->
+            <script src="_content/DR.Simple_UI/js/DR.Simple_UI.boot.js"></script>
+
+            <link rel="stylesheet" href="_content/DR.Simple_UI/lib/remixicon/remixicon.css" />
+            <link rel="stylesheet" href="_content/DR.Simple_UI/css/DR.Simple_UI.css" />
+            <link rel="stylesheet" href="css/brand.css" />
+
+            <!-- At the end of <body>: -->
+            <script src="_content/DR.Simple_UI/js/DR.Simple_UI.js"></script>
+        </template>
+    </div>
+
+    <h2>Rebranding</h2>
+    <p class="cat-lede">
+        Your whole <code>css/brand.css</code>, loaded after the library. Nothing else changes.
+    </p>
+
+    <div class="cat-ex" data-example data-code-only>
+        <template>
+            :root {
+                --brand:            #e41f16;
+                --brand-hover:      #c8170f;
+                --brand-active:     #a81209;
+                --brand-soft:       #ff6f66;
+                --brand-text:       #ff8f88;
+                --brand-tint:       rgba(228, 31, 22, 0.14);
+                --brand-ring:       rgba(228, 31, 22, 0.5);
+                --brand-ring-soft:  rgba(228, 31, 22, 0.4);
+                --brand-ring-check: rgba(228, 31, 22, 0.35);
+                --brand-glow:       rgba(228, 31, 22, 0.18);
+                --accent:           #ff6f66;
+                --sidebar-active:   #e41f16;
+            }
+
+            /* The light theme needs the readable-on-white variants. */
+            :root[data-theme="light"] {
+                --brand-soft: #e41f16;
+                --brand-text: #c8170f;
+                --brand-tint: rgba(228, 31, 22, 0.1);
+                --accent:     #c8170f;
+            }
+        </template>
+    </div>
+
+    <div class="cat-note">
+        <i class="ri-error-warning-line"></i>
+        <span>
+            Redefine only tokens the library already declares. Never declare a new <code>--</code> name it
+            does not define — a later version may claim that name with a different meaning.
+            <a href="https://github.com/dennisrahmen/DR.Simple_UI/blob/main/CONTRIBUTING.md">Request a
+            token</a> if one is missing.
+        </span>
+    </div>
+
+    <h2>The two tiers</h2>
+
+    <div class="cat-tiles">
+        <div class="card cat-tile">
+            <span class="cat-tile-ic"><i class="ri-side-bar-line"></i></span>
+            <span class="cat-tile-text">
+                <strong>Tier 1 — the frame</strong>
+                <span>Shell, sidebar and nav, header, user widget. Razor components. Pixel-identical in
+                every app, not restyled per project.</span>
+            </span>
+        </div>
+        <div class="card cat-tile">
+            <span class="cat-tile-ic"><i class="ri-brush-line"></i></span>
+            <span class="cat-tile-text">
+                <strong>Tier 2 — the paint</strong>
+                <span>Tables, forms, cards, badges, buttons, panels. CSS classes only. Pages write plain
+                HTML and apply the classes.</span>
+            </span>
+        </div>
+    </div>
+
+    <p class="cat-lede">
+        Which tier: if anyone needs to adjust the inside of it, it is a class. If not, it is a component.
+        There is no <code>&lt;DataTable&gt;</code> and there will not be one.
+    </p>
+
+    <h2>Reference</h2>
+    <div id="cat-tiles"></div>
+
+    <h2>Z-order</h2>
+    <p class="cat-lede">Shared by every app. Use one of these values for a new overlay.</p>
+
+    <div class="card">
+        <table class="table">
+            <thead><tr><th>Layer</th><th>z-index</th></tr></thead>
+            <tbody>
+                <tr><td>Topbar</td><td class="col-muted">60</td></tr>
+                <tr><td>Modal backdrop</td><td class="col-muted">500</td></tr>
+                <tr><td>Spotlight</td><td class="col-muted">510</td></tr>
+                <tr><td>Popover</td><td class="col-muted">550</td></tr>
+                <tr><td>Toast</td><td class="col-muted">600</td></tr>
+                <tr><td>Hover hints, reconnect banner</td><td class="col-muted">1000</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+</main>
+</div>
+</div>
+</div>
+<script src="../js/DR.Simple_UI.js"></script>
+<script src="catalogue.js"></script>
+</body>
+</html>

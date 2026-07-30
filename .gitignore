@@ -1,0 +1,25 @@
+# Project-scoped MCP config — contains plaintext secrets (API tokens/PATs)
+.mcp.json
+
+# Local secrets must never be committed. Publishing needs no API key at all —
+# the release workflow uses trusted publishing (GitHub OIDC → a single-use,
+# 1-hour NuGet key), so there is nothing long-lived to store here.
+*.apikey
+nuget.config.local
+
+# Build output
+[Bb]in/
+[Oo]bj/
+artifacts/
+*.nupkg
+*.snupkg
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+# OS
+Thumbs.db
+.DS_Store

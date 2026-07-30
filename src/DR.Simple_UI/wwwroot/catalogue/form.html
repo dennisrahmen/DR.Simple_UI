@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forms — DR.Simple_UI catalogue</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="../lib/remixicon/remixicon.css">
+<link rel="stylesheet" href="../css/DR.Simple_UI.css">
+<link rel="stylesheet" href="catalogue.css">
+</head>
+<body>
+<div class="layout">
+<div class="cat-drawer"><aside class="sidebar" id="cat-sidebar"></aside></div>
+<button class="cat-scrim" id="cat-scrim" type="button" aria-label="Close navigation" hidden></button>
+<div class="content">
+<header class="topbar" id="cat-topbar"></header>
+<div class="page">
+<main class="cat-main">
+
+    <div class="cat-head">
+        <h1>Forms</h1>
+        <span class="cat-tier">tier 2 — classes</span>
+    </div>
+    <p class="cat-lede">
+        <code>.form-field</code> stacks a label, a control and a hint with the right gaps.
+        <code>.form-input</code> works on <code>input</code>, <code>select</code> and
+        <code>textarea</code> alike — it is width-100%, so the parent controls the size.
+    </p>
+
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Fields</h2>
+        <p>Label, control, hint. The hint explains the consequence, not the control.</p>
+        <template>
+            <div style="max-width:420px; display:flex; flex-direction:column; gap:16px">
+                <div class="form-field">
+                    <label class="form-label" for="f-name">Display name</label>
+                    <input class="form-input" id="f-name" type="text" value="Dennis Rahmen" />
+                </div>
+                <div class="form-field">
+                    <label class="form-label" for="f-poll">Poll interval</label>
+                    <select class="form-input" id="f-poll">
+                        <option>10 seconds</option>
+                        <option selected>30 seconds</option>
+                        <option>2 minutes</option>
+                    </select>
+                    <p class="form-hint">How often the queue refreshes. Shorter means more database load.</p>
+                </div>
+                <div class="form-field">
+                    <label class="form-label" for="f-reason">Reason</label>
+                    <textarea class="form-input" id="f-reason" rows="3" placeholder="Why are you overriding the proposal?"></textarea>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Two-up rows</h2>
+        <p>
+            <code>.field-grid</code> lays fields out side by side and collapses to one column when
+            there is not room for two — no breakpoint to pick.
+        </p>
+        <template>
+            <div class="field-grid" style="max-width:620px">
+                <div class="form-field">
+                    <label class="form-label" for="f-from">Active from</label>
+                    <input class="form-input" id="f-from" type="time" value="18:00" />
+                </div>
+                <div class="form-field">
+                    <label class="form-label" for="f-to">Active to</label>
+                    <input class="form-input" id="f-to" type="time" value="06:00" />
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Checkboxes</h2>
+        <p>
+            <code>.form-check</code> is the clickable label wrapper — the whole label toggles the
+            box. The check mark is drawn in CSS, so it picks up the brand token.
+        </p>
+        <template>
+            <div style="display:flex; flex-direction:column; gap:10px">
+                <label class="form-check"><input type="checkbox" checked /> Desktop notifications</label>
+                <label class="form-check"><input type="checkbox" /> Play a sound on new items</label>
+                <label class="form-check"><input type="checkbox" checked /> Compact table density</label>
+                <label class="form-check"><input type="checkbox" disabled /> Auto-advance (unavailable in demo)</label>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Read-only values</h2>
+        <p>
+            <code>.form-value-display</code> is the shape of an input without being one — for
+            values the user can read but not change. Do not use a disabled input for this; it reads
+            as broken rather than as informational.
+        </p>
+        <template>
+            <div class="field-grid" style="max-width:620px">
+                <div class="form-field">
+                    <label class="form-label">Signed in as</label>
+                    <div class="form-value-display">rahmen@netpoint.de</div>
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Role</label>
+                    <div class="form-value-display">admin</div>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>A settings card</h2>
+        <p>Fields in a card, actions in a footer row.</p>
+        <template>
+            <div class="card" style="max-width:520px">
+                <div class="card-head"><strong>Notifications</strong></div>
+                <div class="card-body" style="display:flex; flex-direction:column; gap:14px">
+                    <label class="form-check"><input type="checkbox" checked /> Notify me about new pending items</label>
+                    <div class="form-field">
+                        <label class="form-label" for="f-quiet">Quiet hours</label>
+                        <input class="form-input" id="f-quiet" type="text" value="22:00 – 07:00" />
+                        <p class="form-hint">Notifications are suppressed during this window. The queue still updates.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn">Reset</button>
+                    <button class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </template>
+    </section>
+
+</main>
+</div>
+</div>
+</div>
+<script src="../js/DR.Simple_UI.js"></script>
+<script src="catalogue.js"></script>
+</body>
+</html>
