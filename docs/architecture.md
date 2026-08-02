@@ -25,7 +25,7 @@ component.
 | `UserWidget` | `.user-widget`, `.user-trigger`, `.user-avatar`, `.user-info`, `.user-signout`, `.user-menu` | Trigger is a `<button>` only when there is a `Menu` to open |
 
 The components and the hand-written markup on the catalogue's *Shell & nav* page are interchangeable,
-and `ComponentClassContractTests` fails if they diverge or if a component names a class the stylesheet
+and `Components/ClassContractTests` fails if they diverge or if a component names a class the stylesheet
 does not define.
 
 Three things that decide how these are written:

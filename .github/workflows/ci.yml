@@ -26,6 +26,16 @@ jobs:
         with:
           global-json-file: global.json
 
+      # The generated artefacts, checked before the build so a stale one is reported as
+      # itself rather than as a confusing test failure. Each --check regenerates nothing
+      # and fails if the committed file disagrees with the source it comes from.
+      - name: Check the generated files are up to date
+        run: |
+          bash build/bundle-css.sh --check
+          bash build/bundle-js.sh --check
+          bash build/export-tokens.sh --check
+          bash build/catalogue-figures.sh --check
+
       - name: Restore
         run: dotnet restore DR.Simple_UI.slnx
 
@@ -51,21 +61,11 @@ jobs:
       # Packing on every build, not just on a tag: a packaging mistake should
       # fail the PR that introduced it, not the release three weeks later.
       - name: Pack
-        run: |
-          dotnet pack src/DR.Simple_UI/DR.Simple_UI.csproj -c Release --no-build -o artifacts
-          dotnet pack templates/DR.Simple_UI.Templates.csproj -c Release -o artifacts
-
-      # The template is only worth shipping if the project it generates compiles. It
-      # once defaulted to a library version that predated the components it uses, and
-      # the generated app failed with five CS0246 errors — so this installs it, runs
-      # it against the package just built, and builds the result.
-      - name: Verify the project template generates a building app
-        run: bash build/verify-template.sh
+        run: dotnet pack src/DR.Simple_UI/DR.Simple_UI.csproj -c Release --no-build -o artifacts
 
       # Invoked through bash so it does not depend on the executable bit, which git
-      # on Windows generally does not record. The glob is narrowed to the library:
-      # artifacts/ now also holds the template package, and the script refuses more
-      # than one argument rather than silently checking whichever came first.
+      # on Windows generally does not record. The script refuses more than one
+      # argument rather than silently checking whichever came first.
       - name: Verify package contents
         run: bash build/verify-package.sh artifacts/DR.Simple_UI.[0-9]*.nupkg
 

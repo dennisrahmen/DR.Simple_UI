@@ -20,6 +20,17 @@ internal static class Assets
     public static string JsPath => Path.Combine(ProjectDir, "wwwroot", "js", "DR.Simple_UI.js");
     public static string BootJsPath => Path.Combine(ProjectDir, "wwwroot", "js", "DR.Simple_UI.boot.js");
     public static string CatalogueDir => Path.Combine(ProjectDir, "wwwroot", "catalogue");
+    public static string IconCssPath =>
+        Path.Combine(ProjectDir, "wwwroot", "lib", "remixicon", "remixicon.css");
+
+    /// <summary>
+    /// The three stylesheet hrefs a catalogue page is allowed to link, exactly as written
+    /// in the pages. Relative on purpose: one path has to resolve identically in the
+    /// repo, inside the .nupkg, and over HTTP.
+    /// </summary>
+    public const string ShippedCssHref = "../css/DR.Simple_UI.css";
+    public const string CatalogueCssFile = "catalogue.css";
+    public const string IconCssHref = "../lib/remixicon/remixicon.css";
 
     public static string Css => File.ReadAllText(CssPath);
 
@@ -156,6 +167,12 @@ internal static class Assets
         }
     }
 
+    /// <summary>
+    /// Collapses runs of whitespace, so a wrapped selector or declaration reports on one
+    /// line and compares equal to its single-line form.
+    /// </summary>
+    public static string Squash(string s) => Regex.Replace(s, @"\s+", " ").Trim();
+
     /// <summary>Every custom property declared anywhere in the sheet.</summary>
     public static ISet<string> DeclaredCustomProperties(string css) =>
         Regex.Matches(css, @"(?<![\w-])(--[a-z0-9-]+)\s*:", RegexOptions.IgnoreCase)
@@ -191,6 +208,19 @@ internal static class Assets
     public static ISet<string> ClassSelectors(string css) =>
         Regex.Matches(LayerPrelude.Replace(css, string.Empty), @"\.(-?[a-z][a-z0-9-]*)",
                 RegexOptions.IgnoreCase)
+            .Select(m => m.Groups[1].Value)
+            .ToHashSet(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Icon classes that actually carry a glyph, which is what "bundled icons" means.
+    /// </summary>
+    /// <remarks>
+    /// Counting every <c>.ri-*</c> selector instead includes the 16 sizing utilities —
+    /// <c>.ri-lg</c>, <c>.ri-fw</c>, <c>.ri-2x</c> and the rest — which are not icons.
+    /// That is how the landing page came to advertise 3,245 of them.
+    /// </remarks>
+    public static ISet<string> IconGlyphClasses(string iconCss) =>
+        Regex.Matches(iconCss, @"\.(ri-[a-z0-9-]+):before", RegexOptions.IgnoreCase)
             .Select(m => m.Groups[1].Value)
             .ToHashSet(StringComparer.Ordinal);
 }

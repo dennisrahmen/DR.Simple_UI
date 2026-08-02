@@ -8,27 +8,6 @@ The git tag is the version. Tag `v1.2.3` publishes `1.2.3`. No file in the repo 
 Release notes come from the annotated tag message. There is no `CHANGELOG.md` — the
 [Releases page](https://github.com/dennisrahmen/DR.Simple_UI/releases) is the changelog.
 
-## Two packages, two tag prefixes
-
-| Package | Tag | Workflow | Contains |
-|---|---|---|---|
-| `DR.Simple_UI` | `v1.2.3` | `release.yml` | the library |
-| `DR.Simple_UI.Templates` | `templates-v1.2.3` | `release-template.yml` | `dotnet new dr-blazor` |
-
-They are versioned independently: a template's version tracks the shape of the app it generates, not the
-library's contract, and an app generated today keeps working when the library bumps. `v*` does not match
-`templates-v*`, so neither tag fires the other's workflow.
-
-The template release runs the full test suite and `build/verify-template.sh`, which generates a project
-and compiles it with `-warnaserror`. It packs the library too, but only to generate against — the push
-step names the template package explicitly, because a library nupkg built there carries the csproj's
-floor version and pushing it would permanently burn a version number.
-
-**Order matters when the template needs a library version that is not out yet.** The generated app
-references `DrSimpleUiVersion` from `template.json`, so release the library first; a template published
-ahead of it generates an app that cannot restore. `The_project_template_references_a_version_that_has_the_components`
-only checks the floor of `0.2.0`, not that the version exists on nuget.org.
-
 ## Cutting a release
 
 1. Decide the version using the rules below.
@@ -108,27 +87,21 @@ long-lived API key is stored in the repository.
 
 ### Setup
 
-1. nuget.org → your username → **Trusted Publishing** → add a policy **per workflow file**, because the
-   policy matches on the file name:
+1. nuget.org → your username → **Trusted Publishing** → add a policy:
 
-   | Field | Library | Template |
-   |---|---|---|
-   | Repository Owner | `dennisrahmen` | `dennisrahmen` |
-   | Repository | `DR.Simple_UI` | `DR.Simple_UI` |
-   | Workflow File | `release.yml` | `release-template.yml` |
-   | Environment | *(empty)* | *(empty)* |
-
-   The template's policy must also permit a package ID that does not exist yet — reserve
-   `DR.Simple_UI.Templates` or allow the `DR.Simple_UI.*` prefix. A policy naming only an existing
-   package ID cannot create one, so the first template publish fails without this.
+   | Field | Value |
+   |---|---|
+   | Repository Owner | `dennisrahmen` |
+   | Repository | `DR.Simple_UI` |
+   | Workflow File | `release.yml` |
+   | Environment | *(empty)* |
 
 2. Add a `NUGET_USER` repository secret containing your nuget.org profile name, not an email address.
-   Both workflows read the same secret.
 
 ### Constraints
 
-- The policy matches on the workflow **file name**. Renaming `release.yml` or `release-template.yml`
-  breaks that package's publishing until the policy is updated to match.
+- The policy matches on the workflow **file name**. Renaming `release.yml` breaks publishing until the
+  policy is updated to match.
 - The API key is requested immediately before the push. It expires an hour after issue.
 - A policy on a private repository is temporarily active for 7 days and goes inactive if no publish
   happens in that window. Public repositories are unaffected.

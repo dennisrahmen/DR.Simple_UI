@@ -23,7 +23,7 @@ edit and no error, so per the release rules it is **Major**:
 
 Adding a component or an optional parameter is **minor**.
 
-`FrameComponentTests` asserts the emitted markup for exactly this reason. If a change makes one of
+The `Components/` test files assert the emitted markup for exactly this reason. If a change makes one of
 those tests fail, the test is the specification — the failure is telling you the version has to go
 up, not that the assertion is stale.
 
@@ -39,7 +39,7 @@ up, not that the assertion is stale.
    captures a plain `class="…"` written at the call site — which turns the destructive spelling into
    the additive one. Without it, `<Sidebar class="x">` would land in `AdditionalAttributes` and wipe
    `.sidebar`, breaking the layout with no error. There is a test per component for this.
-4. **Emit only classes the stylesheet defines.** `ComponentClassContractTests` renders every
+4. **Emit only classes the stylesheet defines.** `Components/ClassContractTests` renders every
    component with every feature on and fails on a class that exists nowhere in
    `wwwroot/css/DR.Simple_UI.css`, and again on one that `catalogue/frame.html` never shows. A
    component and the hand-written markup in the catalogue must describe the same frame.
@@ -58,8 +58,10 @@ up, not that the assertion is stale.
 
 ## Two Razor traps the examples must not fall into
 
-Both were found by generating a project from the `dr-blazor` template and building it, which is now a
-CI step for that reason.
+Both were found by generating a project from a template and compiling it. **There is no template any
+more, so nothing compiles a documented example** — the guard named below is a source scan, which catches
+these two shapes but cannot catch a third Razor rule nobody has hit yet. Compile a documented snippet by
+hand when changing one.
 
 1. **A component with any named `RenderFragment` stops accepting loose child content.** `AppShell` has
    `Navigation` and `Header`, `Sidebar` has `Tools`, `AppHeader` has `Start` — so every example must
@@ -70,8 +72,7 @@ CI step for that reason.
    C# expression at the `@` and fails with `RZ9986`. Bind it to a field — which is what a real app
    does anyway, since the value comes from the authentication state.
 
-`The_project_template_references_a_version_that_has_the_components` asserts the first one, and the CI
-step catches both by compiling the generated app with `-warnaserror`.
+`Documented_component_examples_avoid_the_two_Razor_traps` scans every documented example for both.
 
 ## Naming
 
@@ -89,7 +90,7 @@ step catches both by compiling the generated app with `-warnaserror`.
 1. Write `Name.razor` and `Name.razor.cs`, following the conventions above.
 2. Add a section to `wwwroot/catalogue/frame.html` showing the markup it emits — the class-contract
    test fails otherwise, and a reader writing the markup by hand has nothing to copy.
-3. Add tests to `FrameComponentTests` for the emitted classes, the nesting, and every parameter that
-   changes the markup.
+3. Add a test file under `src/DR.Simple_UI.Tests/Components/`, one per component, covering the emitted
+   classes, the nesting, and every parameter that changes the markup.
 4. Document it in `docs/architecture.md` and in the components list in the root `CLAUDE.md`.
 5. `dotnet test`.

@@ -1,7 +1,4 @@
 <Solution>
   <Project Path="src/DR.Simple_UI/DR.Simple_UI.csproj" />
   <Project Path="src/DR.Simple_UI.Tests/DR.Simple_UI.Tests.csproj" />
-  <!-- The `dotnet new dr-blazor` template. A separate package, versioned separately:
-       a template's version tracks the shape of the generated app, not the library. -->
-  <Project Path="templates/DR.Simple_UI.Templates.csproj" />
 </Solution>

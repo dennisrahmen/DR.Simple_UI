@@ -14,8 +14,8 @@ bash build/verify-package.sh artifacts/DR.Simple_UI.*.nupkg
 ```
 src/
   DR.Simple_UI/
-    css-parts/                        the stylesheet, authored in 57 files
-    js-parts/                         the script, authored in 12 files
+    css-parts/                        the stylesheet, one short file per component
+    js-parts/                         the script, one short file per behaviour
     wwwroot/css/DR.Simple_UI.css      GENERATED from css-parts/ — do not edit
     wwwroot/js/DR.Simple_UI.js        GENERATED from js-parts/ — do not edit
     wwwroot/js/DR.Simple_UI.boot.js   pre-paint theme, loaded in <head>; standalone
@@ -24,18 +24,41 @@ src/
     Components/                       tier 1 only — markup in .razor, API in .razor.cs
   DR.Simple_UI.Tests/                 xUnit + bUnit
 assets/brand/                         icon, logo, favicon, social preview
-templates/                            the `dotnet new dr-blazor` template, a separate package
 build/verify-package.sh               unpacks the .nupkg and asserts its contents
-build/verify-template.sh              generates a project from the template and builds it
+build/release-inventory.sh            lists the classes and tokens a release adds
 docs/
 ```
 
-The part counts above are hand-maintained and only orient a reader — `bundle-css.sh --check` and
-`bundle-js.sh --check` are what actually hold the bundles to the directory.
+No file count is stated here on purpose. `bundle-css.sh --check` and `bundle-js.sh --check` hold the
+bundles to whatever the directories contain, so a count in prose could only ever be a second version of
+the truth going stale on its own.
 
 ## Tests
 
-The tests are source scans that enforce the conventions:
+One concern per file, grouped by what it protects. Add a new guard to the file that already covers its
+area rather than to a general one:
+
+```
+src/DR.Simple_UI.Tests/
+  TestSupport/       Assets (paths + the CSS parsing), and the browser/script base classes
+  Css/               the token, layer, scale, RTL and override contracts — source scans
+  Catalogue/         pages vs navigation, one source of CSS, class coverage, the figures
+  Components/        one file per tier-1 component (bUnit), plus the class contract
+  Packaging/         shipped paths, csproj, the generated artefacts, brand assets, icons
+  Browser/           what a CSS engine computes, and axe over every page
+  Script/            the drSimpleUi behaviour, one file per feature
+```
+
+Four layers, and they catch different things:
+
+| Layer | Catches |
+|---|---|
+| Source scans (`Css/`, `Catalogue/`, `Packaging/`) | A convention broken in the text of a file |
+| bUnit (`Components/`) | Changed markup, which is a version contract |
+| Browser (`Browser/`) | A rule that parses fine and silently loses to a more specific one |
+| Browser (`Script/`) | Behaviour only the platform decides — focus, promises, the tab order |
+
+The guards, and what each is for:
 
 | Guard | Enforces |
 |---|---|
@@ -55,7 +78,8 @@ The tests are source scans that enforce the conventions:
 | The layer order is declared up front | An undeclared layer sorts after every declared one |
 | The token export matches the stylesheet | The JSON is generated and committed, so it can drift |
 | Every class is shown somewhere in the catalogue | "A class nobody can find is a class nobody uses" — this had no enforcement and found 97 |
-| The template references a version that has the components | It once defaulted to 0.1.0, and the generated app failed with five CS0246 errors |
+| The documented host page loads the assets in the right order | Every app copies that block; boot.js out of `<head>` flashes the wrong theme, and `brand.css` before the library never wins |
+| The `drSimpleUi` surface is pinned, and each member behaves | Removing or renaming a member is a Major change, and four apps call into it |
 | No `!important` | An app can always win an override |
 | Nothing is loaded or inlined | No runtime fetch, and no `data:` URI smuggling a colour past the colour guard |
 | Every `z-index` is on the documented scale | Overlay ordering stays reviewable |
@@ -80,16 +104,46 @@ Three of those shipped into `0.3.0` and were caught by reading `getComputedStyle
 pwsh src/DR.Simple_UI.Tests/bin/Debug/net10.0/playwright.ps1 install chromium
 ```
 
-The browser binaries are not restored with the package, so **without that step the browser tests pass
-without asserting anything**. `DR_UI_BROWSER_TESTS=1` turns a missing browser into a failure instead of
-a silent skip; CI sets it, and you should too when you care about the result:
+The browser binaries are not restored with the package, and a test that passes without asserting anything
+is worse than one that fails — so **a missing browser is a failure**. `A_browser_is_available` is the one
+test that reports it; the rest return early, so a browserless machine gives one clear reason instead of
+dozens. `DR_UI_BROWSER_TESTS=0` is the deliberate opt-out, for a machine that genuinely cannot host a
+browser:
 
 ```bash
-DR_UI_BROWSER_TESTS=1 dotnet test DR.Simple_UI.slnx
+DR_UI_BROWSER_TESTS=0 dotnet test DR.Simple_UI.slnx   # source scans only
 ```
 
 They assert computed values, never screenshots — see the decision note in
 [`architecture.md`](architecture.md#decisions-with-a-measurement-behind-them).
+
+`Script/` uses the same browser for the `drSimpleUi` behaviour, over a fake HTTPS origin served by request
+interception rather than `file://`: `localStorage` needs a real origin, which `boot.js` depends on
+entirely, and the scripts have to be genuine `<script src>` tags because `boot.js` reads its options off
+`document.currentScript`.
+
+## The generated files
+
+Four artefacts are generated and committed, so each can drift from its source. Every one has a `--check`
+mode, and CI runs all four before the build:
+
+```bash
+build/bundle-css.sh          # wwwroot/css/DR.Simple_UI.css   from css-parts/
+build/bundle-js.sh           # wwwroot/js/DR.Simple_UI.js     from js-parts/
+build/export-tokens.sh       # wwwroot/tokens/…tokens.json    from the token parts
+build/catalogue-figures.sh   # the .cat-fact figures on catalogue/index.html
+```
+
+Counts are calculated, never typed. `build/css-inventory.sh` is the single implementation of "what does
+this stylesheet declare", and `build/release-inventory.sh` uses it to derive the class and token lists a
+release adds:
+
+```bash
+build/release-inventory.sh v0.1.0 --notes
+```
+
+Both extractions in `css-inventory.sh` are subtle enough to have been wrong in shipped figures — read its
+header before writing a third one.
 
 `axe-core` runs over the same pages for the WCAG rules that only exist in the accessibility tree. The
 catalogue's examples are the library's own markup, so a violation there is one every app inherits by
@@ -103,18 +157,6 @@ one being transitioned *away* from. That reads exactly like a broken selector an
 redesign of the segmented control. `Interactive_states_repaint_when_the_state_changes` switches
 transitions off first and keeps a `.sidebar.collapsed` sentinel, on the grounds that if a plain class
 toggle appears not to work then the measurement is wrong, not the CSS.
-
-## The project template
-
-```bash
-dotnet pack src/DR.Simple_UI/DR.Simple_UI.csproj -c Release -o artifacts
-dotnet pack templates/DR.Simple_UI.Templates.csproj -c Release -o artifacts
-bash build/verify-template.sh
-```
-
-`verify-template.sh` installs `dr-blazor`, generates a project against the package just built, and
-compiles it with `-warnaserror`. A template is not verified by packing cleanly: the first version
-packed, installed, generated — and produced an app that did not compile.
 
 ## Package verification
 
