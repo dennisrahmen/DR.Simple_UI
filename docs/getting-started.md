@@ -10,11 +10,13 @@ Pin the version. Do not use a floating version range.
 
 ## Host page
 
-Add two stylesheets and two scripts to `App.razor` (or `_Host.cshtml`). The override file must come
+Add three stylesheets and two scripts to `App.razor` (or `_Host.cshtml`). Your override file must come
 **after** the library stylesheet.
 
 ```html
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <script src="_content/DR.Simple_UI/js/DR.Simple_UI.boot.js"></script>
 
     <link rel="stylesheet" href="_content/DR.Simple_UI/lib/remixicon/remixicon.css" />
@@ -61,27 +63,25 @@ Create `wwwroot/css/brand.css` and redefine the brand tokens:
 
 ```css
 :root {
-    --brand:            #e41f16;
-    --brand-hover:      #c8170f;
-    --brand-active:     #a81209;
-    --brand-soft:       #ff6f66;
-    --brand-text:       #ff8f88;
-    --brand-tint:       rgba(228, 31, 22, 0.14);
-    --brand-ring:       rgba(228, 31, 22, 0.5);
-    --brand-ring-soft:  rgba(228, 31, 22, 0.4);
-    --brand-ring-check: rgba(228, 31, 22, 0.35);
-    --brand-glow:       rgba(228, 31, 22, 0.18);
-    --accent:           #ff6f66;
-    --sidebar-active:   #e41f16;
+    --brand:          #e41f16;
+    --brand-hover:    #c8170f;
+    --brand-active:   #a81209;
+    --brand-soft:     #ff6f66;
+    --brand-text:     #ff8f88;
+    --accent:         #ff6f66;
+    --sidebar-active: #e41f16;
 }
 
 :root[data-theme="light"] {
     --brand-soft: #e41f16;
     --brand-text: #c8170f;
-    --brand-tint: rgba(228, 31, 22, 0.1);
     --accent:     #c8170f;
 }
 ```
+
+`--brand-tint`, `--brand-ring`, `--brand-ring-soft`, `--brand-ring-check` and `--brand-glow` are mixed
+from `--brand` and follow it automatically, in both themes — set them only to override the alpha the
+library chose. The five values above are hues, not opacities, which is why they are still stated.
 
 Redefine only tokens the library already declares. **Never declare a new `--` name the library does not
 define** — a future version may introduce that name with a different meaning and your app breaks on
@@ -116,6 +116,60 @@ The icons are licensed under the **Remix Icon License v1.0**, not this project's
 them in an application requires nothing of you; see
 [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md) for the restrictions that do carry through — chiefly
 that you may not redistribute them as a standalone icon pack, or use one as a logo.
+
+## The frame
+
+Add the namespace once, in your app's `_Imports.razor`:
+
+```razor
+@using DR.Simple_UI.Components
+```
+
+Then the shell is five components:
+
+```razor
+<AppShell>
+    <Navigation>
+        <Sidebar Title="Approval Console" Subtitle="Netpoint" LogoSrc="/logo.png" BrandHref="/">
+            <ChildContent>
+                <NavItem Href="" Match="NavLinkMatch.All" Icon="ri-home-4-line" Label="Overview" />
+                <NavItem Href="queue" Icon="ri-inbox-line" Label="Queue" Count="@pending" />
+            </ChildContent>
+            <Tools>
+                <NavItem Href="https://docs.example.com" Icon="ri-book-2-line"
+                         Label="Documentation" Tool External />
+            </Tools>
+        </Sidebar>
+    </Navigation>
+    <Header>
+        <AppHeader>
+            <UserWidget Name="@user.Name" Secondary="@user.Email" SignOutHref="/signout" />
+        </AppHeader>
+    </Header>
+    <ChildContent>
+        @Body
+    </ChildContent>
+</AppShell>
+```
+
+**`<ChildContent>` is not optional here.** As soon as a component has one named
+`RenderFragment` parameter, Razor stops accepting loose child content and fails the build with
+`RZ9996`. `AppShell` has `Navigation` and `Header`, `Sidebar` has `Tools`, `AppHeader` has `Start` —
+so all three need it spelled out. `AppHeader` above does not, because nothing named is used on it.
+
+For the same family of reason, bind text that contains `@` to a field: an e-mail address written
+straight into an attribute is parsed as a C# expression and fails with `RZ9986`.
+
+- `Href=""` is the app root, and it needs `Match="NavLinkMatch.All"` — with the default `Prefix` it is
+  active on every page.
+- `<AppShell Bare>` drops the sidebar, for sign-in, access-denied and error pages.
+- `<Sidebar Collapsed="true">` shows the 56px icon rail. Give each `NavItem` a `Tip`, which becomes the
+  rail's flyout label.
+- Add `Class="layout--responsive"` to `AppShell` to collapse to the rail automatically below 900px.
+
+Everything the components emit can also be written by hand — the *Shell & nav* catalogue page shows the
+markup, and a test keeps the two identical. Do that only where a component does not cover what you need,
+and do not add local overrides for the frame: report frame problems against the library.
 
 ## Writing pages
 

@@ -18,12 +18,22 @@
 <div class="page">
 <main class="cat-main">
 
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
     <div class="cat-head">
         <h1>Grids</h1>
         <span class="cat-tier">tier 2 — classes</span>
     </div>
     <p class="cat-lede">
-        Two layout primitives, both breakpoint-free: they respond to the space they are given rather
+        Three layout primitives, all breakpoint-free: they respond to the space they are given rather
         than to the viewport width, so they behave correctly inside a narrow column too.
     </p>
 
@@ -64,6 +74,39 @@
                     <div class="card-body">
                         <div class="kv"><span class="k">Signed in as</span><span class="v">rahmen</span></div>
                         <div class="kv"><span class="k">Role</span><span class="v">admin</span></div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2><code>.card-grid</code></h2>
+        <p>
+            A set of peers in a plain wrapping grid. It differs from
+            <code>.card-masonry</code> in the one way that decides which to use:
+            <code>auto-fill</code> keeps the track count stable, so three cards stay three columns
+            wide instead of stretching to fill the row. Use this when the cards are equals of similar
+            height; use <code>.card-masonry</code> when their heights differ a lot.
+        </p>
+        <template>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="kv"><span class="k">Queue</span><span class="v">Service desk</span></div>
+                        <div class="kv"><span class="k">Waiting</span><span class="v">12</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="kv"><span class="k">Queue</span><span class="v">Network</span></div>
+                        <div class="kv"><span class="k">Waiting</span><span class="v">3</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="kv"><span class="k">Queue</span><span class="v">On call</span></div>
+                        <div class="kv"><span class="k">Waiting</span><span class="v">0</span></div>
                     </div>
                 </div>
             </div>

@@ -18,6 +18,16 @@
 <div class="page">
 <main class="cat-main">
 
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
     <div class="cat-head">
         <h1>Shell &amp; nav</h1>
         <span class="cat-tier">tier 1 — the frame</span>
@@ -29,12 +39,85 @@
 
 
     <div class="cat-note">
-        <strong>In <code>0.1.0</code> these are CSS classes.</strong> The
-        <code>&lt;AppShell&gt;</code> / <code>&lt;Sidebar&gt;</code> / <code>&lt;AppHeader&gt;</code> /
-        <code>&lt;UserWidget&gt;</code> components arrive in <code>0.2.0</code> and replace this markup
-        without changing its appearance. Copy the structure below as it is, and do not add local
-        overrides for it — report frame problems against the library.
+        <strong>Use the components; the classes are the fallback.</strong>
+        <code>&lt;AppShell&gt;</code>, <code>&lt;Sidebar&gt;</code>, <code>&lt;NavItem&gt;</code>,
+        <code>&lt;AppHeader&gt;</code> and <code>&lt;UserWidget&gt;</code> emit exactly the markup
+        shown on this page, so the two are interchangeable and a test asserts they stay that way.
+        Write the classes by hand only where a component does not cover what you need. Either way, do
+        not add local overrides for the frame — report frame problems against the library.
     </div>
+
+    <section class="cat-ex" data-example data-code-only>
+        <h2>The same shell, as components</h2>
+        <p>
+            Add <code>@using DR.Simple_UI.Components</code> to your <code>_Imports.razor</code> once.
+            <code>&lt;AppShell&gt;</code> renders <code>.layout &gt; .content &gt; .page</code> and
+            <code>&lt;AppHeader&gt;</code> always emits the spacer that pushes the trailing controls
+            to the far edge, so neither is something you can forget.
+        </p>
+        <p>
+            <code>&lt;NavItem&gt;</code> tracks the current address itself and sets
+            <code>aria-current="page"</code> as well as the <code>active</code> class — the framework's
+            own <code>&lt;NavLink&gt;</code> sets only the class. The link to the root needs
+            <code>Match="NavLinkMatch.All"</code>, or it is active on every page. It is called
+            <code>NavItem</code> and not <code>NavLink</code> because <code>NavLink</code> is already
+            in scope in every Blazor app, and shadowing it would break every existing use.
+        </p>
+        <p>
+            <strong><code>&lt;ChildContent&gt;</code> is spelled out, and it is not optional.</strong>
+            As soon as a component has one named <code>RenderFragment</code> parameter, Razor stops
+            accepting loose child content and fails the build with <code>RZ9996</code> — so
+            <code>&lt;AppShell&gt;</code> (which has <code>Navigation</code> and <code>Header</code>),
+            <code>&lt;Sidebar&gt;</code> (<code>Tools</code>) and <code>&lt;AppHeader&gt;</code>
+            (<code>Start</code>) all need it. The user's details are bound to fields for a related
+            reason: an e-mail address written straight into an attribute is read as a C# expression at
+            the <code>@@</code>, which fails with <code>RZ9986</code>.
+        </p>
+        <template>
+            <AppShell>
+                <Navigation>
+                    <Sidebar Title="Approval Console" Subtitle="Netpoint"
+                             LogoSrc="/logo.png" BrandHref="/" Collapsed="@_railed">
+                        <ChildContent>
+                            <NavItem Href="" Match="NavLinkMatch.All" Icon="ri-home-4-line" Label="Overview" />
+                            <NavItem Href="queue" Icon="ri-inbox-line" Label="Queue" Count="@_pending"
+                                     Tip="Items waiting on a decision." />
+                            <NavItem Href="decided" Icon="ri-check-double-line" Label="Decided" />
+                        </ChildContent>
+                        <Tools>
+                            <NavItem Href="https://docs.example.com" Icon="ri-book-2-line"
+                                     Label="Documentation" Tool External />
+                        </Tools>
+                    </Sidebar>
+                </Navigation>
+                <Header>
+                    <AppHeader>
+                        <Start>
+                            <button class="topbar-btn topbar-btn--start" @onclick="() => _railed = !_railed"
+                                    aria-label="Collapse sidebar"><i class="ri-side-bar-line"></i></button>
+                        </Start>
+                        <ChildContent>
+                            <UserWidget Name="@_name" Secondary="@_email" Initials="DR">
+                                <Menu>
+                                    <a class="menu-item" href="/preferences">
+                                        <i class="ri-settings-3-line"></i> Preferences
+                                    </a>
+                                    <hr class="menu-sep" />
+                                    <a class="menu-item menu-item--danger" href="/signout">
+                                        <i class="ri-logout-box-r-line"></i> Sign out
+                                    </a>
+                                </Menu>
+                            </UserWidget>
+                        </ChildContent>
+                    </AppHeader>
+                </Header>
+                <ChildContent>
+                    <h1>Approval queue</h1>
+                    <p class="lede">Items the AI proposed and is waiting on a human decision for.</p>
+                </ChildContent>
+            </AppShell>
+        </template>
+    </section>
 
     <section class="cat-ex" data-example data-demo="ex-demo--block">
         <h2>Full shell</h2>
@@ -92,6 +175,7 @@
                         <div class="topbar-spacer"></div>
                         <div class="topbar-section">
                             <span class="health-badge health-badge--healthy"><span class="health-dot"></span> Live</span>
+                            <span class="health-badge health-badge--degraded"><span class="health-dot"></span> Degraded</span>
                         </div>
                         <button class="topbar-btn" aria-label="Help" data-tip="What is this console?"><i class="ri-question-line"></i></button>
                         <div class="user-widget">
@@ -107,6 +191,7 @@
                     </header>
 
                     <div class="page">
+                        <a class="back-link" href="#"><i class="ri-arrow-left-line"></i> Back to the queue</a>
                         <h1>Approval queue</h1>
                         <p class="lede">Items the AI proposed and is waiting on a human decision for.</p>
                         <div class="card">
@@ -168,6 +253,79 @@
         </template>
     </section>
 
+    <section class="cat-ex" data-example data-code-only>
+        <h2>Narrow screens</h2>
+        <p>
+            Add <code>.layout--responsive</code> to <code>.layout</code> and the sidebar becomes the
+            rail below 900px, whether or not <code>.collapsed</code> is set. The user widget drops its
+            second line at 900px and its whole text block at 560px, leaving the avatar.
+        </p>
+        <p>
+            <strong>Opt-in on purpose.</strong> Collapsing the sidebar automatically would change how
+            every already-released app looks on a narrow screen with nobody editing anything. The
+            modifier also outranks an app that sets <code>.sidebar { width: 260px }</code>
+            unconditionally — a bare <code>@media</code> rule would lose to it on source order.
+        </p>
+        <p>
+            Note that below 900px a collapse toggle does nothing, because the rail is forced. Hide the
+            toggle at that width, or leave it and accept the no-op.
+        </p>
+        <template>
+            <div class="layout layout--responsive">
+                <aside class="sidebar">…</aside>
+                <div class="content">…</div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>User menu</h2>
+        <p>
+            The panel is the library's one dropdown style, <code>.menu</code> — see
+            <a href="menu.html">Menus</a> for its items, labels and separators. There is not a second
+            panel style for the header. Only the <em>anchoring</em> belongs to the frame:
+            <code>.user-widget</code> is already <code>position:relative</code>, so the panel hangs
+            off the header's bottom edge with nothing measured and no anchor positioning, which
+            Firefox ESR does not have. Shown here open; <code>&lt;UserWidget&gt;</code> handles
+            opening, the outside click and Escape.
+        </p>
+        <p>
+            It is a <em>disclosure</em>, not an ARIA menu: the items are ordinary links and buttons
+            that tab normally. Declaring <code>role="menu"</code> would promise arrow-key navigation
+            and a roving tabindex, and claiming that without implementing it is worse than claiming
+            nothing.
+        </p>
+        <p>
+            The component also emits <code>.menu-scrim</code> immediately before the panel — a
+            transparent full-viewport element that catches the click dismissing the menu. It is
+            deliberately left out of the demo below, because a fixed element covering the viewport
+            would swallow every click on this page. It carries no z-index: coming first in the
+            markup is what puts the panel above it.
+        </p>
+        <template>
+            <div class="topbar" style="position:relative; justify-content:flex-end; height:auto; padding-bottom:180px">
+                <div class="user-widget">
+                    <button class="user-trigger" aria-expanded="true">
+                        <span class="user-avatar"><i class="ri-user-line"></i></span>
+                        <span class="user-info">
+                            <span class="user-name">Dennis Rahmen</span>
+                            <span class="user-email">rahmen@netpoint.de</span>
+                        </span>
+                    </button>
+                    <div class="menu">
+                        <span class="menu-label">Signed in as admin</span>
+                        <a class="menu-item" href="#"><i class="ri-user-settings-line"></i> Profile</a>
+                        <a class="menu-item" href="#"><i class="ri-settings-3-line"></i> Preferences</a>
+                        <hr class="menu-sep" />
+                        <button class="menu-item menu-item--danger" type="button">
+                            <i class="ri-logout-box-r-line"></i> Sign out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </section>
+
     <section class="cat-ex" data-example data-demo="ex-demo--block">
         <h2>Bare shell</h2>
         <p>
@@ -197,9 +355,17 @@
     <section class="cat-ex" data-example data-demo="ex-demo--block">
         <h2>Reconnect banner</h2>
         <p>
-            Supply the three banner rows in your host page; Blazor Server toggles the state classes on
-            <code>#components-reconnect-modal</code> itself. Shown here with those classes applied. The
-            banner stays dark in the light theme.
+            Supply all <strong>three</strong> banner rows in your host page; Blazor Server toggles the
+            state classes on <code>#components-reconnect-modal</code> itself, and each row is hidden
+            until its own state is the current one. Shown here with those classes applied. The banner
+            stays dark in the light theme, because a connection failure should look the same wherever
+            it happens.
+        </p>
+        <p>
+            <code>.reconnect-rejected</code> is the one that gets forgotten. It is not a failed
+            <em>attempt</em> — the server answered and refused, because the circuit is gone for good, so
+            reconnecting cannot help and only a reload will. Omit the row and that state renders as an
+            empty bar.
         </p>
         <template>
             <div>
@@ -208,6 +374,10 @@
                 </div>
                 <div class="reconnect-banner reconnect-failed" style="display:flex; position:static">
                     <i class="ri-close-circle-line"></i><span>Could not reconnect.</span>
+                    <button class="btn btn-sm btn-danger"><i class="ri-refresh-line"></i> Retry</button>
+                </div>
+                <div class="reconnect-banner reconnect-rejected" style="display:flex; position:static">
+                    <i class="ri-error-warning-line"></i><span>This session has expired on the server.</span>
                     <button class="btn btn-sm btn-danger"><i class="ri-refresh-line"></i> Reload</button>
                 </div>
             </div>

@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- A template package, not a library. It ships the `dr-blazor` template and no
+       assembly at all, which is why every build-and-run property below is off:
+       PackageType=Template tells NuGet to treat the content as templates, and a
+       template package that also compiles something is a package that can fail to
+       restore for reasons unrelated to templating.
+
+       Deliberately a SEPARATE package from DR.Simple_UI. A template's version tracks
+       the shape of the generated app, not the version of the UI library — and an app
+       generated today should keep working when the library bumps. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageType>Template</PackageType>
+    <PackageId>DR.Simple_UI.Templates</PackageId>
+    <!-- A floor for local builds only. release-template.yml passes
+         -p:Version=<tag> from a templates-v* tag, so the published version comes
+         from the tag and this value can never disagree with it. -->
+    <Version>0.1.0</Version>
+
+    <Title>DR.Simple_UI project templates</Title>
+    <Authors>Dennis Rahmen</Authors>
+    <Company>Dennis Rahmen</Company>
+    <Copyright>Copyright (c) Dennis Rahmen</Copyright>
+    <Description>`dotnet new dr-blazor` — a Blazor Web App wired to DR.Simple_UI: the three stylesheet links in the right order, the pre-paint theme script in the head, the frame components in the layout, and a brand.css with the seven tokens a rebrand needs.</Description>
+    <PackageTags>dotnet-new;templates;blazor;dr-simple-ui</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.dennisrahmen.de/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dennisrahmen/DR.Simple_UI</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Everything under content/ is template source. bin and obj are excluded
+         because a template that carries somebody's build output generates a project
+         that will not restore. -->
+    <Content Include="content\**\*" Exclude="content\**\bin\**;content\**\obj\**" />
+    <Compile Remove="**\*" />
+  </ItemGroup>
+
+</Project>

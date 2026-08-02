@@ -1,0 +1,82 @@
+/* ── Menu / dropdown panel ──────────────────────────────────────────────────
+   A short list of actions, opened from a control. This is the one dropdown panel
+   in the library: the user widget's menu is this class, anchored differently (see
+   15-frame-user-widget.css). Two near-identical panel styles is how a design
+   system starts to rot, so there is only one.
+
+   A menu is for *actions*. A list of values to pick one of is a <select> or a
+   .segmented; a list of places to go is the sidebar.
+
+   Deliberately NOT role="menu". That role promises arrow-key navigation and a
+   roving tabindex, and a menu that claims it without implementing it is worse for
+   a screen-reader user than one that claims nothing: the items stop being reachable
+   the way they appear to be. These are ordinary links and buttons that tab. Put
+   aria-expanded on the trigger and leave the panel unlabelled by role.
+
+   Dismissal is the app's: click the scrim, press Escape. There is deliberately no
+   JavaScript behind this — the frame must work with scripting blocked.
+   ─────────────────────────────────────────────────────────────────────────── */
+.menu {
+    min-width: 220px;
+    padding: var(--space-2);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+}
+
+/* Wrap trigger + panel in this to anchor the panel under the trigger. It is what
+   makes the panel's `position: absolute` resolve against the trigger rather than
+   against the page, so nothing has to be measured and no anchor positioning is
+   needed — Firefox ESR 140 has none. */
+.menu-anchor { position: relative; display: inline-flex; }
+.menu-anchor > .menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    inset-inline-end: 0;
+    z-index: 550;
+}
+
+/* Works on an <a> or a <button>, so an item can navigate or act. */
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    width: 100%;
+    padding: var(--space-4) var(--space-5);
+    background: none;
+    border: none;
+    border-radius: var(--radius-inner);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: var(--text-4);
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+}
+.menu-item i { font-size: var(--text-7); color: var(--muted); }
+.menu-item:hover { background: var(--bg-hover); text-decoration: none; }
+.menu-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.menu-item:disabled,
+.menu-item[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+.menu-item--danger,
+.menu-item--danger i { color: var(--danger-fg); }
+/* A trailing shortcut hint or count. */
+.menu-item-note { margin-inline-start: auto; color: var(--muted); font-size: var(--text-2); }
+
+.menu-label {
+    display: block;
+    padding: var(--space-4) var(--space-5) var(--space-2);
+    font-size: var(--text-1);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+.menu-sep { border: none; border-top: 1px solid var(--divider); margin: var(--space-2) var(--space-1); }
+
+/* Catches the click that dismisses the panel. Transparent and undecorated: this is
+   a menu, not a modal, so it must not dim the page. Put it immediately BEFORE the
+   panel in the markup — the panel then paints above it on source order, and the
+   scrim needs no z-index of its own. */
+.menu-scrim { position: fixed; inset: 0; cursor: default; }

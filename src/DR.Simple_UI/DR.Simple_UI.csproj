@@ -67,4 +67,13 @@
     <SupportedPlatform Include="browser" />
   </ItemGroup>
 
+  <!-- The only package dependency, and the one a Razor Class Library cannot avoid:
+       ComponentBase, RenderFragment and NavigationManager live here. A
+       FrameworkReference to Microsoft.AspNetCore.App would keep the .nupkg
+       dependency-free but would stop a Blazor WebAssembly app consuming this
+       library, which does not reference the shared framework. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
+  </ItemGroup>
+
 </Project>

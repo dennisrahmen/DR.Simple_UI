@@ -15,21 +15,48 @@
    It ships as a file rather than a snippet to copy into every app on purpose:
    a copied snippet is drift waiting to happen.
 
+   The system theme is resolved HERE, into the data-theme attribute — never as a
+   `@media (prefers-color-scheme)` block in the stylesheet. A media block would
+   match independently of data-theme, so every app that rebrands (all of them do:
+   the light theme needs readable-on-white variants of the brand tokens) would find
+   its own `[data-theme="light"]` block no longer applying while the library's media
+   block did. One attribute, one source of truth, and the app's own light block keeps
+   working unchanged.
+
+   Precedence: a stored choice always wins. `prefers-color-scheme` decides only for
+   somebody who has never chosen, which is what "system" means — and choosing light
+   on a machine set to dark must not be silently reverted on the next load.
+
    data-prefix       localStorage key prefix. Default "drui.". Only needed when
                      two apps share an origin; must match storagePrefix.
    data-lang-cookie  "true" to also write a "<prefix>lang" cookie, so a
                      server-rendered app can prerender in the chosen language
-                     instead of flashing the default one. */
+                     instead of flashing the default one.
+   data-theme-default  "dark" (the default), "light", or "system" to follow
+                     prefers-color-scheme until the user chooses. */
 (function () {
     var el = document.currentScript;
     var prefix = (el && el.dataset.prefix) || 'drui.';
     var wantCookie = !!(el && el.dataset.langCookie === 'true');
+    var fallback = (el && el.dataset.themeDefault) || 'dark';
 
     try {
         var get = function (k) { return localStorage.getItem(prefix + k); };
         var root = document.documentElement;
 
-        root.setAttribute('data-theme', get('theme') === 'light' ? 'light' : 'dark');
+        var stored = get('theme');
+        var theme;
+        if (stored === 'light' || stored === 'dark') {
+            theme = stored;
+        } else if (fallback === 'system') {
+            // matchMedia is guarded: it is missing in some embedded webviews, and an
+            // exception here would leave the page with no data-theme at all.
+            theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+                ? 'light' : 'dark';
+        } else {
+            theme = fallback === 'light' ? 'light' : 'dark';
+        }
+        root.setAttribute('data-theme', theme);
         if (get('cvd') === '1') root.setAttribute('data-cvd', '1');
         if (get('density') === 'compact') root.setAttribute('data-density', 'compact');
 

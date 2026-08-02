@@ -8,11 +8,20 @@
 # package restores, the app builds, and every stylesheet link 404s at runtime.
 # So we do not assume — we unpack and assert.
 #
-# Usage:  build/verify-package.sh artifacts/DR.Simple_UI.0.1.0.nupkg
+# Usage:  build/verify-package.sh artifacts/DR.Simple_UI.*.nupkg
 #
 set -euo pipefail
 
 PACKAGE="${1:?usage: verify-package.sh <path-to-nupkg>}"
+
+# Only $1 is read, so a glob matching several packages would silently verify one
+# of them — most likely a stale build left in artifacts/ — and report success for
+# a package nobody is shipping. Refuse instead.
+if [[ $# -gt 1 ]]; then
+    echo "::error::Expected exactly one package, got $#: $*"
+    echo "Clear artifacts/ so the glob matches only the build under test."
+    exit 1
+fi
 
 if [[ ! -f "$PACKAGE" ]]; then
     echo "::error::Package not found: $PACKAGE"
@@ -31,6 +40,9 @@ REQUIRED=(
     "staticwebassets/css/DR.Simple_UI.css"
     "staticwebassets/js/DR.Simple_UI.js"
     "staticwebassets/js/DR.Simple_UI.boot.js"
+    # The token export. A design tool reads this path out of the restored package,
+    # so it is as much a shipped contract as the stylesheet.
+    "staticwebassets/tokens/DR.Simple_UI.tokens.json"
     "staticwebassets/catalogue/index.html"
     "staticwebassets/catalogue/catalogue.css"
     "staticwebassets/catalogue/catalogue.js"

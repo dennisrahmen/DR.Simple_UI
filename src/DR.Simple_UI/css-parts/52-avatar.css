@@ -1,0 +1,69 @@
+/* ── Avatar ─────────────────────────────────────────────────────────────────
+   A person or a system actor, in page content. The header's own avatar is
+   `.user-avatar` and stays part of the frame; this is the one for tables, lists and
+   cards.
+
+   Takes an <img>, initials, or a Remix Icon — in that order of preference, and the
+   icon is the honest fallback rather than a generated colour block, which invents a
+   distinction that is not in the data.
+
+   An avatar is never the only carrier of a name. Put the name in text beside it, or
+   in an <img alt>, or in a .visually-hidden span: initials are not a name, and a
+   hover title is not reachable by keyboard or touch.
+   ─────────────────────────────────────────────────────────────────────────── */
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--brand-tint);
+    color: var(--brand-text);
+    font-size: var(--text-3);
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
+    user-select: none;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar i { font-size: var(--text-6); }
+
+.avatar-sm { width: 22px; height: 22px; font-size: var(--text-1); }
+.avatar-sm i { font-size: var(--text-4); }
+.avatar-lg { width: 40px; height: 40px; font-size: var(--text-6); }
+.avatar-lg i { font-size: var(--text-9); }
+
+/* Neutral, for an actor with no brand meaning — a system account, an unknown
+   sender. Keeps the brand tint for people, so a page of rows does not read as
+   uniformly branded. */
+.avatar--muted { background: var(--surface-strong); color: var(--muted); }
+
+/* ── Avatar group ───────────────────────────────────────────────────────────
+   Overlapping avatars for "these several people". The ring is drawn with a
+   box-shadow rather than a border so it does not change the box size and the
+   spacing stays exact; it is the surface colour, so each avatar cuts a clean edge
+   out of the one behind it.
+
+   Reverse the paint order with a negative z-index step? No — a plain source order
+   means the LAST avatar sits on top, which is the wrong way round for a "+3 more"
+   chip at the end. `flex-direction: row-reverse` on a reversed list would fix the
+   painting and break the reading order, so instead each avatar simply overlaps the
+   one before it and the counter goes last, unoverlapped. */
+.avatar-group { display: inline-flex; align-items: center; }
+.avatar-group > * + * { margin-inline-start: -8px; }
+.avatar-group > .avatar { box-shadow: 0 0 0 2px var(--card-bg); }
+.avatar-group > .avatar-sm + .avatar-sm { margin-inline-start: -6px; }
+
+/* The overflow counter. Not an .avatar: it is a number, not an actor, and giving it
+   the brand tint would make it look like one more person. */
+.avatar-more {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 var(--space-4);
+    margin-inline-start: var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-3);
+}

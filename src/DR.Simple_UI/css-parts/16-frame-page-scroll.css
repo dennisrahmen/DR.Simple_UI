@@ -1,0 +1,57 @@
+/* ── Page surface + scrolling ───────────────────────────────────────────────
+   .page is the scroll container. Its width stays 100% and the horizontal
+   padding grows instead of capping the width, so the scrollbar stays pinned to
+   the far right of the screen while the content is held to --page-max and
+   centred. On narrow screens the padding floors at 24px. */
+.page {
+    padding: var(--space-9);
+    padding-inline: max(var(--space-9), calc((100% - var(--page-max)) / 2));
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.back-link {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    font-size: var(--text-3); color: var(--muted); text-decoration: none; margin-bottom: var(--space-6);
+}
+.back-link:hover { color: var(--fg); }
+
+/* Themed scrollbars — the OS-default chunky grey bar looks wrong on these
+   surfaces. Thin, track-less thumb with breathing room from a transparent,
+   clipped border. Apply .dr-scroll to any nested scroller. */
+.page, .dr-scroll { scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
+.page::-webkit-scrollbar,
+.dr-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.page::-webkit-scrollbar-track,
+.dr-scroll::-webkit-scrollbar-track { background: transparent; }
+.page::-webkit-scrollbar-thumb,
+.dr-scroll::-webkit-scrollbar-thumb {
+    background: var(--scrollbar); border-radius: var(--radius-pill);
+    border: 2px solid transparent; background-clip: padding-box;
+}
+.page::-webkit-scrollbar-thumb:hover,
+.dr-scroll::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+.page::-webkit-scrollbar-corner,
+.dr-scroll::-webkit-scrollbar-corner { background: transparent; }
+
+/* Soft top/bottom scroll shadows so the scroll edge fades instead of cutting
+   hard. The two solid cover gradients (background-attachment: local) ride the
+   content and hide the shadow at the very top/bottom; the two radial shadows
+   (attachment: scroll) are pinned to the box and only show when there IS more
+   content that way. --scroll-bg MUST match the surface the scroller sits on, or
+   the cover itself reads as a permanent dark band. */
+.page, .dr-scroll {
+    --scroll-bg: var(--bg);
+    background:
+        linear-gradient(var(--scroll-bg) 30%, transparent) center top,
+        linear-gradient(transparent, var(--scroll-bg) 70%) center bottom,
+        radial-gradient(farthest-side at 50% 0, var(--scroll-shade), transparent) center top,
+        radial-gradient(farthest-side at 50% 100%, var(--scroll-shade), transparent) center bottom;
+    background-repeat: no-repeat;
+    background-size: 100% 26px, 100% 26px, 100% 10px, 100% 10px;
+    background-attachment: local, local, scroll, scroll;
+}
+/* Scrollers hosted on an elevated surface (modal bodies) match that surface. */
+.modal .dr-scroll { --scroll-bg: var(--bg-elevated); }
+

@@ -1,0 +1,69 @@
+name: CodeQL
+
+# Static analysis of the C# and the JavaScript. Worth having on a package that four
+# apps take a dependency on, even though this library has a small attack surface:
+# the JS touches the DOM, localStorage and the clipboard, and the Markdown renderer
+# escapes untrusted input, which is exactly the kind of thing a taint analysis is
+# good at and a reviewer is not.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly, because a new query pack can find something in code that has not
+    # changed — which is the whole reason scheduled scanning exists.
+    - cron: '31 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: csharp
+            build-mode: manual
+          # The shipped script and the catalogue's own. Both are hand-written and
+          # loaded as classic scripts, so there is no bundle to see through.
+          - language: javascript-typescript
+            build-mode: none
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        if: matrix.language == 'csharp'
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Initialise CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          # security-and-quality over the default security-extended: this is a
+          # library, and an API-shape problem here is a problem in four apps.
+          queries: security-and-quality
+
+      # Manual rather than autobuild: the solution is a .slnx, and being explicit
+      # means a build change here fails visibly instead of silently analysing nothing.
+      - name: Build
+        if: matrix.language == 'csharp'
+        run: dotnet build DR.Simple_UI.slnx -c Release
+
+      - name: Analyse
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}

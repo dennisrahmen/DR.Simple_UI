@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File &amp; numeric inputs &mdash; DR.Simple_UI catalogue</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="../lib/remixicon/remixicon.css">
+<link rel="stylesheet" href="../css/DR.Simple_UI.css">
+<link rel="stylesheet" href="catalogue.css">
+</head>
+<body>
+<div class="layout">
+<div class="cat-drawer"><aside class="sidebar" id="cat-sidebar"></aside></div>
+<button class="cat-scrim" id="cat-scrim" type="button" aria-label="Close navigation" hidden></button>
+<div class="content">
+<header class="topbar" id="cat-topbar"></header>
+<div class="page">
+<main class="cat-main">
+
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
+    <div class="cat-head">
+        <h1>Files, ranges &amp; steppers</h1>
+        <span class="cat-tier">tier 2 &mdash; classes</span>
+    </div>
+    <p class="cat-lede">
+        The controls whose native internals have to be named per engine. Everything here restates one
+        design in several vendor pseudo-elements — the duplication is the platform's, not a choice.
+    </p>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>File input</h2>
+        <p>
+            <code>&lt;input type="file"&gt;</code> cannot be restyled: its button is a shadow-DOM part
+            with only <code>::file-selector-button</code> exposed, and its &ldquo;No file chosen&rdquo;
+            text is not addressable at all. So <code>.form-file</code> hides the input behind a label
+            styled as a button — which keeps the real control, because a <code>&lt;label&gt;</code> for
+            a file input opens the picker on click <em>and</em> on <kbd>Enter</kbd>, with no JavaScript
+            and no ARIA.
+        </p>
+        <p>
+            The input is clipped rather than <code>display:none</code>, so it stays focusable and in the
+            accessibility tree — otherwise the label is a button no keyboard can reach. The focus ring
+            has to be drawn on the label, because the focused element is the one the reader cannot see.
+        </p>
+        <template>
+            <div class="dr-col" style="max-width:460px">
+                <label class="form-file">
+                    <input type="file" />
+                    <span class="btn"><i class="ri-attachment-2"></i> Choose a file</span>
+                    <span class="form-file-name">No file chosen</span>
+                </label>
+                <div class="form-field">
+                    <label class="form-label" for="ff-bare">Or the input, bare</label>
+                    <input class="form-input" id="ff-bare" type="file" />
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Dropzone and file list</h2>
+        <p>
+            A drop target that is <em>also</em> a click target. Drag and drop alone is unusable by
+            keyboard and awkward on touch, so the zone wraps a real file input and the drag handling is
+            an enhancement on top of it.
+        </p>
+        <p>
+            <code>.dropzone--over</code> is added by the app on <code>dragenter</code> and removed on
+            <code>dragleave</code>/<code>drop</code> — there is no CSS pseudo-class for &ldquo;something
+            is being dragged over me&rdquo;. The file list is a real <code>&lt;ul&gt;</code>, so the
+            count is announced; sizes are monospace so a column of them lines up.
+        </p>
+        <template>
+            <div style="max-width:460px">
+                <label class="dropzone">
+                    <input type="file" multiple class="visually-hidden" />
+                    <i class="ri-upload-cloud-2-line"></i>
+                    <span>Drop files here, or click to choose</span>
+                    <span class="form-hint">PDF, PNG or EML — up to 10 MB each</span>
+                </label>
+                <ul class="file-list">
+                    <li class="file-item">
+                        <i class="ri-file-pdf-2-line"></i>
+                        <span class="file-item-name">incident-export-2026-07-31.pdf</span>
+                        <span class="file-item-size">1.2 MB</span>
+                        <button class="chip-dismiss" type="button" aria-label="Remove incident-export-2026-07-31.pdf">
+                            <i class="ri-close-line"></i>
+                        </button>
+                    </li>
+                    <li class="file-item file-item--error">
+                        <i class="ri-error-warning-line"></i>
+                        <span class="file-item-name">screen recording.mov — not an accepted type</span>
+                        <span class="file-item-size">48 MB</span>
+                        <button class="chip-dismiss" type="button" aria-label="Remove screen recording.mov">
+                            <i class="ri-close-line"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Range</h2>
+        <p>
+            <code>appearance:none</code> removes the whole native widget, track included, so both are
+            drawn here. The two engines expose different pseudo-elements and <strong>cannot be combined
+            into one selector list</strong>: an unknown pseudo-element invalidates the entire rule, so a
+            shared <code>::-webkit-…, ::-moz-…</code> list would apply in neither browser. That is why
+            the CSS looks copy-pasted.
+        </p>
+        <p>
+            A range gives no readout. Put the value in text beside it with
+            <code>.form-range-value</code> — the thumb position is not a number, and it is unreadable to
+            a screen reader on its own. The readout is fixed-width and tabular, so the track does not
+            shift while dragging.
+        </p>
+        <template>
+            <div class="form-field" style="max-width:420px">
+                <label class="form-label" for="r-conf">Confidence threshold</label>
+                <div class="dr-row">
+                    <input class="form-range" id="r-conf" type="range" min="0" max="100" value="85" />
+                    <span class="form-range-value">85%</span>
+                </div>
+                <p class="form-hint">Proposals below this are held for a human decision.</p>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Stepper</h2>
+        <p>
+            For a value adjusted one at a time. The native spinner is tiny, inconsistent between
+            engines, and invisible until hover in some — so it is removed and replaced with two real
+            buttons, which are also a usable size on touch.
+        </p>
+        <p>
+            Give each button an <code>aria-label</code>: <code>+</code> and <code>&minus;</code> are
+            announced as &ldquo;plus&rdquo; and &ldquo;minus&rdquo; without saying what of. Hiding the
+            native spinner needs both the Firefox property and the WebKit pseudo-element; neither
+            implies the other.
+        </p>
+        <template>
+            <div class="form-field" style="max-width:220px">
+                <label class="form-label" for="s-retry">Retry attempts</label>
+                <div class="stepper">
+                    <button class="btn" type="button" aria-label="One fewer retry">&minus;</button>
+                    <input class="form-input" id="s-retry" type="number" value="3" min="0" max="9" />
+                    <button class="btn" type="button" aria-label="One more retry">+</button>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Date and time</h2>
+        <p>
+            <code>.form-input</code> already covers the box. What needs naming is the calendar picker
+            glyph, which the browser draws in a fixed colour we cannot reach — so it is inverted, by an
+            amount that moves with the theme (<code>--picker-invert</code>).
+        </p>
+        <p>
+            The picker <em>panel</em> itself is dark because <code>color-scheme</code> is set on
+            <code>&lt;html&gt;</code> from <code>--color-scheme</code>. That is also what makes a
+            <code>&lt;select&gt;</code>'s option list and the native scrollbars match the theme.
+        </p>
+        <template>
+            <div class="field-grid" style="max-width:520px">
+                <div class="form-field">
+                    <label class="form-label" for="d-from">Active from</label>
+                    <input class="form-input" id="d-from" type="date" value="2026-07-31" />
+                </div>
+                <div class="form-field">
+                    <label class="form-label" for="d-at">At</label>
+                    <input class="form-input" id="d-at" type="time" value="18:00" />
+                </div>
+            </div>
+        </template>
+    </section>
+</main>
+</div>
+</div>
+</div>
+<script src="../js/DR.Simple_UI.js"></script>
+<script src="catalogue.js"></script>
+</body>
+</html>

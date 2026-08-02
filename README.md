@@ -21,7 +21,8 @@ dotnet add package DR.Simple_UI
 ## Two tiers
 
 **The frame** — shell, sidebar, header, user widget — is chrome that must be pixel-identical in every app
-and that nobody should restyle per project.
+and that nobody should restyle per project. It ships as `AppShell`, `Sidebar`, `NavItem`, `AppHeader` and
+`UserWidget`, plus the CSS classes they emit, so the markup can also be written by hand.
 
 **The paint** — tables, forms, cards, badges, buttons, alerts — is shipped as **semantic CSS classes
 only**. Pages write plain, open HTML and apply them.
@@ -52,9 +53,13 @@ only**. Pages write plain, open HTML and apply them.
 
 SemVer, driven by the git tag.
 
-- **Major** — renaming or removing a token or class, or breaking a frame component's markup.
+- **Major** — renaming or removing a token or class, breaking a frame component's markup, changing an
+  existing rule enough to move layout or colour, or making an existing app override stop working.
 - **Minor** — adding a token, class, variant or component.
 - **Patch** — a fix that changes no contract.
+
+Judged by what a consuming app sees, not by the size of the diff. When it is arguable, the higher level
+wins.
 
 → [Full release process and SemVer rules](https://github.com/dennisrahmen/DR.Simple_UI/blob/main/docs/releasing.md)
 

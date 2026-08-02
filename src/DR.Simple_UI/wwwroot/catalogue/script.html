@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Script &mdash; DR.Simple_UI catalogue</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="../lib/remixicon/remixicon.css">
+<link rel="stylesheet" href="../css/DR.Simple_UI.css">
+<link rel="stylesheet" href="catalogue.css">
+</head>
+<body>
+<div class="layout">
+<div class="cat-drawer"><aside class="sidebar" id="cat-sidebar"></aside></div>
+<button class="cat-scrim" id="cat-scrim" type="button" aria-label="Close navigation" hidden></button>
+<div class="content">
+<header class="topbar" id="cat-topbar"></header>
+<div class="page">
+<main class="cat-main">
+
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
+    <div class="cat-head">
+        <h1>The script</h1>
+        <span class="cat-tier">tier 2 &mdash; classes</span>
+    </div>
+    <p class="cat-lede">
+        <code>drSimpleUi</code> holds generic UI behaviour only: hover hints, theme settings,
+        clipboard, toasts, confirmations, and delegated wiring for menus and tabs. App-specific
+        interop stays in the app's own script.
+    </p>
+
+    <div class="cat-note">
+        <strong>The CSS never depends on the script.</strong> Every class on these pages applies with
+        scripting blocked. What the script adds is behaviour — and the two frame pieces that need
+        state, the collapsed rail's flyout and the user menu, are CSS and C# respectively for exactly
+        that reason.
+    </div>
+
+    <section class="cat-ex" data-example data-code-only>
+        <h2>Loading it</h2>
+        <p>
+            Three files, and the order matters. <code>boot.js</code> goes in
+            <code>&lt;head&gt;</code> so the stored theme is applied before first paint — loaded at the
+            end of the body it would produce a dark flash on a light-theme app.
+        </p>
+        <template>
+            <head>
+                <link rel="stylesheet" href="_content/DR.Simple_UI/lib/remixicon/remixicon.css" />
+                <link rel="stylesheet" href="_content/DR.Simple_UI/css/DR.Simple_UI.css" />
+                <script src="_content/DR.Simple_UI/js/DR.Simple_UI.boot.js"></script>
+            </head>
+            <body>
+                <!-- … -->
+                <script src="_content/DR.Simple_UI/js/DR.Simple_UI.js"></script>
+            </body>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Toasts</h2>
+        <p>
+            <code>drSimpleUi.toast(message, opts)</code> creates the stack on first use, so the app
+            renders nothing and positions nothing. It returns a function that removes that toast early.
+        </p>
+        <p>
+            <code>timeout: 0</code> means it stays until dismissed — right for a failure the reader has
+            to act on. The message is inserted as <em>text</em>, never as markup: it usually carries a
+            value from the server, and this is the one place an app hands the library one.
+        </p>
+        <template>
+            <div style="display:flex; flex-wrap:wrap; gap:8px">
+                <button class="btn btn-go" type="button"
+                        onclick="drSimpleUi.toast('Approved INC0031209', { kind: 'go', title: 'Sent to ServiceNow' })">
+                    Success toast
+                </button>
+                <button class="btn btn-warn" type="button"
+                        onclick="drSimpleUi.toast('Autonomy lowered to level 1', { kind: 'warn' })">
+                    Warning toast
+                </button>
+                <button class="btn btn-danger" type="button"
+                        onclick="drSimpleUi.toast('Could not reach ServiceNow. Nothing was written.', { kind: 'danger', timeout: 0 })">
+                    Failure, stays until dismissed
+                </button>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Confirmation</h2>
+        <p>
+            <code>await drSimpleUi.confirm({ … })</code> resolves <code>true</code> or
+            <code>false</code>. It is built on <code>&lt;dialog&gt;.showModal()</code>, which is the
+            point: the platform supplies the top layer, a focus trap, Escape-to-close and inert content
+            behind, none of which a div-based overlay gets without a lot of code that is usually
+            subtly wrong.
+        </p>
+        <p>
+            Use it instead of <code>window.confirm()</code>, which cannot be styled, blocks the thread,
+            and in Blazor Server blocks the circuit for as long as it is open. With
+            <code>danger: true</code> the confirm button turns red <em>and</em> focus starts on
+            <strong>Cancel</strong>, so a stray <kbd>Enter</kbd> does not delete anything.
+        </p>
+        <template>
+            <div style="display:flex; flex-wrap:wrap; gap:8px">
+                <button class="btn" type="button"
+                        onclick="drSimpleUi.confirm({ title: 'Apply the proposal?', message: 'The incident will be rerouted to SD-Network.', confirm: 'Apply' }).then(ok => drSimpleUi.toast(ok ? 'Applied' : 'Cancelled', { kind: ok ? 'go' : 'info' }))">
+                    Confirm an action
+                </button>
+                <button class="btn btn-danger" type="button"
+                        onclick="drSimpleUi.confirm({ title: 'Discard the proposal?', message: 'This cannot be undone.', confirm: 'Discard', danger: true }).then(ok => drSimpleUi.toast(ok ? 'Discarded' : 'Kept', { kind: ok ? 'danger' : 'info' }))">
+                    Confirm something destructive
+                </button>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Copy without a handler</h2>
+        <p>
+            <code>data-copy="…"</code> copies a literal; <code>data-copy-target="#sel"</code> copies
+            that element's text; an empty <code>data-copy-target</code> inside a
+            <a href="structure.html"><code>.code-block</code></a> copies its
+            <code>&lt;pre&gt;</code>. The click is delegated from <code>document</code>, so a button
+            rendered by a later Blazor render works with nothing wired — and nothing is re-bound on
+            every render, which is how per-element handlers leak.
+        </p>
+        <template>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center">
+                <button class="btn" type="button" data-copy="dotnet add package DR.Simple_UI">
+                    <i class="ri-file-copy-line"></i><span>Copy the install command</span>
+                </button>
+                <code id="the-token">np_live_8f2c1d</code>
+                <button class="btn btn-sm" type="button" data-copy-target="#the-token">
+                    <i class="ri-file-copy-line"></i><span>Copy</span>
+                </button>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Menus and tabs, wired for you</h2>
+        <p>
+            <code>data-menu-toggle</code> on the trigger inside a <code>.menu-anchor</code> handles
+            opening, the outside click, <kbd>Escape</kbd>, and returning focus to the trigger. The
+            closed state is the <code>hidden</code> attribute, not a class: a hidden panel is out of
+            the tab order and out of the accessibility tree, which an <code>opacity:0</code> one is
+            not.
+        </p>
+        <p>
+            <code>data-tabs</code> on a <code>.tabs</code> container is mostly there for the keyboard:
+            arrow keys, <kbd>Home</kbd> and <kbd>End</kbd> move between tabs, and only the selected tab
+            is a tab stop, so <kbd>Tab</kbd> steps past the tablist instead of through every tab in it.
+            A tablist without that is a tablist in name only. Do <em>not</em> add
+            <code>data-tabs</code> if your component already drives <code>aria-selected</code> from
+            C#, or two things will be setting it.
+        </p>
+        <template>
+            <div style="display:flex; flex-direction:column; gap:20px">
+                <div class="menu-anchor">
+                    <button class="btn" type="button" data-menu-toggle aria-expanded="false">
+                        <i class="ri-more-2-fill"></i> Actions
+                    </button>
+                    <div class="menu" hidden>
+                        <button class="menu-item" type="button"><i class="ri-user-shared-line"></i> Reassign</button>
+                        <button class="menu-item" type="button"><i class="ri-time-line"></i> Snooze</button>
+                        <hr class="menu-sep" />
+                        <button class="menu-item menu-item--danger" type="button"><i class="ri-delete-bin-line"></i> Discard</button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="tabs" role="tablist" data-tabs aria-label="Views">
+                        <button class="tab" role="tab" aria-selected="true" aria-controls="js-p1" type="button">Open</button>
+                        <button class="tab" role="tab" aria-selected="false" aria-controls="js-p2" type="button">Decided</button>
+                        <button class="tab" role="tab" aria-selected="false" aria-controls="js-p3" type="button">Everything</button>
+                    </div>
+                    <div class="tab-panel" role="tabpanel" id="js-p1">Twelve waiting on a first response.</div>
+                    <div class="tab-panel" role="tabpanel" id="js-p2" hidden>Decided in the last 24 hours.</div>
+                    <div class="tab-panel" role="tabpanel" id="js-p3" hidden>Everything, including archived.</div>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-code-only>
+        <h2>Hover hints</h2>
+        <p>
+            <code>data-tip</code> on any control renders one bubble for the whole page through event
+            delegation, so content rendered later needs no wiring.
+            <code>data-tip-pos="left|right|top|bottom"</code> pins a side. Write what the control does
+            <em>and its consequence</em> — a tip that repeats the label earns nothing.
+        </p>
+        <p>
+            The bubble itself is a single <code>.dr-tip</code> appended to
+            <code>&lt;body&gt;</code> — fixed, so a card's or a table's <code>overflow</code> never
+            clips it — and <code>.dr-tip--visible</code> is what fades it in. You never write either
+            class; they are listed here because they are in the stylesheet and an app may need to see
+            them in DevTools.
+        </p>
+        <p>
+            Elements inside <code>.sidebar</code> are skipped on purpose: the collapsed rail has a CSS
+            flyout, and both firing draws two tooltips. An app suppresses hints of its own with
+            <code>drSimpleUi.tips.gate</code>; the library has no knowledge of what is suppressing
+            them.
+        </p>
+        <template>
+            <button class="btn" data-tip="Reload the queue from ServiceNow. Unsaved notes are kept.">
+                Refresh
+            </button>
+
+            <script>
+                // Suppress hints while a guided tour is running.
+                drSimpleUi.tips.gate = el => !document.body.classList.contains('tour-active');
+            </script>
+        </template>
+    </section>
+</main>
+</div>
+</div>
+</div>
+<script src="../js/DR.Simple_UI.js"></script>
+<script src="catalogue.js"></script>
+</body>
+</html>

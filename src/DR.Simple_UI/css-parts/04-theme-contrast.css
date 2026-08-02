@@ -1,0 +1,173 @@
+/* ═══ High contrast ═════════════════════════════════════════════════════════
+   A pure token remap, like every other theme block, so CSS load order stays
+   irrelevant and an app's own light/dark blocks keep working underneath.
+
+   Two triggers, and both are needed:
+     · `prefers-contrast: more`         — the OS setting, honoured automatically
+     · `[data-contrast="more"]` on <html> — a setting inside the app, for the many
+       people whose OS is not set but who want it here
+
+   The attribute is deliberately NOT written by boot.js from the media query. A media
+   query and an attribute would then both be live, and an app that wanted to offer
+   "follow the system / always on / always off" could not express the third state.
+   The app sets the attribute; the media query covers everybody who never opens
+   settings.
+
+   What changes, and what does not:
+     · Borders go to full strength and dividers become real lines. Most of what makes
+       this library low-contrast is not the text — it is the 3%-alpha surfaces and the
+       6%-alpha dividers, which disappear entirely for anybody who needs this mode.
+     · Muted text stops being muted. --muted at 4.39:1 was the worst measured pair in
+       the light theme even after the audit; here it goes to the body colour.
+     · Translucent tints become opaque. A 12% tint over an unknown surface has an
+       unknown contrast, which is the one thing this mode cannot have.
+     · Shadows are NOT removed. They are the only depth cue left once every surface
+       is the same lightness, so they matter more here, not less.
+     · Semantic HUES are kept. Turning everything monochrome would destroy the
+       go/warn/danger distinction, which is information. Forced colours does that,
+       and it has to; this mode does not.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Dark, high contrast. */
+:root[data-contrast="more"] {
+    --bg:              #000000;
+    --bg-elevated:     #0b0f18;
+    --bg-hover:        #1f2937;
+    --fg:              #ffffff;
+    --fg-soft:         #ffffff;
+    --muted:           #d1d5db;
+    --border:          #9ca3af;
+    --border-strong:   #d1d5db;
+    --border-hover:    #ffffff;
+    --divider:         #6b7280;
+    --card-bg:         #0b0f18;
+    --surface-soft:    #111827;
+    --surface-strong:  #1f2937;
+
+    --brand-soft:      #93c5fd;
+    --brand-text:      #bfdbfe;
+    --brand-tint:      #1e3a8a;
+    --accent:          #93c5fd;
+
+    --sidebar-bg:      #000000;
+    --sidebar-border:  #9ca3af;
+    --sidebar-fg:      #ffffff;
+
+    --go-bg:      #052e16;
+    --go-border:  #4ade80;
+    --go-fg:      #86efac;
+    --warn-bg:     #451a03;
+    --warn-border: #fbbf24;
+    --warn-fg:     #fcd34d;
+    --danger-bg:            #450a0a;
+    --danger-border:        #f87171;
+    --danger-border-strong: #fca5a5;
+    --danger-fg:            #fca5a5;
+    --info-bg:     #172554;
+    --info-border: #93c5fd;
+    --info-fg:     #bfdbfe;
+    --secret-bg:     #2e1065;
+    --secret-border: #c4b5fd;
+    --secret-fg:     #ddd6fe;
+
+    --badge-bg:      #1f2937;
+    --table-head-bg: #1f2937;
+    --badge-cyan-bg: #083344;   --badge-cyan-border: #67e8f9;   --badge-cyan-fg: #a5f3fc;
+    --badge-orange-bg: #431407; --badge-orange-border: #fdba74; --badge-orange-fg: #fed7aa;
+    --badge-teal-bg: #042f2e;   --badge-teal-border: #5eead4;   --badge-teal-fg: #99f6e4;
+
+    --skeleton-bg:    #1f2937;
+    --skeleton-sheen: #374151;
+    --progress-track: #374151;
+    --btn-active-bg:  #374151;
+    --code-fg:        #c7d2fe;
+    --code-bg:        #1e1b4b;
+    --backdrop:       rgba(0, 0, 0, 0.85);
+    --overlay:        rgba(0, 0, 0, 0.85);
+    --scrollbar:       #9ca3af;
+    --scrollbar-hover: #d1d5db;
+}
+
+/* Light, high contrast. Composes with the light theme by being more specific. */
+:root[data-theme="light"][data-contrast="more"] {
+    --bg:              #ffffff;
+    --bg-elevated:     #ffffff;
+    --bg-hover:        #e5e7eb;
+    --fg:              #000000;
+    --fg-soft:         #000000;
+    --muted:           #1f2937;
+    --border:          #4b5563;
+    --border-strong:   #1f2937;
+    --border-hover:    #000000;
+    --divider:         #9ca3af;
+    --card-bg:         #ffffff;
+    --surface-soft:    #f3f4f6;
+    --surface-strong:  #e5e7eb;
+
+    --brand-soft:      #1e40af;
+    --brand-text:      #1e3a8a;
+    --brand-tint:      #dbeafe;
+    --accent:          #1e3a8a;
+
+    --sidebar-bg:      #ffffff;
+    --sidebar-border:  #4b5563;
+    --sidebar-fg:      #000000;
+
+    --go-bg:      #dcfce7;
+    --go-border:  #166534;
+    --go-fg:      #14532d;
+    --warn-bg:     #fef3c7;
+    --warn-border: #92400e;
+    --warn-fg:     #78350f;
+    --danger-bg:            #fee2e2;
+    --danger-border:        #991b1b;
+    --danger-border-strong: #7f1d1d;
+    --danger-fg:            #7f1d1d;
+    --info-bg:     #dbeafe;
+    --info-border: #1e40af;
+    --info-fg:     #1e3a8a;
+    --secret-bg:     #ede9fe;
+    --secret-border: #5b21b6;
+    --secret-fg:     #4c1d95;
+
+    --badge-bg:      #e5e7eb;
+    --table-head-bg: #e5e7eb;
+    --badge-cyan-bg: #cffafe;   --badge-cyan-border: #155e75;   --badge-cyan-fg: #164e63;
+    --badge-orange-bg: #ffedd5; --badge-orange-border: #9a3412; --badge-orange-fg: #7c2d12;
+    --badge-teal-bg: #ccfbf1;   --badge-teal-border: #115e59;   --badge-teal-fg: #134e4a;
+
+    --skeleton-bg:    #e5e7eb;
+    --skeleton-sheen: #d1d5db;
+    --progress-track: #d1d5db;
+    --btn-active-bg:  #9ca3af;
+    --code-fg:        #312e81;
+    --code-bg:        #e0e7ff;
+    --backdrop:       rgba(0, 0, 0, 0.6);
+    --overlay:        rgba(255, 255, 255, 0.9);
+    --scrollbar:       #6b7280;
+    --scrollbar-hover: #374151;
+    --redacted:        #7f1d1d;
+}
+
+/* The OS setting, for anybody who never opens the app's own settings. Only :root
+   remaps, so `Appearance_media_queries_only_remap_tokens` holds. */
+@media (prefers-contrast: more) {
+    :root {
+        --border:         #9ca3af;
+        --border-strong:  #d1d5db;
+        --divider:        #6b7280;
+        --fg-soft:        #ffffff;
+        --muted:          #d1d5db;
+        --surface-soft:   #111827;
+        --surface-strong: #1f2937;
+    }
+    :root[data-theme="light"] {
+        --border:         #4b5563;
+        --border-strong:  #1f2937;
+        --divider:        #9ca3af;
+        --fg-soft:        #000000;
+        --muted:          #1f2937;
+        --surface-soft:   #f3f4f6;
+        --surface-strong: #e5e7eb;
+    }
+}

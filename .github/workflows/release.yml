@@ -58,8 +58,16 @@ jobs:
       - name: Build
         run: dotnet build DR.Simple_UI.slnx -c Release --no-restore -p:Version=${{ steps.version.outputs.version }}
 
+      # The browser binaries are not restored with the package, and a missing browser
+      # is a test FAILURE rather than a skip — so this step is not optional. Without
+      # it the Test step below fails and no release can ever publish.
+      - name: Install Chromium for the browser tests
+        run: pwsh src/DR.Simple_UI.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+
       # The same gates as CI. A tag does not get to skip them.
       - name: Test
+        env:
+          DR_UI_BROWSER_TESTS: '1'
         run: dotnet test DR.Simple_UI.slnx -c Release --no-build --verbosity normal
 
       - name: Pack

@@ -1,0 +1,98 @@
+/* ═══ Light theme ═══════════════════════════════════════════════════════════
+   Pure token remapping — no selector overrides. `data-theme` rides on <html>;
+   apply it before first paint (see README) so no dark flash occurs. */
+:root[data-theme="light"] {
+    --color-scheme:   light;
+    --picker-invert:  0;
+
+    --bg:             #f3f4f6;
+    --bg-elevated:    #ffffff;
+    --bg-hover:       #e5e7eb;
+    --fg:             #111827;
+    --fg-soft:        #374151;
+    /* #4b5563, not #6b7280: on the light --bg the lighter grey measures 4.39:1,
+       which is just under AA and is the single most-used text colour after --fg. */
+    --muted:          #4b5563;
+    --border:         #d1d5db;
+    --border-strong:  #9ca3af;
+    --divider:        rgba(0, 0, 0, 0.07);
+    --card-bg:        #ffffff;
+    --surface-soft:   rgba(0, 0, 0, 0.03);
+    --surface-strong: rgba(0, 0, 0, 0.055);
+    --redacted:       #b91c1c;
+
+    --brand-soft: #2563eb;
+    --brand-text: #1d4ed8;
+    --brand-tint: color-mix(in srgb, var(--brand) 10%, transparent);
+    --accent:     #1d4ed8;
+
+    --sidebar-bg:     #ffffff;
+    --sidebar-border: #e5e7eb;
+    --sidebar-fg:     #374151;
+
+    --go-bg:     rgba(22, 163, 74, 0.1);
+    --go-border: #86efac;
+    --go-fg:     #15803d;
+
+    --warn-bg:     rgba(217, 119, 6, 0.1);
+    --warn-border: #fcd34d;
+    --warn-fg:     #b45309;
+
+    /* The hover and active tints and the strong border were left on their dark
+       values, so .btn-danger jumped from a 8%-tinted pink to a 25% wash of a
+       much darker red on hover, and its border went from #fca5a5 to near-black.
+       Remapped to the same steps the dark theme takes, scaled for a light
+       surface. */
+    --danger-solid: #dc2626;
+    --danger-bg:            rgba(220, 38, 38, 0.08);
+    --danger-bg-hover:      rgba(220, 38, 38, 0.14);
+    --danger-bg-active:     rgba(220, 38, 38, 0.2);
+    --danger-border:        #fca5a5;
+    --danger-border-strong: #dc2626;
+    --danger-fg:            #b91c1c;
+    --danger-ring:          rgba(220, 38, 38, 0.35);
+
+    --info-bg:     rgba(37, 99, 235, 0.08);
+    --info-border: #93c5fd;
+    --info-fg:     #1d4ed8;
+
+    --secret-bg:     rgba(124, 58, 237, 0.08);
+    --secret-border: #c4b5fd;
+    --secret-fg:     #6d28d9;
+
+    --badge-cyan-bg:     rgba(6, 182, 212, 0.08);
+    --badge-cyan-border: #67e8f9;
+    --badge-cyan-fg:     #0e7490;
+    --badge-orange-bg:     rgba(234, 88, 12, 0.08);
+    --badge-orange-border: #fdba74;
+    --badge-orange-fg:     #c2410c;
+    --badge-teal-bg:     rgba(15, 118, 110, 0.08);
+    --badge-teal-border: #5eead4;
+    --badge-teal-fg:     #0f766e;
+
+    --badge-bg:      rgba(0, 0, 0, 0.04);
+    --table-head-bg: rgba(0, 0, 0, 0.03);
+
+    --skeleton-bg:    rgba(0, 0, 0, 0.06);
+    --skeleton-sheen: rgba(0, 0, 0, 0.11);
+    --progress-track: rgba(0, 0, 0, 0.08);
+    --btn-active-bg: #d1d5db;
+    --code-fg:       #4338ca;
+    --code-bg:       rgba(99, 102, 241, 0.08);
+    --backdrop:      rgba(17, 24, 39, 0.35);
+    --overlay:       rgba(243, 244, 246, 0.66);
+    --spotlight-dim: rgba(17, 24, 39, 0.42);
+    --tip-bg:        #111827;
+    --tip-border:    #374151;
+    --scrollbar:       #d1d5db;
+    --scrollbar-hover: #9ca3af;
+    --scroll-shade:    rgba(17, 24, 39, 0.16);
+
+    --shadow-topbar:    0 3px 8px rgba(17, 24, 39, 0.1);
+    --shadow-nav-tools: 0 -6px 12px 0 rgba(0, 0, 0, 0.06);
+    --shadow-modal:     0 24px 64px rgba(17, 24, 39, 0.25);
+    --shadow-tip:       0 8px 22px rgba(0, 0, 0, 0.25);
+    --shadow-pop:       0 14px 40px rgba(17, 24, 39, 0.22);
+    --shadow-float:     0 10px 30px rgba(17, 24, 39, 0.18);
+}
+

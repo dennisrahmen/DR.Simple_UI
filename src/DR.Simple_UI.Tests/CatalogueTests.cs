@@ -92,7 +92,10 @@ public class CatalogueTests
 
         foreach (var page in Assets.CataloguePages)
         {
-            var html = TemplateBlock.Replace(File.ReadAllText(page), string.Empty);
+            // Templates are NOT stripped here, unlike in StylesheetHrefs. catalogue.js
+            // clones each template into the live demo, so a remote URL inside one is
+            // fetched for real — it is a dependency, not inert example markup.
+            var html = File.ReadAllText(page);
 
             offenders.AddRange(
                 subresource.Matches(html)
@@ -178,6 +181,46 @@ public class CatalogueTests
         Assert.True(offenders.Count == 0,
             "catalogue.css may only style its own .cat-* / .ex-* chrome. These are someone else's " +
             $"classes: {string.Join(", ", offenders)}");
+    }
+
+    [Fact]
+    public void The_landing_page_figures_match_the_stylesheet()
+    {
+        // index.html advertises counts in .cat-fact tiles. Hand-maintained numbers on
+        // a page nobody re-reads go stale silently — the token count was still 176
+        // (which counted theme remaps, not distinct tokens) long after it stopped
+        // being right. The definitions are fixed here so the number has a meaning:
+        //   design tokens = distinct --names declared anywhere in the sheet
+        //   CSS classes   = distinct .names appearing in a selector
+        var css = Assets.StripComments(Assets.Css);
+        var tokens = Assets.DeclaredCustomProperties(css).Count;
+        var classes = Regex.Matches(css, @"\.(-?[A-Za-z_][\w-]*)", RegexOptions.Compiled)
+            .Select(m => m.Groups[1].Value)
+            .Distinct(StringComparer.Ordinal)
+            .Count();
+
+        var html = File.ReadAllText(Path.Combine(Assets.CatalogueDir, "index.html"));
+        var stated = Regex.Matches(html, @"<strong>([\d,]+)</strong><span>([^<]+)</span>", RegexOptions.Compiled)
+            .ToDictionary(
+                m => m.Groups[2].Value.Trim(),
+                m => m.Groups[1].Value.Replace(",", "", StringComparison.Ordinal),
+                StringComparer.Ordinal);
+
+        var problems = new List<string>();
+
+        void Check(string label, int actual)
+        {
+            if (!stated.TryGetValue(label, out var claim))
+                problems.Add($"index.html no longer states a figure for \"{label}\"");
+            else if (claim != actual.ToString())
+                problems.Add($"\"{label}\": index.html says {claim}, the stylesheet has {actual}");
+        }
+
+        Check("design tokens", tokens);
+        Check("CSS classes", classes);
+
+        Assert.True(problems.Count == 0,
+            "Update the .cat-fact figures on the catalogue landing page: " + string.Join("; ", problems));
     }
 
     private static readonly Regex TemplateBlock = new(

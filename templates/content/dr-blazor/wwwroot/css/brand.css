@@ -1,0 +1,48 @@
+/* The whole rebrand. Loaded AFTER DR.Simple_UI.css.
+   ───────────────────────────────────────────────────────────────────────────
+   Seven tokens in the dark theme and three in light. That is the entire surface —
+   --brand-tint and the four focus-ring tokens are mixed from --brand with
+   color-mix(), so they follow it on their own.
+
+   TWO RULES, and both are load-bearing:
+
+   1. Only redeclare tokens the library already defines. Never invent a `--` name it
+      does not — a later version may claim that name with a different meaning, and
+      your value would silently start doing something else. If a value is missing,
+      ask for it in the library rather than adding it here.
+
+   2. Set the LIGHT block too. The library's own light theme supplies
+      readable-on-white variants of --brand-soft, --brand-text and --accent; if you
+      override them only at :root, your dark values leak into the light theme. That
+      is not a quirk of the cascade — your stylesheet is unlayered and the library's
+      is inside @layer, so an unlayered :root beats the library's
+      [data-theme="light"] whatever the specificity.
+
+   Redefining a rule instead of a token is the one thing to avoid. A token override
+   travels with the theme, the colour-blind palette, high contrast and every future
+   version; a rule override is a private fork of the design that nothing will tell you
+   has gone stale. */
+:root {
+    --brand:          BRAND_HEX;
+    --brand-hover:    BRAND_HEX;
+    --brand-active:   BRAND_HEX;
+    /* Icons and spinners on tinted surfaces. Lighter than --brand, so it reads on
+       the dark background. */
+    --brand-soft:     BRAND_HEX;
+    /* Brand-coloured TEXT on the theme background — the active nav item, a link.
+       It has to clear 4.5:1 against --bg, which the solid brand usually does not. */
+    --brand-text:     BRAND_HEX;
+    --accent:         BRAND_HEX;
+    --sidebar-active: BRAND_HEX;
+}
+
+/* The readable-on-white variants. Replace these with darker shades of your brand —
+   the same hue, two or three steps down. */
+:root[data-theme="light"] {
+    --brand-soft: BRAND_HEX;
+    --brand-text: BRAND_HEX;
+    --accent:     BRAND_HEX;
+}
+
+/* Put your own page-specific CSS in a separate file, not here. This one is the
+   rebrand and stays short enough to read at a glance. */

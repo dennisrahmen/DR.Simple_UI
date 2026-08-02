@@ -34,8 +34,20 @@ Tables, forms, cards, badges, buttons and panels are CSS classes. Write plain HT
 and apply them. Do not wrap page content in a component, and do not add MudBlazor, Syncfusion, Radzen or
 Tailwind.
 
-The layout frame — shell, sidebar, header, user widget — is used as the catalogue shows it. Do not
-restyle it in this app.
+The layout frame — shell, sidebar, header, user widget — comes from the library, never from a copy kept
+in this app. From the version that ships them, use the frame components; before that, the markup on the
+catalogue's Frame page. Do not restyle it here and do not fork it: a copied frame stops receiving library
+fixes, and it will silently miss later additions such as the responsive drawer and the skip link.
+
+### Do not style a class name the library owns
+
+Every class in the catalogue belongs to the library. If this app defines a rule for one of those names,
+the two sets of declarations merge on upgrade and the appearance changes with no error and no diff in
+this repo.
+
+Before bumping the pinned version, read the class names the release adds and grep this app's stylesheets
+for each one. Where a name collides, delete the local rule and use the library's, or rename the local one
+into this app's own prefix.
 
 ### Icons
 
@@ -62,13 +74,34 @@ If a value you need is genuinely missing from the library:
 Do not restyle a library class to work around a missing value. Overriding `.btn` or `.card` in this app
 means the next library upgrade fights you, which is the drift the shared library exists to prevent.
 
+### Overriding is now trivially easy, which is the reason not to
+
+The library's stylesheet is entirely inside cascade layers. **This app's CSS is unlayered, so any rule
+here beats any library rule, whatever the specificity.** You will never again need a longer selector to
+win.
+
+That makes discipline the only thing left protecting the shared design:
+
+- **Redefine tokens, not rules.** A token override travels with the theme, the colour-blind palette and
+  every future version. A rule override is a private fork of the design that nothing will tell you has
+  gone stale.
+- **Two consequences of the layering, if this app has old copied CSS:** a token set at bare `:root` here
+  now also beats the library's `[data-theme="light"]` value for it, so set both blocks; and any
+  unconditional rule here now beats a library rule that used to outrank it. The known case is a copied
+  `.table th, .table td { padding: … }`, which now stops compact density from tightening this app's
+  tables. **Delete copied library rules** — that was always the intention.
+- **Never use `!important` against the library.** Layer order inverts for important declarations, so it
+  is not needed and makes the result harder to reason about, not easier.
+
 ### Requesting a library change
 
 `DR.Simple_UI` is a separate, versioned package. This app cannot release it.
 
 - Open an issue or pull request at <https://github.com/dennisrahmen/DR.Simple_UI>.
 - Describe the value or variant needed and where it is used, not just the CSS you would have written.
-- Adding a token or variant is a minor release; renaming or removing one is major.
+- Adding a token or variant is a minor release; renaming or removing one is major. A release can be
+  major with nothing renamed or removed — changing an existing rule enough to move layout or colour, or
+  making an override in this app stop working, both count. Read the notes, do not assume minor is safe.
 
 Once a version containing the change is published, bump the reference here.
 
@@ -94,5 +127,8 @@ this app shares an origin with another app; if you do set one, both values must 
 
 ### Upgrading
 
-The version is pinned and does not float. Before bumping it, read the release notes at
-<https://github.com/dennisrahmen/DR.Simple_UI/releases>, then check the pages this app renders.
+The version is pinned and does not float. Before bumping it:
+
+1. Read the release notes at <https://github.com/dennisrahmen/DR.Simple_UI/releases>.
+2. Grep this app's stylesheets for every class name the release adds — see above.
+3. Check the pages this app renders, in each theme (`data-theme`, `data-cvd`, `data-density`).

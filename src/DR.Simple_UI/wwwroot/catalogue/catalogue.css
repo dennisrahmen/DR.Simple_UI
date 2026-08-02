@@ -344,13 +344,16 @@
     .cat-collapse { display: none; }
     .cat-topbrand { display: flex; }
 
-    /* The sidebar becomes an off-canvas drawer. z-index follows the shared
-       chain: backdrop 500, drawer just above it. */
+    /* The sidebar becomes an off-canvas drawer, on the drawer band of the shared
+       scale: scrim 480, panel 490 — both BELOW the modal backdrop at 500, so a
+       modal opened from inside the drawer still covers it. The earlier values (510
+       and 500) borrowed the spotlight and modal-backdrop rungs, which would have
+       interleaved a drawer with a real modal. */
     .cat-drawer {
         display: block;
         position: fixed;
         top: 0; bottom: 0; left: 0;
-        z-index: 510;
+        z-index: 490;
         transform: translateX(-100%);
         transition: transform 0.18s ease;
     }
@@ -365,7 +368,7 @@
         display: block;
         position: fixed;
         inset: 0;
-        z-index: 500;
+        z-index: 480;
         border: none;
         padding: 0;
         background: var(--backdrop);
@@ -394,4 +397,16 @@
 @media (prefers-reduced-motion: reduce) {
     .cat-drawer, .cat-tile, .cat-tile-go, .ex-copy, .cat-anchor { transition: none; }
     .cat-tile:hover { transform: none; }
+}
+
+/* ── Sidebar filter ─────────────────────────────────────────────────────────
+   Docs chrome. `.cat-search-input` reuses .form-input for the box itself and only
+   adjusts what the sidebar needs. */
+.cat-search { padding: 0 12px 8px; }
+.cat-search-input { font-size: 12px; }
+.cat-search-status {
+    padding: 4px 2px 0;
+    color: var(--muted);
+    font-size: 11px;
+    min-height: 15px;
 }

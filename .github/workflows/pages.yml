@@ -90,6 +90,10 @@ jobs:
           test -f _site/lib/remixicon/remixicon.css   || { echo "::error::Icon stylesheet missing; every icon would render blank."; exit 1; }
           test -f _site/lib/remixicon/remixicon.woff2 || { echo "::error::Icon font missing; every icon would render blank."; exit 1; }
 
+          # The token export is linked from the catalogue's Tokens page. It is staged
+          # by the wholesale copy above, so this only guards against that changing.
+          test -f _site/tokens/DR.Simple_UI.tokens.json || { echo "::error::Token export missing from the staged site; the Tokens page links it."; exit 1; }
+
           # Every asset the pages reference must resolve in the staged site.
           # Catches a new subresource added to a page but not staged here.
           missing=0

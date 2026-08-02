@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback — DR.Simple_UI catalogue</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="../lib/remixicon/remixicon.css">
+<link rel="stylesheet" href="../css/DR.Simple_UI.css">
+<link rel="stylesheet" href="catalogue.css">
+</head>
+<body>
+<div class="layout">
+<div class="cat-drawer"><aside class="sidebar" id="cat-sidebar"></aside></div>
+<button class="cat-scrim" id="cat-scrim" type="button" aria-label="Close navigation" hidden></button>
+<div class="content">
+<header class="topbar" id="cat-topbar"></header>
+<div class="page">
+<main class="cat-main">
+
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
+    <div class="cat-head">
+        <h1>Feedback</h1>
+        <span class="cat-tier">tier 2 — classes</span>
+    </div>
+    <p class="cat-lede">
+        Telling the user that something is happening, has happened, or has nothing to show. Five
+        families: <code>.toast</code>, <code>.spinner</code>, <code>.skeleton</code>,
+        <code>.progress</code> and <code>.empty-state</code>.
+    </p>
+
+    <div class="cat-note">
+        <i class="ri-information-line"></i>
+        <span>
+            A <strong>toast</strong> confirms something that already happened and then goes away. Anything
+            the user still has to act on is an <a href="alert.html"><code>.alert</code></a>, which stays
+            until the state changes.
+        </span>
+    </div>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block ex-demo--pad">
+        <h2>Toast</h2>
+        <p>
+            <code>.toast-stack</code> is the only positioned element — it is <code>fixed</code> to the
+            bottom-inline-end corner at z-index 600. Each toast is a plain block inside it, so an app
+            renders the list and positions nothing. Here the stack is
+            <code>position:static</code> so you can see it in place instead of pinned to the corner of
+            your screen; in your app you drop that override.
+        </p>
+        <template>
+            <div class="toast-stack" style="position:static; inset:auto;">
+                <div class="toast toast-go">
+                    <i class="ri-check-line"></i>
+                    <span class="toast-body"><strong>Proposal sent</strong>INC0031209 was routed to SD-Network.</span>
+                    <button class="toast-close" aria-label="Dismiss"><i class="ri-close-line"></i></button>
+                </div>
+                <div class="toast toast-warn">
+                    <i class="ri-user-shared-line"></i>
+                    <span class="toast-body"><strong>You took over</strong>The AI has stopped handling this topic.</span>
+                    <button class="toast-close" aria-label="Dismiss"><i class="ri-close-line"></i></button>
+                </div>
+                <div class="toast toast-danger">
+                    <i class="ri-error-warning-line"></i>
+                    <span class="toast-body"><strong>Send failed</strong>ServiceNow returned 503. Nothing was changed.</span>
+                    <button class="toast-close" aria-label="Dismiss"><i class="ri-close-line"></i></button>
+                </div>
+                <div class="toast toast-info">
+                    <i class="ri-information-line"></i>
+                    <span class="toast-body">Housekeeper ran and closed 4 stale topics.</span>
+                    <button class="toast-close" aria-label="Dismiss"><i class="ri-close-line"></i></button>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example>
+        <h2>Spinner</h2>
+        <p>
+            Sized in <code>em</code>, so it matches whatever text or button it sits in without a second
+            class. <code>.spinner-lg</code> is the standalone size for a panel that is still loading.
+        </p>
+        <template>
+            <span>Checking the connection <span class="spinner"></span></span>
+            <button class="btn" disabled><span class="spinner"></span> Sending…</button>
+            <button class="btn btn-primary" disabled><span class="spinner"></span> Saving</button>
+            <span class="spinner spinner-lg"></span>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block ex-demo--pad">
+        <h2>Skeleton</h2>
+        <p>
+            Give each placeholder the height and width of the content that is coming, so nothing reflows
+            when it arrives. Vary the line widths — identical bars read as a table, not a paragraph.
+        </p>
+        <template>
+            <div class="card" style="max-width:420px">
+                <div class="card-head">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div class="skeleton skeleton-title" style="width:40%"></div>
+                </div>
+                <div class="card-body">
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text" style="width:88%"></div>
+                    <div class="skeleton skeleton-text" style="width:64%"></div>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block ex-demo--pad">
+        <h2>Progress</h2>
+        <p>
+            Determinate: set the inline <code>width</code> on <code>.progress-bar</code> — the one value
+            only your app knows. Indeterminate: leave the width off and add
+            <code>.progress--indeterminate</code> to the track.
+        </p>
+        <template>
+            <div style="display:flex; flex-direction:column; gap:14px; max-width:420px">
+                <div>
+                    <div class="progress"><div class="progress-bar" style="width:72%"></div></div>
+                    <p class="form-hint">Uploading — 72%</p>
+                </div>
+                <div>
+                    <div class="progress"><div class="progress-bar progress-bar--go" style="width:100%"></div></div>
+                    <p class="form-hint">Complete</p>
+                </div>
+                <div>
+                    <div class="progress"><div class="progress-bar progress-bar--warn" style="width:72%"></div></div>
+                    <p class="form-hint">Slower than expected — still running</p>
+                </div>
+                <div>
+                    <div class="progress"><div class="progress-bar progress-bar--danger" style="width:34%"></div></div>
+                    <p class="form-hint">Stopped at 34% — quota exceeded</p>
+                </div>
+                <div>
+                    <div class="progress progress--indeterminate"><div class="progress-bar"></div></div>
+                    <p class="form-hint">Working — no total known</p>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block ex-demo--pad">
+        <h2>Empty state</h2>
+        <p>
+            Say which kind of empty it is — nothing yet, nothing found, or not allowed — and give the one
+            action that resolves it. Inside a <code>.card</code> for a panel, or
+            <code>.empty-state--bare</code> straight on the page.
+        </p>
+        <template>
+            <div style="display:flex; flex-direction:column; gap:16px; max-width:520px">
+                <div class="card">
+                    <div class="empty-state">
+                        <i class="ri-inbox-line"></i>
+                        <span class="empty-state-title">No open proposals</span>
+                        <p>Everything the AI suggested has been handled. New proposals appear here as they arrive.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="empty-state">
+                        <i class="ri-search-line"></i>
+                        <span class="empty-state-title">No incidents match “SD-Netwrok”</span>
+                        <p>Check the spelling, or clear the filter to see all 1,204 incidents.</p>
+                        <button class="btn btn-sm"><i class="ri-close-circle-line"></i> Clear filter</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="empty-state">
+                        <i class="ri-lock-line"></i>
+                        <span class="empty-state-title">You cannot see this queue</span>
+                        <p>Routing queues are limited to service desk leads. Ask an administrator for the
+                        <code>queue.read</code> role.</p>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </section>
+
+</main>
+</div>
+</div>
+</div>
+<script src="../js/DR.Simple_UI.js"></script>
+<script src="catalogue.js"></script>
+</body>
+</html>

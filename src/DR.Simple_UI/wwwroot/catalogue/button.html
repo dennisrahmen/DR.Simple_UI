@@ -18,6 +18,16 @@
 <div class="page">
 <main class="cat-main">
 
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
     <div class="cat-head">
         <h1>Buttons</h1>
         <span class="cat-tier">tier 2 — classes</span>
@@ -85,6 +95,26 @@
             <button class="btn" aria-label="Refresh" data-tip="Reload the list from the server."><i class="ri-refresh-line"></i></button>
             <button class="btn" aria-label="Copy link" data-tip="Copy a direct link to this item to the clipboard."><i class="ri-link"></i></button>
             <button class="btn btn-primary" aria-label="Save"><i class="ri-save-line"></i></button>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example>
+        <h2>A name that is read but not shown</h2>
+        <p>
+            <code>.visually-hidden</code> takes text out of the rendering and leaves it in the
+            accessibility tree. Use it where <code>aria-label</code> would replace a name the reader
+            can already partly see — here the button shows a count, and the hidden span says what the
+            count is of. It is not <code>display:none</code> or a zero-size box: both drop the element
+            from the accessibility tree too, which is the opposite of the point.
+        </p>
+        <template>
+            <button class="btn">
+                <i class="ri-notification-3-line"></i> 12
+                <span class="visually-hidden">unread notifications</span>
+            </button>
+            <a class="btn btn-primary" href="#skip-target">
+                Continue <span class="visually-hidden">to the approval step</span>
+            </a>
         </template>
     </section>
 

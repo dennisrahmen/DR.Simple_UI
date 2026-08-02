@@ -32,21 +32,42 @@ jobs:
       - name: Build
         run: dotnet build DR.Simple_UI.slnx -c Release --no-restore
 
-      # Includes the token-contract guard (no hard-coded colours outside the
-      # :root blocks) and the catalogue guards (every page links the shipped
-      # stylesheet, every page is reachable from the nav).
+      # The binaries are not restored with the package. Without them the browser
+      # tests pass while asserting nothing, which is why DR_UI_BROWSER_TESTS below
+      # turns a missing browser into a failure rather than a silent skip.
+      - name: Install Chromium for the browser tests
+        run: pwsh src/DR.Simple_UI.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+
+      # Three layers here. The source scans (no hard-coded colours outside the :root
+      # blocks, every catalogue page linked and reachable), the bUnit component tests
+      # (the markup tier 1 emits is a version contract), and the browser tests, which
+      # catch the one thing a source scan cannot see: a rule that parses fine and
+      # silently loses to a more specific one.
       - name: Test
+        env:
+          DR_UI_BROWSER_TESTS: '1'
         run: dotnet test DR.Simple_UI.slnx -c Release --no-build --verbosity normal
 
       # Packing on every build, not just on a tag: a packaging mistake should
       # fail the PR that introduced it, not the release three weeks later.
       - name: Pack
-        run: dotnet pack src/DR.Simple_UI/DR.Simple_UI.csproj -c Release --no-build -o artifacts
+        run: |
+          dotnet pack src/DR.Simple_UI/DR.Simple_UI.csproj -c Release --no-build -o artifacts
+          dotnet pack templates/DR.Simple_UI.Templates.csproj -c Release -o artifacts
 
-      # Invoked through bash so it does not depend on the executable bit, which
-      # git on Windows generally does not record.
+      # The template is only worth shipping if the project it generates compiles. It
+      # once defaulted to a library version that predated the components it uses, and
+      # the generated app failed with five CS0246 errors — so this installs it, runs
+      # it against the package just built, and builds the result.
+      - name: Verify the project template generates a building app
+        run: bash build/verify-template.sh
+
+      # Invoked through bash so it does not depend on the executable bit, which git
+      # on Windows generally does not record. The glob is narrowed to the library:
+      # artifacts/ now also holds the template package, and the script refuses more
+      # than one argument rather than silently checking whichever came first.
       - name: Verify package contents
-        run: bash build/verify-package.sh artifacts/*.nupkg
+        run: bash build/verify-package.sh artifacts/DR.Simple_UI.[0-9]*.nupkg
 
       - name: Upload package
         uses: actions/upload-artifact@v4

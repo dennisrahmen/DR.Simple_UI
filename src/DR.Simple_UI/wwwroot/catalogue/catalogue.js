@@ -30,31 +30,68 @@ const CAT_PAGES = [
         items: [
             { href: 'button.html', label: 'Buttons', icon: 'ri-cursor-line',
               blurb: 'Six variants, chosen by meaning rather than appearance.' },
+            { href: 'button-group.html', label: 'Button groups', icon: 'ri-layout-row-line',
+              blurb: 'Adjacent actions, split buttons, ghost and icon-only, and the FAB.' },
             { href: 'badge.html', label: 'Badges', icon: 'ri-price-tag-3-line',
               blurb: 'Semantic pills plus three categorical hues.' },
             { href: 'card.html', label: 'Cards', icon: 'ri-square-line',
               blurb: 'Head, body and key/value rows. Put whatever markup you need inside.' },
             { href: 'table.html', label: 'Tables', icon: 'ri-table-line',
-              blurb: 'One class on the table. You write the rows.' },
+              blurb: 'One class on the table, plus sticky headers, sorting and a stacked layout.' },
             { href: 'form.html', label: 'Forms', icon: 'ri-edit-box-line',
-              blurb: 'Fields, checkboxes, read-only values and two-up rows.' },
+              blurb: 'Fields, selects, checkboxes, radios, switches, validation and input groups.' },
+            { href: 'form-file.html', label: 'Files & numbers', icon: 'ri-attachment-2',
+              blurb: 'File pickers, dropzones, ranges, steppers and date inputs.' },
+            { href: 'collections.html', label: 'Collections', icon: 'ri-list-unordered',
+              blurb: 'Lists, steps, timelines, accordions and trees.' },
             { href: 'toolbar.html', label: 'Toolbar', icon: 'ri-filter-3-line',
               blurb: 'The filter bar that sits above a table or list.' },
+            { href: 'tabs.html', label: 'Tabs & segmented', icon: 'ri-folder-2-line',
+              blurb: 'Swap a region of content, or change a setting in place.' },
+            { href: 'menu.html', label: 'Menus', icon: 'ri-more-2-fill',
+              blurb: 'The one dropdown panel: a short list of actions, anchored to a trigger.' },
             { href: 'modal.html', label: 'Modal', icon: 'ri-window-2-line',
               blurb: 'Backdrop, panel, header, body and footer.' },
+            { href: 'chip.html', label: 'Chips & avatars', icon: 'ri-price-tag-line',
+              blurb: 'Removable filters and recipients, and who did something.' },
+            { href: 'stat.html', label: 'Stats', icon: 'ri-numbers-line',
+              blurb: 'One number that matters, and which way it moved.' },
+            { href: 'structure.html', label: 'Page structure', icon: 'ri-layout-top-line',
+              blurb: 'Title rows, dividers, callouts and code blocks.' },
+            { href: 'pager.html', label: 'Pagination', icon: 'ri-more-line',
+              blurb: 'Moving through a long result set, and where the page sits.' },
             { href: 'alert.html', label: 'Alerts', icon: 'ri-error-warning-line',
               blurb: 'Inline banners for a state that persists while the page is open.' },
+            { href: 'feedback.html', label: 'Feedback', icon: 'ri-loader-4-line',
+              blurb: 'Toasts, spinners, skeletons, progress bars and empty states.' },
+            { href: 'overlay.html', label: 'Overlays', icon: 'ri-layout-right-line',
+              blurb: 'Drawers and sheets, the command palette, and the spotlight.' },
             { href: 'grid.html', label: 'Grids', icon: 'ri-layout-grid-line',
-              blurb: 'Two breakpoint-free layout primitives.' },
+              blurb: 'Three breakpoint-free layout primitives.' },
+            { href: 'media.html', label: 'Media & prose', icon: 'ri-image-line',
+              blurb: 'Bounded media, long-form text, and redacted values.' },
             { href: 'markdown.html', label: 'Markdown', icon: 'ri-markdown-line',
-              blurb: 'Rendered Markdown, and an editor with a live preview.' }
+              blurb: 'Rendered Markdown, and an editor with a live preview.' },
+            { href: 'utility.html', label: 'Utilities', icon: 'ri-scissors-cut-line',
+              blurb: 'The short list of single-purpose classes, and why it stays short.' },
+            { href: 'everything.html', label: 'Everything', icon: 'ri-apps-2-line',
+              blurb: 'Every family at once, for flipping the theme and seeing it all move together.' }
         ]
     },
     {
         group: 'Frame',
         items: [
             { href: 'frame.html', label: 'Shell & nav', icon: 'ri-side-bar-line',
-              blurb: 'Layout, sidebar, topbar and user widget — the chrome this site is built from.' }
+              blurb: 'Layout, sidebar, topbar and user widget — the chrome this site is built from.' },
+            { href: 'layouts.html', label: 'Layouts', icon: 'ri-layout-3-line',
+              blurb: 'Auth and full-bleed shells, collapsible nav groups, and the skip link.' }
+        ]
+    },
+    {
+        group: 'Behaviour',
+        items: [
+            { href: 'script.html', label: 'The script', icon: 'ri-code-s-slash-line',
+              blurb: 'Toasts, confirmations, clipboard, hover hints, and delegated menus and tabs.' }
         ]
     }
 ];
@@ -196,6 +233,125 @@ function catTopbar() {
     host.appendChild(repo);
 }
 
+/* ── Search ─────────────────────────────────────────────────────────────────
+   Filters the sidebar as you type, over three things: the page label, its blurb, and
+   every class name and heading the page mentions. The last one is what makes it
+   useful — "sticky" should find the Tables page, and it does not appear in that
+   page's label or blurb.
+
+   The index is built from the pages already in the DOM? No: only the current page is
+   loaded. So it is built from CAT_PAGES plus a small hand-kept keyword list per page,
+   because fetching 28 pages to index them would cost more than the feature is worth
+   and would not work from inside a package on disk.
+
+   `SearchKeywords` is deliberately not generated. A generated index would need a
+   build step and a drift guard for a feature whose failure mode is "you have to
+   scroll instead". */
+const SEARCH_KEYWORDS = {
+    'button.html': 'btn primary go warn danger secret disabled icon link',
+    'button-group.html': 'btn-group split-btn ghost fab floating icon-only',
+    'badge.html': 'pill status cyan orange teal',
+    'card.html': 'card-head card-body kv key value warning caveat',
+    'table.html': 'sticky sortable aria-sort zebra selected expandable tfoot totals numeric stacked col-num',
+    'form.html': 'input label select checkbox radio switch validation aria-invalid input-group fieldset legend actions',
+    'form-file.html': 'file dropzone upload attachment range slider stepper number date time picker',
+    'collections.html': 'list steps wizard timeline history accordion details tree hierarchy',
+    'toolbar.html': 'filter search count',
+    'tabs.html': 'tab tablist panel segmented radio',
+    'menu.html': 'dropdown actions anchor scrim disclosure',
+    'modal.html': 'dialog backdrop confirm sm lg',
+    'chip.html': 'chip tag filter dismissible avatar initials group',
+    'stat.html': 'kpi number metric delta tile',
+    'structure.html': 'page-head divider callout note code-block copy',
+    'pager.html': 'pagination page-link breadcrumb trail',
+    'alert.html': 'banner inline warning danger info',
+    'feedback.html': 'toast spinner skeleton progress empty-state loading',
+    'overlay.html': 'drawer sheet palette command ctrl-k spotlight tour',
+    'grid.html': 'masonry card-grid field-grid layout',
+    'media.html': 'image figure gallery aspect prose article redacted secret',
+    'markdown.html': 'md-editor preview render markdown-body',
+    'utility.html': 'text-end truncate visually-hidden sr-only dr-row dr-col busy',
+    'frame.html': 'layout sidebar topbar nav user-widget collapsed rail reconnect appshell navitem',
+    'layouts.html': 'auth sign-in full-bleed nav-group skip-link landmark',
+    'script.html': 'drSimpleUi toast confirm copy clipboard tips hover menu tabs',
+    'tokens.html': 'colour color token variable var swatch',
+    'index.html': 'install rebrand z-order overview',
+    'everything.html': 'kitchen sink smoke test all everything demo'
+};
+
+function catSearch() {
+    const nav = document.querySelector('#cat-sidebar .nav-scroll');
+    if (!nav) return;
+
+    const wrap = el('div', 'cat-search');
+    const input = el('input', 'form-input cat-search-input');
+    input.type = 'search';
+    input.placeholder = 'Filter pages…';
+    input.setAttribute('aria-label', 'Filter pages');
+    // The status is polite and lives outside the list, so a screen reader hears the
+    // count change without the list itself being re-announced on every keystroke.
+    const status = el('div', 'cat-search-status');
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    wrap.append(input, status);
+    nav.parentNode.insertBefore(wrap, nav);
+
+    const entries = [...nav.querySelectorAll('.nav-link')].map(a => {
+        const href = a.getAttribute('href');
+        const page = CAT_PAGES.flatMap(s => s.items).find(i => i.href === href);
+        return {
+            link: a,
+            section: a.closest('.nav-section'),
+            haystack: [
+                a.textContent, href, page ? page.blurb : '', SEARCH_KEYWORDS[href] || ''
+            ].join(' ').toLowerCase()
+        };
+    });
+
+    const apply = () => {
+        const q = input.value.trim().toLowerCase();
+        let shown = 0;
+
+        for (const e of entries) {
+            // `hidden`, not a class: it also takes the link out of the tab order, so
+            // Tab does not walk through filtered-out pages.
+            const match = !q || e.haystack.includes(q);
+            e.link.hidden = !match;
+            if (match) shown++;
+        }
+        // A section whose every child is filtered out hides its heading too, or the
+        // list reads as a set of empty groups.
+        for (const section of nav.querySelectorAll('.nav-section')) {
+            const any = [...section.querySelectorAll('.nav-link')].some(a => !a.hidden);
+            section.hidden = !any;
+        }
+
+        status.textContent = q ? `${shown} page${shown === 1 ? '' : 's'}` : '';
+    };
+
+    input.addEventListener('input', apply);
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { input.value = ''; apply(); }
+        // Enter goes to the first match, which is what a filter box is for.
+        if (e.key === 'Enter') {
+            const first = entries.find(x => !x.link.hidden);
+            if (first) first.link.click();
+        }
+    });
+
+    // A page-wide shortcut would collide with the app's own; this is docs chrome, so
+    // "/" is enough and is what every docs site uses.
+    document.addEventListener('keydown', e => {
+        if (e.key !== '/') return;
+        // e.target is not always an Element — a keydown dispatched on the document
+        // itself has target === document, which has no closest() and threw here.
+        const el = e.target instanceof Element ? e.target : null;
+        if (el && el.closest('input, textarea, select, [contenteditable]')) return;
+        e.preventDefault();
+        input.focus();
+    });
+}
+
 /* ── Mobile drawer ─────────────────────────────────────────────────────── */
 
 function catDrawer(open) {
@@ -260,6 +416,12 @@ function catExamples() {
 
         const wrap = el('div', 'ex-codewrap' + (codeOnly ? ' ex-codewrap--only' : ''));
         const pre = el('pre', 'ex-code');
+        // The block scrolls sideways on a long line, and a scrollable region that
+        // cannot be focused cannot be scrolled by keyboard at all. axe flags this as
+        // serious, and it is: the snippet is the content of these pages.
+        pre.tabIndex = 0;
+        pre.setAttribute('role', 'group');
+        pre.setAttribute('aria-label', 'Code example');
         const code = document.createElement('code');
         const src = dedent(tpl.innerHTML);
         code.textContent = src;
@@ -416,6 +578,7 @@ function catFooter() {
 }
 
 catSidebar();
+catSearch();      // after catSidebar: it indexes the links that built
 catTopbar();
 catDrawerWiring();
 catExamples();

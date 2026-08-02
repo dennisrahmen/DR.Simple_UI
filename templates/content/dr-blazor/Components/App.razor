@@ -1,0 +1,72 @@
+@* The host page. Asset ORDER here is the whole reason this template exists — three
+   of the four lines below have to be where they are, and each is a bug that only
+   shows on a real page load. *@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    @* Without this, every breakpoint-free layout in the library is laid out at a
+       fictional 980px on a phone and then scaled down. *@
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+
+    @* IN THE HEAD, BEFORE ANY STYLESHEET. It reads the stored theme from
+       localStorage and stamps data-theme on <html> before the first paint. Move it to
+       the end of the body and a light-theme user sees a dark flash on every
+       navigation.
+
+       data-theme-default="system" follows prefers-color-scheme until the user
+       chooses; a stored choice always wins. *@
+    <script src="_content/DR.Simple_UI/js/DR.Simple_UI.boot.js"
+            data-theme-default="THEME_DEFAULT"></script>
+
+    @* Remix Icon first, then the library, then your brand overrides. brand.css must
+       come last: it redefines tokens the library declares, and the library's own
+       :root would otherwise win. *@
+    <link rel="stylesheet" href="_content/DR.Simple_UI/lib/remixicon/remixicon.css" />
+    <link rel="stylesheet" href="_content/DR.Simple_UI/css/DR.Simple_UI.css" />
+    <link rel="stylesheet" href="css/brand.css" />
+
+    <ImportMap />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <HeadOutlet />
+</head>
+
+<body>
+    @* The first focusable thing on the page. Without it a keyboard user tabs through
+       every navigation item on every page. <main> carries tabindex="-1" in
+       MainLayout so the jump moves focus rather than only scrolling. *@
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <Routes />
+
+    @* Blazor Server toggles the state classes on this element itself; all three rows
+       have to exist or the state you did not supply renders as an empty bar.
+       .reconnect-rejected is the one that gets forgotten: the server answered and
+       refused, so reconnecting cannot help and only a reload will. *@
+    <div id="components-reconnect-modal">
+        <div class="reconnect-banner reconnect-attempting">
+            <i class="ri-wifi-off-line"></i><span>Connection lost. Reconnecting&hellip;</span>
+        </div>
+        <div class="reconnect-banner reconnect-failed">
+            <i class="ri-close-circle-line"></i><span>Could not reconnect.</span>
+            <button class="btn btn-sm btn-danger" onclick="location.reload()">
+                <i class="ri-refresh-line"></i> Retry
+            </button>
+        </div>
+        <div class="reconnect-banner reconnect-rejected">
+            <i class="ri-error-warning-line"></i><span>This session has expired on the server.</span>
+            <button class="btn btn-sm btn-danger" onclick="location.reload()">
+                <i class="ri-refresh-line"></i> Reload
+            </button>
+        </div>
+    </div>
+
+    <script src="_framework/blazor.web.js"></script>
+    @* At the end of the body: it needs the DOM, and nothing paints differently
+       without it. *@
+    <script src="_content/DR.Simple_UI/js/DR.Simple_UI.js"></script>
+</body>
+
+</html>

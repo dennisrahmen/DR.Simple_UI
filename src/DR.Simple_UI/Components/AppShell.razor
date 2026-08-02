@@ -1,0 +1,19 @@
+@* Emitted markup is a version contract — see Components/CLAUDE.md. *@
+
+@if (Bare)
+{
+    <div @attributes="AdditionalAttributes" class="@BareCssClass">
+        @Header
+        <div class="@PageCssClass">@ChildContent</div>
+    </div>
+}
+else
+{
+    <div @attributes="AdditionalAttributes" class="@LayoutCssClass">
+        @Navigation
+        <div class="content">
+            @Header
+            <div class="@PageCssClass">@ChildContent</div>
+        </div>
+    </div>
+}

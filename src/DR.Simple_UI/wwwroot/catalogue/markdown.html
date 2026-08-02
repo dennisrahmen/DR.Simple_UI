@@ -18,6 +18,16 @@
 <div class="page">
 <main class="cat-main">
 
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
     <div class="cat-head">
         <h1>Markdown</h1>
         <span class="cat-tier">tier 2 — classes + JS</span>
@@ -61,9 +71,17 @@
         <p>
             Live below — type in it, then switch to Preview. The wiring: the root carries
             <code>data-md-view</code>, the textarea <code>data-md-input</code>, the preview pane
-            <code>data-md-preview</code>, toolbar buttons <code>data-md-cmd</code>, and the tabs
-            <code>data-md-tab</code>. Call <code>drSimpleUi.md.init(root)</code> once the root
-            exists; it is idempotent, so calling it again after a re-render is safe.
+            <code>data-md-preview</code>, and toolbar buttons <code>data-md-cmd</code>. Call
+            <code>drSimpleUi.md.init(root)</code> once the root exists; it is idempotent, so calling
+            it again after a re-render is safe.
+        </p>
+        <p>
+            The Write/Preview switch is the ordinary
+            <a href="tabs.html"><code>.segmented</code></a> control, with
+            <code>data-md-tab</code> on each radio — it is exactly what a segmented control is for, so
+            the editor gets the radio group's keyboard behaviour and announcement instead of two
+            buttons with a toggled class. <code>init()</code> assigns the shared <code>name</code>,
+            because only it knows how many editors are on the page.
         </p>
         <template>
             <div class="md-editor" data-md-view="write" id="demo-md">
@@ -76,12 +94,14 @@
                     <button class="md-tool" type="button" data-md-cmd="ol" aria-label="Numbered list"><i class="ri-list-ordered"></i></button>
                     <button class="md-tool" type="button" data-md-cmd="quote" aria-label="Quote"><i class="ri-quote-text"></i></button>
                     <button class="md-tool" type="button" data-md-cmd="link" aria-label="Link"><i class="ri-link"></i></button>
-                    <div class="md-tabs">
-                        <button class="md-tab md-tab--active" type="button" data-md-tab="write">Write</button>
-                        <button class="md-tab" type="button" data-md-tab="preview">Preview</button>
+                    <div class="segmented" role="group" aria-label="Editor view">
+                        <label class="segmented-option">
+                            <input type="radio" data-md-tab="write" checked /> Write</label>
+                        <label class="segmented-option">
+                            <input type="radio" data-md-tab="preview" /> Preview</label>
                     </div>
                 </div>
-                <textarea class="form-input md-input" data-md-input rows="8">## Escalation policy
+                <textarea class="form-input md-input" data-md-input rows="8" aria-label="Markdown source">## Escalation policy
 
 Raise to **P2** when _either_ condition holds:
 

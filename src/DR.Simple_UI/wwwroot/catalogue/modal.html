@@ -18,6 +18,16 @@
 <div class="page">
 <main class="cat-main">
 
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
     <div class="cat-head">
         <h1>Modal</h1>
         <span class="cat-tier">tier 2 — classes</span>
@@ -31,8 +41,10 @@
 
     <div class="cat-note">
         <strong>Z-order:</strong> the backdrop sits at 500. Anything you layer above a modal must
-        respect the shared chain — spotlight 510 &lt; popover 550 &lt; toast 600 &lt; tips and the
-        reconnect banner 1000. Do not invent a new z-index; pick the rung you belong on.
+        respect the shared chain — spotlight 510 &lt; popover and dropdown 550 &lt; toast 600 &lt; tips
+        and the reconnect banner 1000. A drawer sits below at 480/490, so a modal opened from inside one
+        still covers it. Do not invent a new z-index; pick the rung you belong on — a test fails on any
+        value not on the scale.
     </div>
 
     <section class="cat-ex" data-example data-demo="ex-demo--block ex-demo--pad">
@@ -104,7 +116,7 @@
                         <h3>Change history</h3>
                         <button class="modal-close" aria-label="Close"><i class="ri-close-line"></i></button>
                     </div>
-                    <div class="modal-body dr-scroll" style="max-height:200px; overflow-y:auto">
+                    <div class="modal-body dr-scroll" style="max-height:200px; overflow-y:auto" tabindex="0" role="group" aria-label="Change history">
                         <div class="kv"><span class="k">03:15</span><span class="v">Housekeeper ran</span></div>
                         <div class="kv"><span class="k">02:58</span><span class="v">Priority raised to P2</span></div>
                         <div class="kv"><span class="k">02:41</span><span class="v">Rerouted to SD-Network</span></div>
@@ -116,6 +128,34 @@
                     <div class="modal-footer">
                         <button class="btn btn-primary">Close</button>
                     </div>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block ex-demo--pad">
+        <h2>Widths</h2>
+        <p>
+            <code>.modal-sm</code> is 360px and <code>.modal-lg</code> is 760px, against the default
+            480px. Width is the only thing they change — a yes/no question does not need the room a
+            form does, and a diff or a table needs more. Pick by how wide the content has to be, not
+            by how important the dialog is.
+        </p>
+        <template>
+            <div class="modal-backdrop" style="position:relative; inset:auto; padding:28px 0; flex-direction:column; gap:16px">
+                <div class="modal modal-sm">
+                    <div class="modal-body"><p>Release the lock on INC0042199?</p></div>
+                    <div class="modal-footer">
+                        <button class="btn">Cancel</button>
+                        <button class="btn btn-primary">Release</button>
+                    </div>
+                </div>
+                <div class="modal modal-lg">
+                    <div class="modal-header">
+                        <h3>Proposed reply</h3>
+                        <button class="modal-close" aria-label="Close"><i class="ri-close-line"></i></button>
+                    </div>
+                    <div class="modal-body"><p>A wider panel, for content that would wrap badly at 480px.</p></div>
                 </div>
             </div>
         </template>

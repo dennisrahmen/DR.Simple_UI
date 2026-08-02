@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Button groups &mdash; DR.Simple_UI catalogue</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="../lib/remixicon/remixicon.css">
+<link rel="stylesheet" href="../css/DR.Simple_UI.css">
+<link rel="stylesheet" href="catalogue.css">
+</head>
+<body>
+<div class="layout">
+<div class="cat-drawer"><aside class="sidebar" id="cat-sidebar"></aside></div>
+<button class="cat-scrim" id="cat-scrim" type="button" aria-label="Close navigation" hidden></button>
+<div class="content">
+<header class="topbar" id="cat-topbar"></header>
+<div class="page">
+<main class="cat-main">
+
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
+    <div class="cat-head">
+        <h1>Button groups &amp; variants</h1>
+        <span class="cat-tier">tier 2 &mdash; classes</span>
+    </div>
+    <p class="cat-lede">
+        Adjacent buttons that act on the same thing, and the three variants that did not fit on the
+        <a href="button.html">Buttons</a> page.
+    </p>
+
+    <div class="cat-note">
+        <strong>A group is not a way to pick one of several.</strong> That is
+        <a href="tabs.html"><code>.segmented</code></a>, which is built from radios and is therefore
+        announced as a choice. A group is several <em>actions</em>. Wrap it in
+        <code>role="group"</code> with an <code>aria-label</code> saying what they act on.
+    </div>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Button group</h2>
+        <p>
+            One shared border between neighbours rather than two adjacent ones, which is what makes it
+            read as one control instead of a row. The hovered or focused button paints above its
+            neighbour, or half its ring and its darker border edge would be covered.
+        </p>
+        <template>
+            <div class="dr-col">
+                <div class="btn-group" role="group" aria-label="Incident actions">
+                    <button class="btn" type="button"><i class="ri-arrow-left-line"></i> Previous</button>
+                    <button class="btn" type="button">Next <i class="ri-arrow-right-line"></i></button>
+                </div>
+                <div class="btn-group" role="group" aria-label="Zoom">
+                    <button class="btn btn-icon" type="button" aria-label="Zoom out">&minus;</button>
+                    <button class="btn" type="button">100%</button>
+                    <button class="btn btn-icon" type="button" aria-label="Zoom in">+</button>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Split button</h2>
+        <p>
+            A primary action plus a menu of its variants. Two <em>real</em> buttons, not one with a
+            hit-test: the main action must be operable without ever opening the menu, and the caret needs
+            its own accessible name and its own <code>aria-expanded</code>.
+        </p>
+        <p>
+            Between two filled buttons of the same colour the shared edge disappears, so the split is
+            drawn as a lighter inset line instead.
+        </p>
+        <template>
+            <div class="dr-row">
+                <div class="split-btn">
+                    <button class="btn btn-go" type="button"><i class="ri-send-plane-line"></i> Send reply</button>
+                    <button class="btn btn-go" type="button" aria-label="More send options" aria-expanded="false">
+                        <i class="ri-arrow-down-s-line"></i>
+                    </button>
+                </div>
+                <div class="split-btn">
+                    <button class="btn" type="button">Export</button>
+                    <button class="btn" type="button" aria-label="More export formats" aria-expanded="false">
+                        <i class="ri-arrow-down-s-line"></i>
+                    </button>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Icon-only and ghost</h2>
+        <p>
+            <code>.btn-icon</code> squares the padding so an icon-only button is not a wide box around
+            one glyph. <code>.btn</code>'s own <code>min-height</code> already matches it to the text
+            buttons beside it. It still needs an <code>aria-label</code>.
+        </p>
+        <p>
+            <code>.btn-ghost</code> defers its border and fill until hover, for a dense row of secondary
+            actions — a table row's actions, a toolbar. Everything the button <em>does</em> is still
+            there; only the chrome waits.
+        </p>
+        <template>
+            <div class="dr-row">
+                <button class="btn btn-icon" type="button" aria-label="Refresh" data-tip="Reload from the server."><i class="ri-refresh-line"></i></button>
+                <button class="btn btn-icon btn-sm" type="button" aria-label="Copy link"><i class="ri-link"></i></button>
+                <button class="btn btn-ghost btn-icon" type="button" aria-label="More"><i class="ri-more-2-fill"></i></button>
+                <button class="btn btn-ghost" type="button"><i class="ri-eye-line"></i> Preview</button>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Floating action button</h2>
+        <p>
+            One page-level action, pinned to a corner on a screen too small to show a toolbar.
+            Deliberately not a general pattern: a second one has no obvious place, and the first already
+            covers whatever is under it.
+        </p>
+        <p>
+            It sits on the topbar's z-index rung — it is chrome at the same level, and it must stay below
+            every overlay so a modal covers it. Shown here <code>position:static</code>; in an app it is
+            fixed to the corner.
+        </p>
+        <template>
+            <div class="dr-row">
+                <button class="fab" type="button" style="position:static">
+                    <i class="ri-add-line"></i> New incident
+                </button>
+                <button class="fab fab--icon" type="button" style="position:static" aria-label="New incident">
+                    <i class="ri-add-line"></i>
+                </button>
+            </div>
+        </template>
+    </section>
+</main>
+</div>
+</div>
+</div>
+<script src="../js/DR.Simple_UI.js"></script>
+<script src="catalogue.js"></script>
+</body>
+</html>

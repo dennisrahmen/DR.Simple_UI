@@ -23,8 +23,11 @@ internal static class Assets
 
     public static string Css => File.ReadAllText(CssPath);
 
+    // AllDirectories: a page filed in a subfolder would otherwise be invisible to
+    // every catalogue guard at once, and each of them would still pass.
     public static IEnumerable<string> CataloguePages =>
-        Directory.EnumerateFiles(CatalogueDir, "*.html").OrderBy(p => p, StringComparer.Ordinal);
+        Directory.EnumerateFiles(CatalogueDir, "*.html", SearchOption.AllDirectories)
+            .OrderBy(p => p, StringComparer.Ordinal);
 
     private static string FindRepoRoot()
     {
@@ -67,26 +70,89 @@ internal static class Assets
             .Select(m => (m.Groups["selector"].Value, m.Groups["body"].Value));
 
     /// <summary>
-    /// Every line that is NOT part of a token block, with its real 1-based line
-    /// number in the file — so a failure message points at somewhere that exists.
+    /// Every line with the token blocks masked out, and its real 1-based line number
+    /// so a failure message points at somewhere that exists.
     /// </summary>
+    /// <remarks>
+    /// Masks by character range rather than skipping whole lines. Skipping the line
+    /// exempted anything sharing a line with a token block — most reachably the
+    /// closing brace, where `} .btn { color: red }` would never be scanned. Lengths
+    /// and newlines are preserved so line numbers still match the file.
+    /// </remarks>
     public static IEnumerable<(string Line, int Number)> LinesOutsideTokenBlocks(string css)
     {
-        var blocks = TokenBlockPattern.Matches(css)
-            .Select(m => (Start: m.Index, End: m.Index + m.Length))
-            .ToList();
+        var masked = new System.Text.StringBuilder(css);
+        foreach (var block in TokenBlockPattern.Matches(css).Cast<Match>())
+            for (var i = block.Index; i < block.Index + block.Length; i++)
+                if (masked[i] != '\n') masked[i] = ' ';
 
-        var offset = 0;
         var number = 0;
-        foreach (var line in css.Split('\n'))
+        foreach (var line in masked.ToString().Split('\n'))
         {
             number++;
-            var lineStart = offset;
-            var lineEnd = offset + line.Length;
-            offset = lineEnd + 1;   // + the '\n' we split on
+            if (line.Trim().Length > 0) yield return (line, number);
+        }
+    }
 
-            var insideBlock = blocks.Any(b => lineStart < b.End && lineEnd > b.Start);
-            if (!insideBlock) yield return (line, number);
+    /// <summary>
+    /// Every <c>@media</c> block as (condition, body), matched by counting braces
+    /// rather than by regex, so a nested rule inside the block does not truncate it.
+    /// </summary>
+    public static IEnumerable<(string Condition, string Body)> MediaBlocks(string css)
+    {
+        foreach (var open in Regex.Matches(css, @"@media([^{]*)\{", RegexOptions.Compiled).Cast<Match>())
+        {
+            var depth = 1;
+            var i = open.Index + open.Length;
+            while (i < css.Length && depth > 0)
+            {
+                if (css[i] == '{') depth++;
+                else if (css[i] == '}') depth--;
+                i++;
+            }
+
+            // depth 0 means we found the matching brace; i is one past it.
+            if (depth == 0)
+            {
+                var bodyStart = open.Index + open.Length;
+                yield return (open.Groups[1].Value.Trim(), css[bodyStart..(i - 1)]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Rules opening directly inside a block body as (selector, body), ignoring
+    /// anything nested deeper. Used to ask "does this block style anything, or only
+    /// remap tokens on :root?".
+    /// </summary>
+    public static IEnumerable<(string Selector, string Body)> TopLevelRules(string blockBody)
+    {
+        var depth = 0;
+        var start = 0;
+        var selector = string.Empty;
+        var bodyStart = 0;
+
+        for (var i = 0; i < blockBody.Length; i++)
+        {
+            if (blockBody[i] == '{')
+            {
+                if (depth == 0)
+                {
+                    selector = blockBody[start..i].Trim();
+                    bodyStart = i + 1;
+                }
+
+                depth++;
+            }
+            else if (blockBody[i] == '}')
+            {
+                depth--;
+                if (depth == 0)
+                {
+                    yield return (selector, blockBody[bodyStart..i]);
+                    start = i + 1;
+                }
+            }
         }
     }
 

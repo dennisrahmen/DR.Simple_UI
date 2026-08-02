@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Dennis Rahmen",
+  "classifications": [ "Web", "Blazor", "DR.Simple_UI" ],
+  "identity": "DR.Simple_UI.Blazor.App",
+  "name": "Blazor Web App with DR.Simple_UI",
+  "shortName": "dr-blazor",
+  "description": "A Blazor Web App wired to DR.Simple_UI: the assets loaded in the right order, the frame components in the layout, and a brand.css holding the seven tokens a rebrand needs.",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "DR.Blazor.App",
+  "preferNameDirectory": true,
+  "defaultName": "BlazorApp",
+
+  "symbols": {
+    "Framework": {
+      "type": "parameter",
+      "description": "The target framework.",
+      "datatype": "choice",
+      "choices": [ { "choice": "net10.0", "description": ".NET 10" } ],
+      "replaces": "net10.0",
+      "defaultValue": "net10.0"
+    },
+    "DrSimpleUiVersion": {
+      "type": "parameter",
+      "description": "The DR.Simple_UI version to reference. Must be 0.2.0 or later: the frame components this template uses do not exist in 0.1.0, which shipped CSS only.",
+      "datatype": "text",
+      "replaces": "0.1.0-TEMPLATE",
+      "defaultValue": "0.2.0"
+    },
+    "AppTitle": {
+      "type": "parameter",
+      "description": "The name shown in the sidebar brand and the browser title.",
+      "datatype": "text",
+      "replaces": "APP_TITLE",
+      "defaultValue": "My Console"
+    },
+    "Brand": {
+      "type": "parameter",
+      "description": "The brand colour, as a hex value. The hover, active, soft and text variants are derived from it in brand.css.",
+      "datatype": "text",
+      "replaces": "BRAND_HEX",
+      "defaultValue": "#2563eb"
+    },
+    "ThemeDefault": {
+      "type": "parameter",
+      "description": "Which theme a first-time visitor gets. 'system' follows prefers-color-scheme until they choose.",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "dark", "description": "Always start dark." },
+        { "choice": "light", "description": "Always start light." },
+        { "choice": "system", "description": "Follow the operating system." }
+      ],
+      "replaces": "THEME_DEFAULT",
+      "defaultValue": "dark"
+    }
+  },
+
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [ "**/bin/**", "**/obj/**", "**/.vs/**", "**/*.user" ]
+        }
+      ]
+    }
+  ],
+
+  "primaryOutputs": [ { "path": "DR.Blazor.App.csproj" } ],
+
+  "postActions": [
+    {
+      "description": "Restore the NuGet packages.",
+      "manualInstructions": [ { "text": "Run 'dotnet restore'." } ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}

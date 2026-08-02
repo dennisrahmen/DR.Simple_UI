@@ -1,0 +1,20 @@
+/* ── Badges ─────────────────────────────────────────────────────────────────
+   .badge is the neutral pill; the modifiers are the semantic families plus
+   three categorical hues that carry no meaning of their own. */
+.badge {
+    background: var(--badge-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-2);
+    padding: var(--space-1) var(--space-4);
+    color: var(--muted);
+}
+.badge-go     { background: var(--go-bg);     border-color: var(--go-border);     color: var(--go-fg); }
+.badge-warn   { background: var(--warn-bg);   border-color: var(--warn-border);   color: var(--warn-fg); }
+.badge-danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-fg); }
+.badge-info   { background: var(--info-bg);   border-color: var(--info-border);   color: var(--info-fg); }
+.badge-secret { background: var(--secret-bg); border-color: var(--secret-border); color: var(--secret-fg); }
+.badge-cyan   { background: var(--badge-cyan-bg);   border-color: var(--badge-cyan-border);   color: var(--badge-cyan-fg); }
+.badge-orange { background: var(--badge-orange-bg); border-color: var(--badge-orange-border); color: var(--badge-orange-fg); }
+.badge-teal   { background: var(--badge-teal-bg);   border-color: var(--badge-teal-border);   color: var(--badge-teal-fg); }
+

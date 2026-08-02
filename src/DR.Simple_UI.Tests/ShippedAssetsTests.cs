@@ -121,6 +121,32 @@ public class ShippedAssetsTests
     }
 
     [Fact]
+    public void The_package_takes_no_third_party_dependency()
+    {
+        // "Loading anything from a remote URL at runtime" is permanently out of
+        // scope, and a third-party package is the same exposure moved to build time:
+        // a supply-chain risk, a licence to audit, and a transitive version conflict
+        // in every consuming app. Everything the package needs ships inside it.
+        //
+        // Microsoft.AspNetCore.Components.Web is the one allowed reference, and it is
+        // unavoidable: ComponentBase, RenderFragment and NavigationManager live
+        // there. It is not a FrameworkReference because that would stop a Blazor
+        // WebAssembly app consuming this library.
+        var project = XDocument.Load(Path.Combine(Assets.ProjectDir, "DR.Simple_UI.csproj"));
+
+        var thirdParty = project
+            .Descendants("PackageReference")
+            .Select(e => e.Attribute("Include")?.Value ?? string.Empty)
+            .Where(id => !id.StartsWith("Microsoft.", StringComparison.Ordinal)
+                      && !id.StartsWith("System.", StringComparison.Ordinal))
+            .ToList();
+
+        Assert.True(thirdParty.Count == 0,
+            "The shipped package must not depend on a third-party package. Found: "
+            + string.Join(", ", thirdParty));
+    }
+
+    [Fact]
     public void The_readme_and_license_packed_into_the_nupkg_exist()
     {
         Assert.True(File.Exists(Path.Combine(Assets.RepoRoot, "README.md")));
@@ -146,6 +172,238 @@ public class ShippedAssetsTests
             .ToList();
 
         Assert.True(missing.Count == 0, "Missing brand assets: " + string.Join(", ", missing));
+    }
+
+    [Fact]
+    public void The_project_template_references_a_version_that_has_the_components()
+    {
+        // The template's generated app uses AppShell, Sidebar, NavItem, AppHeader and
+        // UserWidget. Those do not exist in 0.1.0, which shipped CSS only — so a
+        // template defaulting to 0.1.0 generates a project that does not compile, and
+        // the first thing a new user sees is five CS0246 errors. That happened.
+        var templateDir = Path.Combine(Assets.RepoRoot, "templates", "content", "dr-blazor");
+        var config = Path.Combine(templateDir, ".template.config", "template.json");
+        Assert.True(File.Exists(config), $"No template config at {config}");
+
+        using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(config));
+        var symbols = doc.RootElement.GetProperty("symbols");
+
+        var version = symbols.GetProperty("DrSimpleUiVersion").GetProperty("defaultValue").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(version));
+        Assert.True(Version.Parse(version!) >= new Version(0, 2, 0),
+            $"The template defaults to DR.Simple_UI {version}, which predates the frame components it "
+            + "uses. The generated project would not compile.");
+
+        // The layout must spell out <ChildContent>. Razor rejects loose child content
+        // as soon as a component has one named RenderFragment — AppShell has
+        // Navigation and Header — and fails with RZ9996. Easy to regress by
+        // "simplifying" the template.
+        var layout = File.ReadAllText(Path.Combine(templateDir, "Components", "Layout", "MainLayout.razor"));
+        Assert.Contains("<ChildContent>", layout, StringComparison.Ordinal);
+
+        // The host page's asset order is the whole point of the template.
+        var host = File.ReadAllText(Path.Combine(templateDir, "Components", "App.razor"));
+        var boot = host.IndexOf("DR.Simple_UI.boot.js", StringComparison.Ordinal);
+        var sheet = host.IndexOf("css/DR.Simple_UI.css", StringComparison.Ordinal);
+        var brand = host.IndexOf("css/brand.css", StringComparison.Ordinal);
+        var main = host.IndexOf("js/DR.Simple_UI.js", StringComparison.Ordinal);
+        var headEnd = host.IndexOf("</head>", StringComparison.Ordinal);
+
+        Assert.True(boot > 0 && boot < headEnd, "boot.js must be in <head>, or the theme flashes.");
+        Assert.True(sheet > boot, "The stylesheet must come after boot.js.");
+        Assert.True(brand > sheet, "brand.css must come after the library stylesheet.");
+        Assert.True(main > headEnd, "The main script belongs at the end of <body>.");
+
+        // All three reconnect rows, since the missing one renders as an empty bar.
+        foreach (var state in new[] { "reconnect-attempting", "reconnect-failed", "reconnect-rejected" })
+            Assert.Contains(state, host, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void The_token_export_matches_the_stylesheet()
+    {
+        // wwwroot/tokens/DR.Simple_UI.tokens.json is the token contract for consumers
+        // that are not CSS — a Figma import, a report generator picking chart colours,
+        // a contrast audit. Generated by build/export-tokens.sh, committed like the
+        // other two generated assets, and therefore able to drift.
+        //
+        // Checked as invariants rather than by re-running the generator in C#: every
+        // token declared anywhere in the sheet appears in the export with the same
+        // value, and the export invents nothing.
+        var exportPath = Path.Combine(Assets.ProjectDir, "wwwroot", "tokens", "DR.Simple_UI.tokens.json");
+        Assert.True(File.Exists(exportPath),
+            $"No token export at {exportPath}. Run build/export-tokens.sh");
+
+        using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(exportPath));
+
+        var exported = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        foreach (var block in doc.RootElement.GetProperty("blocks").EnumerateArray())
+            foreach (var token in block.GetProperty("tokens").EnumerateObject())
+            {
+                if (!exported.TryGetValue(token.Name, out var values))
+                    exported[token.Name] = values = new HashSet<string>(StringComparer.Ordinal);
+                values.Add(Squash(token.Value.GetString() ?? string.Empty));
+            }
+
+        var css = Assets.StripComments(Assets.Css);
+
+        // Every declaration in a token block, as name → the set of values it takes
+        // across the themes. Compared as sets, because a token legitimately has one
+        // value per theme.
+        var declared = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        foreach (var (_, body) in Assets.TokenBlocks(css))
+            foreach (var declaration in body.Split(';', StringSplitOptions.TrimEntries))
+            {
+                if (!declaration.StartsWith("--", StringComparison.Ordinal)) continue;
+                var colon = declaration.IndexOf(':', StringComparison.Ordinal);
+                if (colon <= 0) continue;
+
+                var name = declaration[..colon].Trim();
+                var value = Squash(declaration[(colon + 1)..].Trim());
+                if (!declared.TryGetValue(name, out var values))
+                    declared[name] = values = new HashSet<string>(StringComparer.Ordinal);
+                values.Add(value);
+            }
+
+        var problems = new List<string>();
+
+        foreach (var (name, values) in declared.OrderBy(p => p.Key, StringComparer.Ordinal))
+        {
+            if (!exported.TryGetValue(name, out var got))
+            {
+                problems.Add($"{name} is in the stylesheet but not in the export");
+                continue;
+            }
+
+            foreach (var missing in values.Except(got, StringComparer.Ordinal))
+                problems.Add($"{name} = \"{missing}\" is in the stylesheet but not in the export");
+        }
+
+        foreach (var name in exported.Keys.Except(declared.Keys, StringComparer.Ordinal)
+                     .OrderBy(n => n, StringComparer.Ordinal))
+            problems.Add($"{name} is in the export but declared nowhere in the stylesheet");
+
+        Assert.True(problems.Count == 0,
+            $"Run build/export-tokens.sh:{Environment.NewLine}{string.Join(Environment.NewLine, problems)}");
+    }
+
+    /// <summary>Collapses runs of whitespace, so a wrapped declaration compares equal.</summary>
+    private static string Squash(string s) => Regex.Replace(s, @"\s+", " ").Trim();
+
+    [Fact]
+    public void The_shipped_script_matches_its_parts()
+        => AssertBundleMatchesParts("js-parts", "*.js", Assets.JsPath, "build/bundle-js.sh");
+
+    [Fact]
+    public void The_shipped_stylesheet_matches_its_parts()
+        => AssertBundleMatchesParts("css-parts", "*.css", Assets.CssPath, "build/bundle-css.sh");
+
+    /// <summary>
+    /// Both shipped assets are generated by concatenating a directory of parts. The
+    /// checks are invariants rather than a re-implementation of the generator's
+    /// header formatting — two copies of the same formatting would drift against
+    /// each other and fail for cosmetic reasons.
+    /// </summary>
+    private static void AssertBundleMatchesParts(
+        string partsDirName, string pattern, string bundlePath, string script)
+    {
+        // Both assets are committed in generated form so a plain checkout, the
+        // catalogue and the package all work with no build step. That makes drift
+        // possible, which is what this guards: edit a part, forget the script, and the
+        // two disagree silently — every consuming app would keep the old behaviour.
+        //
+        // The .NET SDK cannot generate either for us. Its only CSS bundling is scoped
+        // .razor.css, which rewrites selectors and would scope tier-2 classes to markup
+        // the library renders; it does nothing at all for a global script.
+        //
+        // Ordinal ordering matches LC_ALL=C in the scripts, so the same bytes come out
+        // on Windows and on the Linux CI runner.
+        var partsDir = Path.Combine(Assets.ProjectDir, partsDirName);
+        Assert.True(Directory.Exists(partsDir), $"No {partsDirName} directory at {partsDir}");
+
+        var parts = Directory.GetFiles(partsDir, pattern)
+            .OrderBy(p => Path.GetFileName(p), StringComparer.Ordinal)
+            .ToList();
+
+        Assert.True(parts.Count > 0, $"No parts found in {partsDir}");
+
+        var bundle = File.ReadAllText(bundlePath);
+        var problems = new List<string>();
+
+        // Checked as invariants rather than by re-implementing the generator's header
+        // in C#: two copies of the same formatting would drift against each other and
+        // the test would start failing for cosmetic reasons.
+
+        // 1. Ordering is the filename order, so every part needs a numeric prefix.
+        foreach (var name in parts.Select(Path.GetFileName))
+            if (name is null || !Regex.IsMatch(name, @"^\d\d-"))
+                problems.Add($"{name} has no NN- prefix, so its position in the build is undefined");
+
+        // 2. Every part's exact text is present, and in the same order — that is what
+        //    makes the single file equivalent to the parts.
+        var cursor = 0;
+        foreach (var part in parts)
+        {
+            var text = File.ReadAllText(part);
+            var at = bundle.IndexOf(text, cursor, StringComparison.Ordinal);
+            if (at < 0)
+            {
+                problems.Add($"{Path.GetFileName(part)} is missing from the bundle, or appears out of order");
+                break;
+            }
+
+            cursor = at + text.Length;
+        }
+
+        // 3. The generated contents block lists exactly the directory, so a part can
+        //    never be silently absent from the build.
+        var ext = Regex.Escape(Path.GetExtension(pattern));
+        var listed = Regex.Matches(bundle, @"^\s{5}(\d\d-[a-z0-9-]+" + ext + @")\s*$", RegexOptions.Multiline)
+            .Select(m => m.Groups[1].Value)
+            .ToList();
+        var expectedNames = parts.Select(Path.GetFileName).ToList();
+        if (!listed.SequenceEqual(expectedNames, StringComparer.Ordinal))
+            problems.Add(
+                $"the generated contents block lists [{string.Join(", ", listed)}] but {partsDirName}/ holds " +
+                $"[{string.Join(", ", expectedNames)}]");
+
+        Assert.True(problems.Count == 0,
+            $"{Path.GetFileName(bundlePath)} is out of step with {partsDirName}/. Run {script}:" +
+            $"{Environment.NewLine}{string.Join(Environment.NewLine, problems)}");
+    }
+
+    [Fact]
+    public void The_catalogues_brand_copies_match_their_source_in_assets_brand()
+    {
+        // assets/brand/ is the documented home of the brand, but the catalogue needs
+        // its favicon and nav logo as static web assets so they travel with the pages
+        // that use them. That makes them copies, and a copy drifts silently: update
+        // the icon in its documented home and the catalogue keeps shipping the old
+        // one, on the hosted site and inside every restored package.
+        (string Source, string Copy)[] pairs =
+        [
+            (Path.Combine("assets", "brand", "favicon.ico"),
+             Path.Combine("src", "DR.Simple_UI", "wwwroot", "catalogue", "favicon.ico")),
+            (Path.Combine("assets", "brand", "dr-simple-ui-icon-64.png"),
+             Path.Combine("src", "DR.Simple_UI", "wwwroot", "catalogue", "logo.png")),
+        ];
+
+        var offenders = new List<string>();
+        foreach (var (source, copy) in pairs)
+        {
+            var sourcePath = Path.Combine(Assets.RepoRoot, source);
+            var copyPath = Path.Combine(Assets.RepoRoot, copy);
+
+            if (!File.Exists(sourcePath)) { offenders.Add($"{source} is missing"); continue; }
+            if (!File.Exists(copyPath)) { offenders.Add($"{copy} is missing"); continue; }
+
+            if (!File.ReadAllBytes(sourcePath).SequenceEqual(File.ReadAllBytes(copyPath)))
+                offenders.Add($"{copy} differs from {source}");
+        }
+
+        Assert.True(offenders.Count == 0,
+            "Re-copy the brand asset so the catalogue ships the current one: " +
+            string.Join("; ", offenders));
     }
 
     [Fact]

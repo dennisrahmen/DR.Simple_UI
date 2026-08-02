@@ -12,6 +12,12 @@ fix. [Open an issue](https://github.com/dennisrahmen/DR.Simple_UI/issues) with:
 Adding a token, class or variant is a minor release. Renaming or removing one is major, so requests to
 rename are weighed against every app already using the old name.
 
+A release can also be major with nothing renamed or removed: changing an existing rule enough to move
+layout or colour, and making an existing app override stop working, both count. So does adding a class
+whose name a consuming app already styles — the two sets of declarations merge and the app's appearance
+changes with no error. New class names are therefore checked against the apps known to consume this
+package, and every release lists the names it adds.
+
 Until a release lands, use an **app-prefixed** variable (`--myapp-…`) in your own stylesheet rather than a
 new bare `--` name, which a future library version could claim with a different meaning. Do not override
 library classes in an app; the next upgrade will fight you.

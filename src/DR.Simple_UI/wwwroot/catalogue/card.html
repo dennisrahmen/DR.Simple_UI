@@ -18,6 +18,16 @@
 <div class="page">
 <main class="cat-main">
 
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
     <div class="cat-head">
         <h1>Cards</h1>
         <span class="cat-tier">tier 2 — classes</span>
@@ -115,6 +125,30 @@
                     <div class="kv"><span class="k">Priority</span><span class="v">P3</span></div>
                     <div class="kv"><span class="k">SLA remaining</span><span class="v">01:42:18</span></div>
                     <div class="kv"><span class="k">Confidence</span><span class="v">0.87</span></div>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>A caveat about the card's own content</h2>
+        <p>
+            <code>.card-warning</code> pins an amber strip to the card's bottom edge — a stale figure,
+            a degraded source, a partial result. It is part of the card, which is why it is not an
+            <code>.alert</code>: an alert is a statement about the page, and putting one inside a card
+            makes the reader look for what else on the page is affected.
+        </p>
+        <template>
+            <div class="card" style="max-width:380px">
+                <div class="card-head"><strong>Open incidents</strong></div>
+                <div class="card-body">
+                    <div class="kv"><span class="k">P1</span><span class="v">2</span></div>
+                    <div class="kv"><span class="k">P2</span><span class="v">11</span></div>
+                    <div class="kv"><span class="k">P3</span><span class="v">64</span></div>
+                </div>
+                <div class="card-warning">
+                    <i class="ri-time-line"></i>
+                    <span>ServiceNow last answered 14 minutes ago — these counts may lag.</span>
                 </div>
             </div>
         </template>

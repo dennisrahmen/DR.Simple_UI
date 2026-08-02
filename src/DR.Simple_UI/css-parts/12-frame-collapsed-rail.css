@@ -1,0 +1,51 @@
+/* ── Collapsed sidebar rail ─────────────────────────────────────────────── */
+.sidebar.collapsed { width: 56px; }
+.sidebar.collapsed .brand { justify-content: center; padding: 0; gap: 0; }
+.sidebar.collapsed .brand-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+.sidebar.collapsed .nav-section-label { display: none; }
+.sidebar.collapsed .nav-section { margin-bottom: var(--space-4); }
+/* let the rail flyouts escape the 56px column */
+.sidebar.collapsed .nav, .sidebar.collapsed .nav-scroll { overflow: visible; }
+.sidebar.collapsed .nav-link { justify-content: center; padding: var(--space-4) 0; gap: 0; position: relative; }
+.sidebar.collapsed .nav-section .nav-link { padding-inline-start: 0; }
+.sidebar.collapsed .nav-link > span:not(.nav-count) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+.sidebar.collapsed .nav-link-ext { display: none; }
+.sidebar.collapsed .nav-count {
+    position: absolute; top: 2px; inset-inline-end: var(--space-3); margin-inline-start: 0;
+    min-width: 15px; padding: 0 var(--space-2); font-size: var(--text-1); line-height: 1.6;
+}
+.sidebar.collapsed .nav-status-card { align-items: center; padding: var(--space-4) 0; position: relative; }
+.sidebar.collapsed .nav-status-label,
+.sidebar.collapsed .nav-status-state {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+.sidebar.collapsed .nav-status-dot { width: 9px; height: 9px; }
+.sidebar.collapsed .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
+
+/* Rail-only hover flyout. The JS tip engine skips .sidebar precisely so this
+   pure-CSS variant owns the collapsed rail (no double tooltip). */
+.sidebar.collapsed [data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute; inset-inline-start: calc(100% + var(--space-5)); top: 50%; transform: translateY(-50%);
+    background: var(--card-bg); color: var(--fg); border: 1px solid var(--border);
+    padding: var(--space-2) var(--space-4); border-radius: var(--radius-surface); font-size: var(--text-3); font-weight: 500;
+    white-space: nowrap; z-index: 400; box-shadow: var(--shadow-flyout);
+    pointer-events: none;
+}
+

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overlays &mdash; DR.Simple_UI catalogue</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="../lib/remixicon/remixicon.css">
+<link rel="stylesheet" href="../css/DR.Simple_UI.css">
+<link rel="stylesheet" href="catalogue.css">
+</head>
+<body>
+<div class="layout">
+<div class="cat-drawer"><aside class="sidebar" id="cat-sidebar"></aside></div>
+<button class="cat-scrim" id="cat-scrim" type="button" aria-label="Close navigation" hidden></button>
+<div class="content">
+<header class="topbar" id="cat-topbar"></header>
+<div class="page">
+<main class="cat-main">
+
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
+    <div class="cat-head">
+        <h1>Drawers, palette &amp; spotlight</h1>
+        <span class="cat-tier">tier 2 &mdash; classes</span>
+    </div>
+    <p class="cat-lede">
+        Three surfaces that come over the page. All three prefer a real
+        <code>&lt;dialog&gt;</code>, because the platform then supplies the focus trap, Escape and
+        inert content behind — and a hand-rolled focus trap is a lot of code that is usually subtly
+        wrong.
+    </p>
+
+    <div class="cat-note">
+        <strong>Drawer or modal?</strong> A modal demands an answer before anything else happens; a
+        drawer is a place to work that can be left. If dismissing it loses nothing, it is a drawer. The
+        drawer sits <em>below</em> the modal backdrop in the z-order on purpose, so a modal opened from
+        inside a drawer still covers it.
+    </div>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Drawer</h2>
+        <p>
+            Shown here inline and open, with <code>position:static</code>, so the page stays usable. In
+            an app it is fixed to an edge. <code>.drawer-body</code> is the only scrolling part, so the
+            header and footer stay put.
+        </p>
+        <p>
+            Closed state is <code>visibility:hidden</code>, not just a translate off-screen: a panel
+            that is merely moved away is still tabbable, and <kbd>Tab</kbd> then walks the reader into a
+            panel they cannot see. <code>.drawer--start</code> comes from the other edge;
+            <code>.sheet</code> comes from the bottom, which is the right shape on a phone where a side
+            panel has nowhere to come from.
+        </p>
+        <template>
+            <div class="drawer drawer--open" style="position:static; width:380px; height:280px; box-shadow:none">
+                <div class="sheet-handle"></div>
+                <div class="drawer-header">
+                    <h3>Filter the queue</h3>
+                    <button class="modal-close" type="button" aria-label="Close"><i class="ri-close-line"></i></button>
+                </div>
+                <div class="drawer-body">
+                    <div class="form-field">
+                        <label class="form-label" for="d-group">Assignment group</label>
+                        <select class="form-input form-select" id="d-group">
+                            <option>Any</option><option selected>SD-Network</option>
+                        </select>
+                    </div>
+                    <p class="form-hint">Filters apply as you change them.</p>
+                </div>
+                <div class="drawer-footer">
+                    <button class="btn" type="button">Reset</button>
+                    <button class="btn btn-primary" type="button">Done</button>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-code-only>
+        <h2>Drawer as a <code>&lt;dialog&gt;</code> — the preferred form</h2>
+        <p>
+            A drawer with a scrim is modal in behaviour: the page behind it should not be reachable.
+            So say so, and let the platform do it. <code>showModal()</code> gives the focus trap,
+            <kbd>Escape</kbd> and inert content behind, and <code>::backdrop</code> replaces
+            <code>.drawer-scrim</code> entirely.
+        </p>
+        <p>
+            <code>.drawer-scrim</code> and <code>.drawer-scrim--open</code> remain for a drawer that is
+            deliberately <em>not</em> modal — one you can leave open while working on the page behind
+            it. Then you own the dismissal and the focus handling.
+        </p>
+        <template>
+            <dialog class="drawer" id="filters">
+                <div class="drawer-header">
+                    <h3>Filter the queue</h3>
+                    <button class="modal-close" type="button" aria-label="Close"
+                            onclick="filters.close()"><i class="ri-close-line"></i></button>
+                </div>
+                <div class="drawer-body">…</div>
+            </dialog>
+
+            <button class="btn" type="button" onclick="filters.showModal()">Filters</button>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Command palette</h2>
+        <p>
+            The <kbd>Ctrl</kbd>+<kbd>K</kbd> box. Positioned near the top rather than centred, because
+            the list grows downwards and a centred box would move under the reader's eye as they type.
+        </p>
+        <p>
+            The list is a real <code>role="listbox"</code> of <code>role="option"</code> items, with the input as the combobox owning it through <code>aria-activedescendant</code>. That claim is made only because <code>drSimpleUi.palette</code> implements the keyboard contract behind it in full &mdash; and because <code>aria-selected</code> on a plain button is invalid, which axe rejects.
+            <code>aria-selected</code> is the keyboard's position, which is a different
+            thing from <code>:hover</code>: moving the pointer must not move the keyboard.
+        </p>
+        <template>
+            <div class="palette" style="margin:0; max-height:none; box-shadow:none">
+                <input class="palette-input" type="text" value="app" aria-label="Command" />
+                <ul class="palette-list" role="listbox" aria-label="Commands">
+                    <li role="presentation"><span class="palette-group">Actions</span></li>
+                    <li role="presentation"><div class="palette-item" role="option" aria-selected="true">
+                        <i class="ri-check-double-line"></i> Approve the selected proposal
+                        <span class="palette-item-note">Ctrl A</span>
+                    </div></li>
+                    <li role="presentation"><div class="palette-item" role="option" aria-selected="false">
+                        <i class="ri-user-shared-line"></i> Reassign incident
+                    </div></li>
+                    <li role="presentation"><span class="palette-group">Go to</span></li>
+                    <li role="presentation"><div class="palette-item" role="option" aria-selected="false">
+                        <i class="ri-settings-3-line"></i> Application settings
+                    </div></li>
+                </ul>
+                <div class="palette-footer">
+                    <span><span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move</span>
+                    <span><span class="kbd">Enter</span> to run</span>
+                    <span><span class="kbd">Esc</span> to close</span>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-code-only>
+        <h2>Palette markup</h2>
+        <p>
+            A <code>&lt;dialog&gt;</code> again, which is why the CSS is this small: the top layer, the
+            focus trap and <kbd>Escape</kbd> are all the platform's. <code>.palette-empty</code> is the
+            no-matches state — say what was searched, not just &ldquo;no results&rdquo;.
+        </p>
+        <p>
+            There is no fuzzy-match library and there will not be one: a subsequence scorer is about
+            twenty lines, and this package loads nothing at runtime.
+        </p>
+        <template>
+            <dialog class="palette" id="cmdk">
+                <input class="palette-input" type="text" placeholder="Search commands…"
+                       role="combobox" aria-expanded="true" aria-controls="cmdk-list"
+                       aria-activedescendant="cmdk-0" />
+                <ul class="palette-list" id="cmdk-list">
+                    <li><button class="palette-item" id="cmdk-0" aria-selected="true">Approve</div></li>
+                </ul>
+                <div class="palette-empty">Nothing matches &ldquo;xyzzy&rdquo;.</div>
+            </dialog>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Spotlight</h2>
+        <p>
+            Dims the page except one element, for a guided tour or a first-run hint. The hole is a
+            <code>box-shadow</code> with a <code>100vmax</code> spread rather than a clip-path or four
+            dimming strips: one element, no arithmetic, and the ring follows the highlighted element's
+            own border radius.
+        </p>
+        <p>
+            <code>pointer-events:none</code> on the dim, so the highlighted control stays operable — a
+            tour that blocks the thing it is pointing at teaches nothing. Shown here inside a bounded
+            box; in an app the app positions the hole over its target.
+        </p>
+        <template>
+            <div style="position:relative; height:200px; overflow:hidden; border:1px solid var(--border)">
+                <div style="padding:14px">
+                    <button class="btn btn-primary" type="button">Approve all</button>
+                    <p class="form-hint" style="margin-top:10px">Page content behind the dim.</p>
+                </div>
+                <div class="spotlight-hole spotlight-ring"
+                     style="top:14px; left:14px; width:132px; height:33px"></div>
+                <div class="spotlight-tip" style="top:60px; left:14px">
+                    <span class="spotlight-tip-title">Approve in one go</span>
+                    Applies every proposal above the confidence threshold. You can still undo each one
+                    afterwards.
+                    <div class="spotlight-tip-actions">
+                        <span class="spotlight-step">2 of 5</span>
+                        <button class="btn btn-sm btn-primary" type="button">Next</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </section>
+</main>
+</div>
+</div>
+</div>
+<script src="../js/DR.Simple_UI.js"></script>
+<script src="catalogue.js"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+name: Release template
+
+# Publishes DR.Simple_UI.Templates — the `dotnet new dr-blazor` package.
+#
+# SEPARATE FROM release.yml ON PURPOSE. The template's version tracks the shape of
+# the generated app, not the version of the UI library, so the two packages are
+# released independently:
+#
+#     v1.2.3            -> DR.Simple_UI 1.2.3            (release.yml)
+#     templates-v1.2.3  -> DR.Simple_UI.Templates 1.2.3  (this file)
+#
+# `v*` does not match `templates-v*`, so a library tag never fires this job and a
+# template tag never fires the library's. The tag is still the version: nothing in
+# the repo needs editing to release, and the two cannot disagree.
+on:
+  push:
+    tags: ['templates-v*']
+
+permissions:
+  contents: write        # to create the GitHub release
+  id-token: write        # to request the GitHub OIDC token for trusted publishing
+
+concurrency:
+  group: release-template-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Derive version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#templates-v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' is not a SemVer version (expected templates-v1.2.3 or templates-v1.2.3-rc.1)."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Releasing DR.Simple_UI.Templates $VERSION"
+
+      # Same preflight as the library: fail before spending a build on a release
+      # that cannot publish.
+      - name: Preflight — publishing is configured
+        env:
+          NUGET_USER: ${{ secrets.NUGET_USER }}
+        run: |
+          if [[ -z "$NUGET_USER" ]]; then
+            echo "::error::The NUGET_USER secret is not set. It must hold your nuget.org profile name (not an e-mail address)."
+            exit 1
+          fi
+          echo "NUGET_USER is set."
+
+      # The template carries no code of its own, so what has to be proven is that the
+      # project it generates still compiles. verify-template.sh needs a library package
+      # to generate against, so the library is packed here too — from this commit, and
+      # NEVER pushed. Only the template package is published below.
+      - name: Restore
+        run: dotnet restore DR.Simple_UI.slnx
+
+      - name: Build
+        run: dotnet build DR.Simple_UI.slnx -c Release --no-restore
+
+      # A missing browser is a test failure, not a skip, so this is not optional.
+      - name: Install Chromium for the browser tests
+        run: pwsh src/DR.Simple_UI.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+
+      # Includes The_project_template_references_a_version_that_has_the_components,
+      # which pins the template's default library version and its asset order.
+      - name: Test
+        env:
+          DR_UI_BROWSER_TESTS: '1'
+        run: dotnet test DR.Simple_UI.slnx -c Release --no-build --verbosity normal
+
+      - name: Pack the library, for verification only
+        run: dotnet pack src/DR.Simple_UI/DR.Simple_UI.csproj -c Release --no-build -o artifacts
+
+      - name: Pack the template
+        run: |
+          dotnet pack templates/DR.Simple_UI.Templates.csproj \
+            -c Release -o artifacts \
+            -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Verify the template generates a building app
+        run: bash build/verify-template.sh
+
+      # The template package is the only thing that may leave this job. A library
+      # nupkg built here carries the csproj's floor version, and pushing that to
+      # nuget.org would permanently burn a version number.
+      - name: Confirm exactly one template package, and no library package, will be pushed
+        run: |
+          shopt -s nullglob
+          TPL=(artifacts/DR.Simple_UI.Templates.${{ steps.version.outputs.version }}.nupkg)
+          shopt -u nullglob
+          if [[ ${#TPL[@]} -ne 1 ]]; then
+            echo "::error::Expected exactly one DR.Simple_UI.Templates.${{ steps.version.outputs.version }}.nupkg, found ${#TPL[@]}."
+            ls -la artifacts
+            exit 1
+          fi
+          echo "Pushing: ${TPL[0]}"
+
+      # ── Trusted publishing ─────────────────────────────────────────────────
+      # Needs its OWN nuget.org trusted publishing policy, because the policy
+      # matches on the workflow FILE NAME and this is not release.yml:
+      #     Repository Owner  dennisrahmen
+      #     Repository        DR.Simple_UI
+      #     Workflow File     release-template.yml     <- THIS FILE'S NAME
+      #     Package Owner     dennisrahmen
+      #     Environment       (empty)
+      #
+      # A first-ever publish also needs the package ID reserved or the glob
+      # `DR.Simple_UI.*` allowed by the policy — a policy naming only an existing
+      # package ID cannot create one.
+      #
+      # RENAMING THIS FILE BREAKS PUBLISHING.
+      - name: Exchange OIDC token for a short-lived NuGet key
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push to nuget.org
+        run: |
+          dotnet nuget push "artifacts/DR.Simple_UI.Templates.${{ steps.version.outputs.version }}.nupkg" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
+            --skip-duplicate
+
+      # Notes come from the annotated tag message, exactly like the library's.
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git fetch --force --tags --quiet
+
+          SUBJECT="$(git tag -l --format='%(contents:subject)' "$GITHUB_REF_NAME")"
+          BODY="$(git tag -l --format='%(contents:body)' "$GITHUB_REF_NAME")"
+
+          {
+            if [[ -n "$BODY" ]]; then
+              echo "$BODY"
+            else
+              echo "_No tag annotation — see the commits below._"
+            fi
+
+            echo
+            echo '## Install'
+            echo
+            echo '```bash'
+            echo "dotnet new install DR.Simple_UI.Templates::$VERSION"
+            echo "dotnet new dr-blazor -n MyApp"
+            echo '```'
+          } > release-notes.md
+
+          TITLE="DR.Simple_UI.Templates $VERSION"
+          [[ -n "$SUBJECT" ]] && TITLE="$TITLE — $SUBJECT"
+
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$TITLE" \
+            --notes-file release-notes.md \
+            artifacts/DR.Simple_UI.Templates.$VERSION.nupkg

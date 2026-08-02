@@ -1,0 +1,44 @@
+/* ═══ Base elements ═════════════════════════════════════════════════════════ */
+* { box-sizing: border-box; }
+
+html, body { margin: 0; height: 100%; }
+
+/* On <html>, not :root — the selectors are equivalent, but a :root block in this
+   library is a token block and may hold custom properties only. */
+html { color-scheme: var(--color-scheme); }
+
+body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-5);
+    line-height: 1.5;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code {
+    font-family: var(--font-mono);
+    font-size: var(--text-4);
+    color: var(--code-fg);
+    background: var(--code-bg);
+    padding: 1px var(--space-2);
+    border-radius: var(--radius-small);
+}
+
+h1 { font-size: var(--text-9); margin: 0 0 var(--space-4); }
+h2 { font-size: var(--text-7); margin: var(--space-9) 0 var(--space-4); }
+p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
+
+/* Keyboard focus keeps a ring; mouse/programmatic focus (e.g. focus restored on
+   reload) does not — otherwise an auto-selected block shows a stray outline. */
+:focus:not(:focus-visible) { outline: none; }
+
+/* dr-spin is NOT here: it is declared beside its only consumer in
+   39-spinner.css. Two identical @keyframes of the same name is a silent-drift
+   hazard — the later one wins for the whole document, so editing the earlier
+   changes nothing. */
+@keyframes dr-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+

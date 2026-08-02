@@ -19,6 +19,16 @@
 <div class="page">
 <main class="cat-main">
 
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
     <div class="cat-hero">
         <img class="cat-hero-logo" src="logo.png" width="76" height="76" alt="">
         <div class="cat-hero-text">
@@ -41,10 +51,10 @@
     </div>
 
     <div class="cat-facts">
-        <div class="cat-fact"><strong>176</strong><span>design tokens</span></div>
-        <div class="cat-fact"><strong>105</strong><span>CSS classes</span></div>
+        <div class="cat-fact"><strong>145</strong><span>design tokens</span></div>
+        <div class="cat-fact"><strong>317</strong><span>CSS classes</span></div>
         <div class="cat-fact"><strong>3,245</strong><span>bundled icons</span></div>
-        <div class="cat-fact"><strong>0</strong><span>runtime dependencies</span></div>
+        <div class="cat-fact"><strong>0</strong><span>third-party dependencies</span></div>
     </div>
 
     <div class="cat-note">
@@ -84,27 +94,24 @@
     <div class="cat-ex" data-example data-code-only>
         <template>
             :root {
-                --brand:            #e41f16;
-                --brand-hover:      #c8170f;
-                --brand-active:     #a81209;
-                --brand-soft:       #ff6f66;
-                --brand-text:       #ff8f88;
-                --brand-tint:       rgba(228, 31, 22, 0.14);
-                --brand-ring:       rgba(228, 31, 22, 0.5);
-                --brand-ring-soft:  rgba(228, 31, 22, 0.4);
-                --brand-ring-check: rgba(228, 31, 22, 0.35);
-                --brand-glow:       rgba(228, 31, 22, 0.18);
-                --accent:           #ff6f66;
-                --sidebar-active:   #e41f16;
+                --brand:          #e41f16;
+                --brand-hover:    #c8170f;
+                --brand-active:   #a81209;
+                --brand-soft:     #ff6f66;
+                --brand-text:     #ff8f88;
+                --accent:         #ff6f66;
+                --sidebar-active: #e41f16;
             }
 
             /* The light theme needs the readable-on-white variants. */
             :root[data-theme="light"] {
                 --brand-soft: #e41f16;
                 --brand-text: #c8170f;
-                --brand-tint: rgba(228, 31, 22, 0.1);
                 --accent:     #c8170f;
             }
+
+            /* --brand-tint and the four --brand-ring/-glow tokens are mixed from
+               --brand and follow it on their own, in both themes. */
         </template>
     </div>
 
@@ -148,20 +155,47 @@
     <div id="cat-tiles"></div>
 
     <h2>Z-order</h2>
-    <p class="cat-lede">Shared by every app. Use one of these values for a new overlay.</p>
+    <p class="cat-lede">Shared by every app. Use one of these values for a new overlay — a test fails on
+        any other. 0 and 1 are for local stacking inside a component and are not part of the scale.</p>
 
     <div class="card">
         <table class="table">
-            <thead><tr><th>Layer</th><th>z-index</th></tr></thead>
+            <thead><tr><th>Layer</th><th>z-index</th><th>In the stylesheet</th></tr></thead>
             <tbody>
-                <tr><td>Topbar</td><td class="col-muted">60</td></tr>
-                <tr><td>Modal backdrop</td><td class="col-muted">500</td></tr>
-                <tr><td>Spotlight</td><td class="col-muted">510</td></tr>
-                <tr><td>Popover</td><td class="col-muted">550</td></tr>
-                <tr><td>Toast</td><td class="col-muted">600</td></tr>
-                <tr><td>Hover hints, reconnect banner</td><td class="col-muted">1000</td></tr>
+                <tr><td>Topbar</td><td class="col-muted">60</td><td class="col-muted">yes</td></tr>
+                <tr><td>User widget</td><td class="col-muted">200</td><td class="col-muted">yes</td></tr>
+                <tr><td>Collapsed-rail flyout</td><td class="col-muted">400</td><td class="col-muted">yes</td></tr>
+                <tr><td>Floating action button</td><td class="col-muted">60</td><td class="col-muted">yes</td></tr>
+                <tr><td>Drawer scrim</td><td class="col-muted">480</td><td class="col-muted">yes</td></tr>
+                <tr><td>Drawer panel</td><td class="col-muted">490</td><td class="col-muted">yes</td></tr>
+                <tr><td>Modal backdrop</td><td class="col-muted">500</td><td class="col-muted">yes</td></tr>
+                <tr><td>Spotlight</td><td class="col-muted">510</td><td class="col-muted">yes</td></tr>
+                <tr><td>Dropdown menu, palette</td><td class="col-muted">550</td><td class="col-muted">yes</td></tr>
+                <tr><td>Toast</td><td class="col-muted">600</td><td class="col-muted">yes</td></tr>
+                <tr><td>Hover hints, reconnect banner</td><td class="col-muted">1000</td><td class="col-muted">yes</td></tr>
             </tbody>
         </table>
+    </div>
+
+    <div class="cat-note">
+        <i class="ri-information-line"></i>
+        <strong>Two things the numbers do not say.</strong> <code>.topbar</code> and
+        <code>.user-widget</code> establish stacking contexts, so a panel nested in either is ordered
+        <em>within</em> it and cannot be lifted above the modal backdrop by z-index alone. And the top
+        layer — anything promoted by <code>popover</code> or <code>dialog.showModal()</code> — ignores
+        z-index entirely, ordering by promotion instead. That is why <code>.palette</code> and the
+        confirmation dialog carry no rung of their own: the platform orders them, and the 550 on
+        <code>.palette</code>'s panel only matters if it is ever rendered without
+        <code>showModal()</code>.
+    </div>
+
+    <div class="cat-note">
+        <i class="ri-layout-bottom-line"></i>
+        <span>
+            <strong>The drawer sits below the modal backdrop on purpose.</strong> A modal opened from
+            inside a drawer has to cover it — which is exactly the case that a single shared "overlay"
+            value gets wrong.
+        </span>
     </div>
 
 </main>

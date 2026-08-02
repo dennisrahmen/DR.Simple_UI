@@ -18,6 +18,16 @@
 <div class="page">
 <main class="cat-main">
 
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
     <div class="cat-head">
         <h1>Tables</h1>
         <span class="cat-tier">tier 2 — classes</span>
@@ -114,6 +124,140 @@
         <code>overflow-x:auto</code> and add <code>.dr-scroll</code> to it, so the horizontal
         scrollbar is themed and the page body never scrolls sideways.
     </div>
+
+    <h2>Extensions</h2>
+    <p class="lede">
+        Each of these is opt-in, because each costs something. A sticky header needs a scroll
+        container, zebra stripes fight with row selection, and the stacked layout throws away column
+        alignment.
+    </p>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Sortable, numeric and selected</h2>
+        <p>
+            The sort arrow is keyed off <code>aria-sort</code>, which is what a screen reader
+            announces, so the arrow and the announcement cannot disagree. Put a
+            <code>&lt;button class="th-sort"&gt;</code> inside the header cell filling it — a target
+            that is only the label text is smaller than it looks. The arrow reserves its 8px even when
+            unsorted, so the header does not shift as the reader sorts one column after another.
+        </p>
+        <p>
+            <code>.col-num</code> goes on the <code>th</code> <em>and</em> the <code>td</code>: right
+            aligned and tabular, so digits line up by place value and two numbers can be compared by
+            shape. Row selection is <code>aria-selected</code> on the <code>&lt;tr&gt;</code>, and the
+            leading rule is what survives a colour-blind palette and a greyscale print.
+        </p>
+        <template>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th aria-sort="none"><button class="th-sort" type="button">Incident</button></th>
+                        <th aria-sort="descending"><button class="th-sort" type="button">Age</button></th>
+                        <th class="col-num" aria-sort="none"><button class="th-sort" type="button">Reopens</button></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr aria-selected="true"><td>INC0031204</td><td class="col-muted">22 min</td><td class="col-num">3</td></tr>
+                    <tr><td>INC0031209</td><td class="col-muted">4 min</td><td class="col-num">0</td></tr>
+                    <tr><td>INC0031187</td><td class="col-muted">1 h 12 min</td><td class="col-num">12</td></tr>
+                </tbody>
+                <tfoot>
+                    <tr><td>3 incidents</td><td></td><td class="col-num">15</td></tr>
+                </tfoot>
+            </table>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Sticky header</h2>
+        <p>
+            <code>.table--sticky</code> needs two things from the markup and silently does nothing
+            without them: a scroll container around the table with a <code>max-height</code>, because
+            the header sticks to the nearest scrolling ancestor and with none it sticks to the page
+            where the topbar already is; and <code>border-collapse: separate</code>, which the class
+            sets, because a collapsed table's borders belong to the table rather than the cell and its
+            header border would scroll away.
+        </p>
+        <template>
+            <div class="dr-scroll" style="max-height:180px; overflow-y:auto" tabindex="0" role="group" aria-label="Incident queue">
+                <table class="table table--sticky table--zebra">
+                    <thead><tr><th>Incident</th><th>Assignment group</th><th class="col-num">Age (min)</th></tr></thead>
+                    <tbody>
+                        <tr><td>INC0031209</td><td>SD-Frontline</td><td class="col-num">4</td></tr>
+                        <tr><td>INC0031204</td><td>SD-Network</td><td class="col-num">22</td></tr>
+                        <tr><td>INC0031198</td><td>SD-Frontline</td><td class="col-num">37</td></tr>
+                        <tr><td>INC0031187</td><td>SD-Applications</td><td class="col-num">72</td></tr>
+                        <tr><td>INC0031166</td><td>SD-Network</td><td class="col-num">118</td></tr>
+                        <tr><td>INC0031140</td><td>SD-Frontline</td><td class="col-num">203</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Expandable rows</h2>
+        <p>
+            The detail row is a real <code>&lt;tr class="tr-detail"&gt;</code> after its parent, so it
+            moves with it when the table is sorted and is read after it. Its cell spans every column.
+            The inset rule on the left is the only thing saying it belongs to the row above — a plain
+            indent reads as an unrelated row that happens to start further in.
+        </p>
+        <template>
+            <table class="table">
+                <thead><tr><th>Incident</th><th>Proposal</th></tr></thead>
+                <tbody>
+                    <tr class="tr-clickable">
+                        <td>INC0031209</td><td>Reroute to SD-Network</td>
+                    </tr>
+                    <tr class="tr-detail">
+                        <td colspan="2">
+                            <div class="tr-detail-body">
+                                <div class="kv"><span class="k">Confidence</span><span class="v">0.87</span></div>
+                                <div class="kv"><span class="k">Matched on</span><span class="v">"VPN" + "disconnect"</span></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="tr-clickable">
+                        <td>INC0031204</td><td>Ask for the client version</td>
+                    </tr>
+                </tbody>
+            </table>
+        </template>
+    </section>
+
+    <section class="cat-ex" data-example data-demo="ex-demo--block">
+        <h2>Stacked on a narrow screen</h2>
+        <p>
+            <code>.table--stack</code> turns each row into a card below 640px, taking each cell's label
+            from <code>data-label</code>. <strong>Understand the trade first:</strong> it throws away
+            column alignment, so comparing one value across rows stops being possible. It is right for
+            a list of records read one at a time, and wrong for anything scanned down a column.
+        </p>
+        <p>
+            Narrow this window to see it. A cell with no <code>data-label</code> — an actions cell —
+            keeps the full width instead of leaving an empty gutter.
+        </p>
+        <template>
+            <table class="table table--stack">
+                <thead><tr><th>Incident</th><th>Group</th><th>Priority</th><th></th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td data-label="Incident">INC0031209</td>
+                        <td data-label="Group">SD-Frontline</td>
+                        <td data-label="Priority"><span class="badge badge-warn">P3</span></td>
+                        <td><button class="btn btn-sm" type="button">Open</button></td>
+                    </tr>
+                    <tr>
+                        <td data-label="Incident">INC0031204</td>
+                        <td data-label="Group">SD-Network</td>
+                        <td data-label="Priority"><span class="badge badge-danger">P1</span></td>
+                        <td><button class="btn btn-sm" type="button">Open</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </template>
+    </section>
 
 </main>
 </div>

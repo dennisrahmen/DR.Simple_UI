@@ -1,0 +1,18 @@
+/* ═══ Colour-blind-safe palette ═════════════════════════════════════════════
+   Independent toggle, composes with either theme. Only the go family moves. */
+:root[data-cvd="1"] {
+    --go-solid:  #2563eb;
+    --go-hover:  #1d4ed8;
+    --go-active: #1e40af;
+    --go-bg:     rgba(37, 99, 235, 0.14);
+    --go-border: #1e40af;
+    --go-fg:     #93c5fd;
+    --go-ring:   rgba(37, 99, 235, 0.5);
+}
+:root[data-theme="light"][data-cvd="1"] {
+    --go-bg:     rgba(37, 99, 235, 0.08);
+    --go-border: #93c5fd;
+    --go-fg:     #1d4ed8;
+}
+
+

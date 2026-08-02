@@ -18,6 +18,16 @@
 <div class="page">
 <main class="cat-main">
 
+    <noscript>
+        <div class="alert alert-warn">
+            <strong>Scripting is off, so this page looks empty.</strong> The navigation, every live demo
+            and every code block are built from the <code>&lt;template&gt;</code> elements in this file —
+            each example is written once so the demo and the snippet you copy cannot drift apart. With
+            scripting disabled they stay blank. Read the <code>&lt;template&gt;</code> markup in the page
+            source, which is the same HTML the demo renders.
+        </div>
+    </noscript>
+
     <div class="cat-head">
         <h1>Tokens</h1>
         <span class="cat-tier">the contract</span>
@@ -33,6 +43,16 @@
         library — normally the <code>--brand*</code> family, <code>--accent</code> and
         <code>--sidebar-active</code>. The <a href="index.html">overview</a> has a complete override file.
         Do not declare new token names in an app; add them to the library, release, and upgrade.
+    </div>
+
+    <div class="cat-note">
+        <strong>For a design tool:</strong> every token ships as machine-readable JSON at
+        <a href="../tokens/DR.Simple_UI.tokens.json"><code>tokens/DR.Simple_UI.tokens.json</code></a> —
+        <code>_content/DR.Simple_UI/tokens/DR.Simple_UI.tokens.json</code> in a running app. Its
+        <code>blocks</code> array is <strong>ordered</strong>: merge the blocks in order, applying each
+        one whose <code>media</code> condition matches and whose <code>selector</code> matches the
+        document root. <code>:root</code> appears more than once, so a map keyed by theme would lose
+        blocks. Generated from the same parts as the stylesheet, so it cannot drift from the values below.
     </div>
 
     <div id="cat-token-groups"></div>
