@@ -34,7 +34,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # The catalogue pages link ../css/DR.Simple_UI.css and ../js/*, exactly as
       # they resolve inside the package and in a running app. So wwwroot's shape
