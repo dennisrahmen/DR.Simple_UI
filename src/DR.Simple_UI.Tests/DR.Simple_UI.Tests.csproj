@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
     <!-- Renders the tier-1 components and asserts the markup they emit, which is
@@ -25,7 +25,7 @@
     <!-- Drives a real browser over the catalogue. Restores like any other package;
          the browser binaries are a separate `playwright install` step, so the tests
          that need them skip when they are absent (see BrowserTests). -->
-    <PackageReference Include="Microsoft.Playwright" Version="1.56.0" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.61.0" />
     <!-- axe-core over the same Playwright pages. It finds the WCAG rules a source
          scan cannot see at all: a missing accessible name, a broken label
          association, a contrast pair the token audit did not think to check. -->
