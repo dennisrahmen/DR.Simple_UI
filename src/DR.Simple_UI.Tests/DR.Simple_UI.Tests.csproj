@@ -29,7 +29,7 @@
     <!-- axe-core over the same Playwright pages. It finds the WCAG rules a source
          scan cannot see at all: a missing accessible name, a broken label
          association, a contrast pair the token audit did not think to check. -->
-    <PackageReference Include="Deque.AxeCore.Playwright" Version="4.10.1" />
+    <PackageReference Include="Deque.AxeCore.Playwright" Version="4.12.0" />
   </ItemGroup>
 
   <ItemGroup>
