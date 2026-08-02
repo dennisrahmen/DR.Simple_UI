@@ -167,4 +167,30 @@ internal static class Assets
         Regex.Matches(css, @"var\(\s*(--[a-z0-9-]+)", RegexOptions.IgnoreCase)
             .Select(m => m.Groups[1].Value)
             .ToHashSet(StringComparer.Ordinal);
+
+    /// <summary>
+    /// The <c>@layer</c> preludes — the ordering statement and each block's opener.
+    /// </summary>
+    /// <remarks>
+    /// The layer names are dotted, so a class-selector regex reads <c>dr.paint</c> as
+    /// <c>.paint</c>. Stripping the preludes removes six phantom classes without a
+    /// hand-maintained list of them, which would drift the moment a layer is added.
+    /// </remarks>
+    private static readonly Regex LayerPrelude = new(@"@layer[^{;]*[;{]", RegexOptions.Compiled);
+
+    /// <summary>
+    /// Every distinct class name appearing in a selector. Pass comment-stripped CSS.
+    /// </summary>
+    /// <remarks>
+    /// This is the definition behind the "CSS classes" figure on the catalogue landing
+    /// page, so it has to count classes and nothing else. It still counts a class the
+    /// library only styles rather than owns — the Blazor reconnect states — because
+    /// they are genuinely classes in the sheet; a caller that cares about ownership
+    /// filters them itself.
+    /// </remarks>
+    public static ISet<string> ClassSelectors(string css) =>
+        Regex.Matches(LayerPrelude.Replace(css, string.Empty), @"\.(-?[a-z][a-z0-9-]*)",
+                RegexOptions.IgnoreCase)
+            .Select(m => m.Groups[1].Value)
+            .ToHashSet(StringComparer.Ordinal);
 }

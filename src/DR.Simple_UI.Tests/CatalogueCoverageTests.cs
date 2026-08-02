@@ -17,14 +17,14 @@ namespace DR.Simple_UI.Tests;
 public class CatalogueCoverageTests
 {
     /// <summary>
-    /// Not classes. The cascade layer names read as classes to a regex
-    /// (<c>dr.paint</c> → <c>.paint</c>), and the reconnect state classes are set by
-    /// Blazor itself — the library only styles them, and they are documented on the
-    /// Shell &amp; nav page as the reconnect banner rather than by class name.
+    /// Classes the library styles but does not own: Blazor sets them, and they are
+    /// documented on the Shell &amp; nav page as the reconnect banner rather than by
+    /// class name. The cascade layer names used to be listed here too — they are not
+    /// classes at all, and <see cref="Assets.ClassSelectors"/> now drops them by
+    /// stripping the <c>@layer</c> preludes, so adding a layer needs no edit here.
     /// </summary>
     private static readonly HashSet<string> NotOurClasses = new(StringComparer.Ordinal)
     {
-        "tokens", "base", "frame", "paint", "utilities", "overrides",
         "components-reconnect-show", "components-reconnect-failed", "components-reconnect-rejected"
     };
 
@@ -32,10 +32,8 @@ public class CatalogueCoverageTests
     public void Every_class_in_the_stylesheet_is_shown_somewhere_in_the_catalogue()
     {
         var css = Assets.StripComments(Assets.Css);
-        var classes = Regex.Matches(css, @"\.(-?[a-z][a-z0-9-]*)")
-            .Select(m => m.Groups[1].Value)
+        var classes = Assets.ClassSelectors(css)
             .Where(c => !NotOurClasses.Contains(c))
-            .Distinct(StringComparer.Ordinal)
             .ToHashSet(StringComparer.Ordinal);
 
         // Anywhere in the catalogue counts — a class attribute, a <code> mention in

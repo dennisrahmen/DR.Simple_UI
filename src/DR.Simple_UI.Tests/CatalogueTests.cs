@@ -194,10 +194,7 @@ public class CatalogueTests
         //   CSS classes   = distinct .names appearing in a selector
         var css = Assets.StripComments(Assets.Css);
         var tokens = Assets.DeclaredCustomProperties(css).Count;
-        var classes = Regex.Matches(css, @"\.(-?[A-Za-z_][\w-]*)", RegexOptions.Compiled)
-            .Select(m => m.Groups[1].Value)
-            .Distinct(StringComparer.Ordinal)
-            .Count();
+        var classes = Assets.ClassSelectors(css).Count;
 
         var html = File.ReadAllText(Path.Combine(Assets.CatalogueDir, "index.html"));
         var stated = Regex.Matches(html, @"<strong>([\d,]+)</strong><span>([^<]+)</span>", RegexOptions.Compiled)
