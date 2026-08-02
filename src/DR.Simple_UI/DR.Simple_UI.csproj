@@ -73,7 +73,7 @@
        dependency-free but would stop a Blazor WebAssembly app consuming this
        library, which does not reference the shared framework. -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.10" />
   </ItemGroup>
 
 </Project>
