@@ -20,6 +20,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Tags, not just history: class-history.sh derives which release first
+          # shipped each class from `git tag`, and the default shallow checkout
+          # fetches none — so the check has nothing to compare against.
+          fetch-depth: 0
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v4

@@ -33,6 +33,16 @@ check=0
 # Version order, not tag order: v0.10.0 sorts after v0.9.0 only under -V.
 mapfile -t tags < <(git -C "$root" tag -l 'v*' | sort -V)
 
+# Every release in the output comes from a tag, so a checkout without tags cannot
+# produce the file at all. Named here rather than left to fail on an empty array,
+# because the usual cause is a CI checkout that fetched none — `actions/checkout`
+# is shallow by default and takes `fetch-depth: 0` to bring them.
+if [[ ${#tags[@]} -eq 0 ]]; then
+    echo "::error::No v* tags in this checkout, so no release can be attributed." >&2
+    echo "        Fetch them: git fetch --tags   (in CI: actions/checkout with fetch-depth: 0)" >&2
+    exit 1
+fi
+
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
