@@ -9,8 +9,18 @@
     color: var(--muted);
 }
 
+/* min-height, not height: a <textarea> and a <select multiple> are taller by nature
+   and must stay so. It is the same token the button uses, which is what makes a
+   button beside a field line up with it.
+
+   The block padding matches the button's for the same reason, and has to stay small
+   enough that the natural height — padding + line box + borders — is UNDER
+   --control-height. A min-height is a floor: at 8px of block padding the field
+   measures 36.2px, the token never binds, and the field sits a couple of pixels
+   taller than everything beside it. */
 .form-input {
-    padding: var(--space-4) var(--space-5);
+    min-height: var(--control-height);
+    padding: var(--space-3) var(--space-5);
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
@@ -28,9 +38,21 @@
 }
 .form-input::placeholder { color: var(--border-strong); }
 
-/* A read-only value rendered in the shape of an input. */
+/* The same three tiers as the button, so a field and the button beside it agree at
+   every size. Padding stays under the tier so the tier is what sets the height. */
+.form-input-sm { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-4); font-size: var(--text-3); }
+.form-input-lg { min-height: var(--control-height-lg); padding: var(--space-5) var(--space-7); font-size: var(--text-5); }
+
+/* A read-only value rendered in the shape of an input — so it takes the input's
+   height too, or a form of mixed editable and read-only rows steps up and down. */
+/* display:flex, so min-height applies and the text sits centred in the box. min-height
+   does nothing on an inline element, so a bare <span> here comes out several pixels
+   shorter than the field above it. */
 .form-value-display {
-    padding: var(--space-4) var(--space-5);
+    display: flex;
+    align-items: center;
+    min-height: var(--control-height);
+    padding: var(--space-3) var(--space-5);
     background: var(--surface-soft);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);

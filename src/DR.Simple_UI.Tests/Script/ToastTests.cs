@@ -80,6 +80,55 @@ public class ToastTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task Toast_leaves_a_stack_the_app_wrote_alone()
+    {
+        if (NoBrowser) return;
+        // The stack used to be found by `.toast-stack`, which matched anything the app
+        // had written for its own reasons — a server-rendered stack, or the markup shown
+        // on a documentation page. Toasts then appeared inside it, wherever on the page
+        // that was; its aria-live was overwritten; and dismissing the last one DELETED
+        // the app's own element. The library does not remove markup it did not create.
+        var page = await Open(
+            """
+            <div id="host">
+              <div class="toast-stack" id="theirs" aria-live="off">
+                <div class="toast toast-info" id="mine"><span class="toast-body">Rendered by the app</span></div>
+              </div>
+            </div>
+            """);
+
+        var probe = await page.EvaluateAsync<JsonElement>("""
+            () => {
+                const theirs = document.getElementById('theirs');
+                const remove = drSimpleUi.toast('From the library', { timeout: 0 });
+                const ours = document.querySelector('[data-dr-toasts]');
+                const before = {
+                    separate: ours !== theirs,
+                    theirChildren: theirs.children.length,
+                    theirLive: theirs.getAttribute('aria-live'),
+                    ourParent: ours.parentElement.tagName,
+                };
+                remove();
+                return { ...before, theirsStillThere: !!document.getElementById('theirs'),
+                         theirChildrenAfter: document.getElementById('theirs').children.length,
+                         oursGone: !document.querySelector('[data-dr-toasts]') };
+            }
+            """);
+
+        Assert.True(probe.GetProperty("separate").GetBoolean(),
+            "The library appended to the app's own stack instead of creating its own.");
+        Assert.Equal(1, probe.GetProperty("theirChildren").GetInt32());
+        Assert.Equal("off", probe.GetProperty("theirLive").GetString());
+        Assert.Equal("BODY", probe.GetProperty("ourParent").GetString());
+
+        Assert.True(probe.GetProperty("theirsStillThere").GetBoolean(),
+            "Dismissing a toast deleted the app's own stack.");
+        Assert.Equal(1, probe.GetProperty("theirChildrenAfter").GetInt32());
+        Assert.True(probe.GetProperty("oursGone").GetBoolean(),
+            "The library's own stack should go when its last toast does.");
+    }
+
+    [Fact]
     public async Task Toast_with_a_zero_timeout_stays_until_it_is_dismissed()
     {
         if (NoBrowser) return;

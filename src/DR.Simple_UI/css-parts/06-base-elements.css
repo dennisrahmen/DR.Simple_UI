@@ -4,8 +4,20 @@
 html, body { margin: 0; height: 100%; }
 
 /* On <html>, not :root — the selectors are equivalent, but a :root block in this
-   library is a token block and may hold custom properties only. */
-html { color-scheme: var(--color-scheme); }
+   library is a token block and may hold custom properties only.
+
+   `scrollbar-width` and `scrollbar-color` are inherited properties, so declaring them
+   here reaches every scroll container in the document: a modal body, a drawer, the
+   palette list, a code block, a table wrapper, and an app's own scrollers. Declare
+   them here rather than on a list of the containers the library creates: that list is
+   never complete, and one unthemed OS scrollbar inside a modal is what a gap in it
+   looks like. Anything that wants a different bar overrides these two on itself,
+   which is what `.breadcrumb` does to hide its own. */
+html {
+    color-scheme: var(--color-scheme);
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+}
 
 body {
     background: var(--bg);
@@ -18,6 +30,16 @@ body {
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
+/* overflow-wrap: anywhere, because what goes in an inline <code> is exactly the kind
+   of string that has no spaces to break at — an asset path, a class list, a token
+   name. Without it a long one runs past its container and is clipped, which on a
+   phone means the end of the path is simply not there. `anywhere` rather than
+   `break-word`: it also shrinks the min-content width, so a <code> in a table cell or
+   a flex item stops forcing the whole column wide.
+
+   It does nothing to a code BLOCK. `white-space: pre` there means lines never wrap at
+   all, so there is no wrap opportunity for this to take, and the block goes on
+   scrolling instead. */
 code {
     font-family: var(--font-mono);
     font-size: var(--text-4);
@@ -25,6 +47,7 @@ code {
     background: var(--code-bg);
     padding: 1px var(--space-2);
     border-radius: var(--radius-small);
+    overflow-wrap: anywhere;
 }
 
 h1 { font-size: var(--text-9); margin: 0 0 var(--space-4); }

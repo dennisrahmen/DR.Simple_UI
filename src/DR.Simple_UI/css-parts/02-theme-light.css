@@ -38,11 +38,9 @@
     --warn-border: #fcd34d;
     --warn-fg:     #b45309;
 
-    /* The hover and active tints and the strong border were left on their dark
-       values, so .btn-danger jumped from a 8%-tinted pink to a 25% wash of a
-       much darker red on hover, and its border went from #fca5a5 to near-black.
-       Remapped to the same steps the dark theme takes, scaled for a light
-       surface. */
+    /* The hover and active tints and the strong border take the same steps as the
+       dark theme, scaled for a light surface. All four move together: a tint
+       remapped without its hover pair jumps between two unrelated reds. */
     --danger-solid: #dc2626;
     --danger-bg:            rgba(220, 38, 38, 0.08);
     --danger-bg-hover:      rgba(220, 38, 38, 0.14);
@@ -55,6 +53,8 @@
     --info-bg:     rgba(37, 99, 235, 0.08);
     --info-border: #93c5fd;
     --info-fg:     #1d4ed8;
+    --info-solid:  #2563eb;
+    --info-ring:   rgba(37, 99, 235, 0.4);
 
     --secret-bg:     rgba(124, 58, 237, 0.08);
     --secret-border: #c4b5fd;

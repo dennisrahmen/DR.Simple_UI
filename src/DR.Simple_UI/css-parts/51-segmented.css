@@ -16,13 +16,11 @@
 
    The chosen state is `:has(input:checked)` on the label, so the whole label — which
    is also the whole hit area — is what gets painted, and the markup stays a label
-   wrapping an input and its text. This was briefly rewritten to a `+ span` sibling
-   selector after the chosen option appeared never to repaint; that reading was wrong.
-   Everything here has a `transition`, and getComputedStyle immediately after the
-   change returns the value at t=0, which is the one being transitioned away from.
-   `Interactive_states_repaint_when_the_state_changes` now switches transitions off
-   before measuring, and keeps a `.sidebar.collapsed` sentinel to catch the same
-   mistake next time.
+   wrapping an input and its text.
+
+   When measuring this state from a test, switch transitions off first: everything here
+   has a `transition`, and getComputedStyle immediately after the change returns the
+   value at t=0, which is the one being transitioned away from.
    ─────────────────────────────────────────────────────────────────────────── */
 .segmented {
     display: inline-flex;
@@ -56,7 +54,12 @@
     opacity: 0;
     cursor: pointer;
 }
-.segmented-option:hover { color: var(--fg); }
+/* The disabled option is excluded from the hover state, and the input overlay gives up
+   its pointer cursor. The overlay is the element actually under the pointer, so its
+   cursor wins over the label's `not-allowed` — without both rules a disabled option
+   shows a hand and lights up on hover while refusing to be chosen. */
+.segmented-option:hover:not(:has(input:disabled)) { color: var(--fg); }
+.segmented-option input:disabled { cursor: not-allowed; }
 
 /* Flat, not raised: a shadow inside a 2px track reads as a rendering artefact at
    this size. The elevated surface against the inset track is enough. */

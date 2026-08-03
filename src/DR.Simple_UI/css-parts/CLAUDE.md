@@ -17,8 +17,9 @@ regeneration cannot ship.
    every `*.css` in this directory and concatenates them in byte-ordinal filename order. There is no
    manifest to update, and the build fails on a file without a prefix.
 2. Run `build/bundle-css.sh`.
-3. Add or extend a catalogue page under `wwwroot/catalogue/`, and register it in `CAT_PAGES` in
-   `catalogue.js`. A class with no catalogue page is a class nobody can find.
+3. Add or extend a catalogue page under `src/DR.Simple_UI.Catalogue/Components/Pages/`, with its
+   example markup as a file under `Examples/`. A class with no catalogue page is a class nobody can
+   find, and a test fails on one.
 4. `dotnet test`.
 
 ### Choosing the number
@@ -42,7 +43,7 @@ as its order**, which is a behaviour change twice over — check the affected pa
 Two consequences to keep in mind while writing a rule:
 
 - **A later layer beats an earlier one regardless of specificity.** That is why a utility at (0,1,0)
-  now wins against `.table td` at (0,1,1), and why it did not before layers.
+  wins against `.table td` at (0,1,1) despite the lower specificity.
 - **An app's own stylesheet is unlayered, so it beats everything here.** A library rule can no longer
   out-specify an app. Do not try: if an app has to be overridden, that is a design problem, not a
   specificity one.

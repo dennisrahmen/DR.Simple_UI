@@ -19,26 +19,12 @@ internal static class Assets
     public static string CssPath => Path.Combine(ProjectDir, "wwwroot", "css", "DR.Simple_UI.css");
     public static string JsPath => Path.Combine(ProjectDir, "wwwroot", "js", "DR.Simple_UI.js");
     public static string BootJsPath => Path.Combine(ProjectDir, "wwwroot", "js", "DR.Simple_UI.boot.js");
-    public static string CatalogueDir => Path.Combine(ProjectDir, "wwwroot", "catalogue");
+    public static string TokensPath =>
+        Path.Combine(ProjectDir, "wwwroot", "tokens", "DR.Simple_UI.tokens.json");
     public static string IconCssPath =>
         Path.Combine(ProjectDir, "wwwroot", "lib", "remixicon", "remixicon.css");
 
-    /// <summary>
-    /// The three stylesheet hrefs a catalogue page is allowed to link, exactly as written
-    /// in the pages. Relative on purpose: one path has to resolve identically in the
-    /// repo, inside the .nupkg, and over HTTP.
-    /// </summary>
-    public const string ShippedCssHref = "../css/DR.Simple_UI.css";
-    public const string CatalogueCssFile = "catalogue.css";
-    public const string IconCssHref = "../lib/remixicon/remixicon.css";
-
     public static string Css => File.ReadAllText(CssPath);
-
-    // AllDirectories: a page filed in a subfolder would otherwise be invisible to
-    // every catalogue guard at once, and each of them would still pass.
-    public static IEnumerable<string> CataloguePages =>
-        Directory.EnumerateFiles(CatalogueDir, "*.html", SearchOption.AllDirectories)
-            .OrderBy(p => p, StringComparer.Ordinal);
 
     private static string FindRepoRoot()
     {

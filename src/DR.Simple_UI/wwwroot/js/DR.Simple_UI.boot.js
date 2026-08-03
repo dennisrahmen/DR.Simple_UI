@@ -7,10 +7,14 @@
 
    Both attributes below are optional.
 
-   It only stamps data-theme / data-cvd / data-density / lang on <html> from
+   It only stamps data-theme / data-cvd / data-density / dir / lang on <html> from
    localStorage. The main DR.Simple_UI.js (end of <body>) keeps them current
    afterwards, and both default to the same prefix, so neither needs configuring
    unless two apps share one origin.
+
+   dir and lang are stamped from a STORED choice only. Both are attributes the host
+   page declares for itself, and deriving either from the browser would overwrite
+   what the document says about itself.
 
    It ships as a file rather than a snippet to copy into every app on purpose:
    a copied snippet is drift waiting to happen.
@@ -60,10 +64,23 @@
         if (get('cvd') === '1') root.setAttribute('data-cvd', '1');
         if (get('density') === 'compact') root.setAttribute('data-density', 'compact');
 
-        var lang = get('lang') || (navigator.language || 'en').slice(0, 2).toLowerCase();
-        root.lang = lang;
-        if (wantCookie) {
-            document.cookie = prefix + 'lang=' + lang + ';path=/;max-age=31536000;SameSite=Lax';
+        // Before first paint or not at all: a document that paints left-to-right and
+        // then mirrors is a worse flash than a theme change, because every box moves.
+        var dir = get('dir');
+        if (dir === 'rtl' || dir === 'ltr') root.dir = dir;
+
+        // A STORED choice only. With none, <html lang> keeps whatever the host page
+        // declared, and that is the correct answer: navigator.language is the
+        // language of the reader's browser UI, not the language this document is
+        // written in. Deriving one from the other relabels an English page as German
+        // for every screen reader, translation prompt and search crawler the moment
+        // somebody visits with a German browser — and it did.
+        var lang = get('lang');
+        if (lang) {
+            root.lang = lang;
+            if (wantCookie) {
+                document.cookie = prefix + 'lang=' + lang + ';path=/;max-age=31536000;SameSite=Lax';
+            }
         }
     } catch (e) {
         /* storage blocked — first paint falls back to the dark default */

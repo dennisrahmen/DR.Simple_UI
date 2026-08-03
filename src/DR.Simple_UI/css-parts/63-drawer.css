@@ -83,12 +83,52 @@
    cannot be interpolated without opting in. Without them the panel simply appears —
    which is correct, just abrupt, so this degrades rather than breaks. */
 dialog.drawer {
+    /* The UA stylesheet centres a dialog with `margin: auto` and sizes it to its
+       content with `width`/`height: fit-content`. Both fight the edge anchoring above,
+       and both have to be given back here, or the panel is sized to its own text and
+       vertically centred while every rule that put it at the edge still applies.
+       `height: auto` is what lets `inset-block: 0` mean full height. */
+    margin: 0;
+    height: auto;
+    /* The UA also sets BOTH inline insets to 0 — that is how `margin: auto` centres a
+       dialog. With a definite width and no auto margins that over-constrains the box,
+       and the inset the spec then ignores is the END one, which puts the panel on the
+       START edge. Only one inset may bind. */
+    inset-inline-start: auto;
+    inset-inline-end: 0;
     max-width: none;
     max-height: none;
     padding: 0;
+    /* And the UA gives a dialog `border: solid`, which is 3px of currentColor — a
+       near-white frame against the viewport edges. All four edges are restated here
+       rather than left to `.drawer`, whose class selector this rule outranks. */
+    border: none;
+    border-inline-start: 1px solid var(--border);
     color: var(--fg);
     --dialog-backdrop: var(--backdrop);
     transition: transform var(--motion-mid) ease, display var(--motion-mid) allow-discrete, overlay var(--motion-mid) allow-discrete;
+}
+/* A closed dialog goes back to `display: none`. `.drawer`'s own `display: flex` would
+   otherwise keep it in the document as a hidden fixed box, and it is what the
+   `display` transition above animates between. */
+dialog.drawer:not([open]) { display: none; }
+
+/* The two variants, restated at this specificity because the rule above outranks their
+   own class selectors. */
+dialog.drawer.drawer--start {
+    inset-inline-start: 0;
+    inset-inline-end: auto;
+    border-inline-start: none;
+    border-inline-end: 1px solid var(--border);
+}
+/* A sheet spans the inline axis, is content-sized in the block axis and capped, and
+   carries its edge on top. */
+dialog.sheet {
+    inset-inline: 0;
+    height: fit-content;
+    max-height: 85vh;
+    border: none;
+    border-top: 1px solid var(--border);
 }
 dialog.drawer::backdrop { background: var(--dialog-backdrop); }
 /* The div form hides itself when closed; a dialog is already display:none, so `open`

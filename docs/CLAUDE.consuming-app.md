@@ -16,17 +16,22 @@ This project uses `DR.Simple_UI` version `<VERSION>` for all shared UI.
 
 ### Copy markup from the catalogue
 
-The catalogue ships inside the package and matches the installed version:
+The catalogue is a hosted site with an MCP server. Add it to this project's MCP configuration:
 
-- While the app is running: `_content/DR.Simple_UI/catalogue/index.html`
-- On disk: `%USERPROFILE%\.nuget\packages\dr.simple_ui\<VERSION>\staticwebassets\catalogue\index.html`
-  (Linux/macOS: `~/.nuget/packages/dr.simple_ui/<VERSION>/staticwebassets/catalogue/index.html`)
+```json
+{ "type": "http", "url": "https://simpleui.dennisrahmen.dev/mcp" }
+```
 
-Every page carries copy-pasteable HTML for its class family.
+Search it, then fetch the exact markup — `search` → `get_example`. Use `describe_class` to choose
+between variants. **Do not write shared-UI markup from memory**, and do not invent class names: a class
+that is not in the stylesheet does nothing at all, silently.
 
-Do not write shared-UI markup from memory, and do not copy it from the hosted docs site — that site shows
-the library's `main` branch, which can differ from the installed version. The in-package catalogue is the
-source of truth.
+The site is built from the library's `main` branch and can be ahead of the version pinned here. Every
+class, token and example it returns carries `since`: the release it first shipped in, or the literal
+`"unreleased"`. **Pass `installedVersion: "<VERSION>"` to the tools, and do not copy anything whose
+`since` is newer than that or is `"unreleased"`.**
+
+Without an MCP client, browse <https://simpleui.dennisrahmen.dev/> and read the strip under the header.
 
 ### Content UI is a CSS class, not a component
 
@@ -34,10 +39,25 @@ Tables, forms, cards, badges, buttons and panels are CSS classes. Write plain HT
 and apply them. Do not wrap page content in a component, and do not add MudBlazor, Syncfusion, Radzen or
 Tailwind.
 
-The layout frame — shell, sidebar, header, user widget — comes from the library, never from a copy kept
-in this app. From the version that ships them, use the frame components; before that, the markup on the
-catalogue's Frame page. Do not restyle it here and do not fork it: a copied frame stops receiving library
-fixes, and it will silently miss later additions such as the responsive drawer and the skip link.
+The layout frame — shell, sidebar, header, user widget — is CSS classes too. There is no `<AppShell>`:
+copy the markup from the catalogue's Shell and nav page. `ActiveLink` from the package supplies the one
+thing that markup cannot, which is knowing which nav link is the current page. Do not restyle the frame
+here and do not fork it: a copied frame stops receiving library fixes, and it will silently miss later
+additions such as the responsive drawer and the skip link.
+
+### The header search
+
+`.search` in the topbar is a library class. An app that already ships its own search chrome under its
+own prefix should move onto these classes rather than keep a parallel copy.
+
+There are two ways to use it, and the choice is about where the results come from:
+
+- **A fixed, known set** — the app's pages, reports, settings screens. Register it once with
+  `IDrSimpleUi.RegisterSearchAsync`, add `data-search` to the input, and the panel, the ranking and the
+  keyboard come from the library.
+- **A database.** Leave `data-search` off and render `.search-panel` yourself. The debounce length,
+  cancelling a superseded keystroke and the busy state are decisions about your backend, and the
+  library will not guess them.
 
 ### Do not style a class name the library owns
 
@@ -77,19 +97,18 @@ means the next library upgrade fights you, which is the drift the shared library
 ### Overriding is now trivially easy, which is the reason not to
 
 The library's stylesheet is entirely inside cascade layers. **This app's CSS is unlayered, so any rule
-here beats any library rule, whatever the specificity.** You will never again need a longer selector to
-win.
+here beats any library rule, whatever the specificity.** A longer selector is never needed to win.
 
 That makes discipline the only thing left protecting the shared design:
 
 - **Redefine tokens, not rules.** A token override travels with the theme, the colour-blind palette and
   every future version. A rule override is a private fork of the design that nothing will tell you has
   gone stale.
-- **Two consequences of the layering, if this app has old copied CSS:** a token set at bare `:root` here
-  now also beats the library's `[data-theme="light"]` value for it, so set both blocks; and any
-  unconditional rule here now beats a library rule that used to outrank it. The known case is a copied
-  `.table th, .table td { padding: … }`, which now stops compact density from tightening this app's
-  tables. **Delete copied library rules** — that was always the intention.
+- **Two things the layering means for this app's own CSS:** a token set at bare `:root` here also beats
+  the library's `[data-theme="light"]` value for it, so set both blocks; and any unconditional rule here
+  beats a library rule at any specificity. The case to check is a copied
+  `.table th, .table td { padding: … }`, which stops compact density from tightening this app's tables.
+  **Delete copied library rules.**
 - **Never use `!important` against the library.** Layer order inverts for important declarations, so it
   is not needed and makes the result harder to reason about, not easier.
 

@@ -53,3 +53,15 @@ Attribution is optional under Section 2.4. It is given here anyway, in the form 
 The `package.json` of `remixicon@4.9.1` on npm reports `Apache-2.0`. That is stale — the `License` file
 shipped inside the same package is the Remix Icon License v1.0, dated January 2026. The licence file that
 ships with the artifact governs, and it is the one vendored here.
+
+## Catalogue application dependencies
+
+These are **not redistributed in the NuGet package**. They are dependencies of the hosted catalogue
+application (`src/DR.Simple_UI.Catalogue`), whose container image is published.
+
+| Package | Licence | Source |
+|---|---|---|
+| `ModelContextProtocol.AspNetCore` | Apache-2.0 | <https://github.com/modelcontextprotocol/csharp-sdk> |
+
+The library itself takes exactly one dependency, `Microsoft.AspNetCore.Components.Web`, and
+`build/verify-package.sh` fails if the packed dependency list is anything else.

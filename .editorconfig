@@ -75,3 +75,10 @@ dotnet_diagnostic.CA1309.severity = warning   # prefer Ordinal over InvariantCul
 # asserting things about a copy proves nothing about what ships.
 [src/DR.Simple_UI.Tests/**.cs]
 dotnet_diagnostic.CS1591.severity = none
+
+# The catalogue application and its tests are not packages: nothing consumes their
+# API, so there is no documentation surface to keep. GenerateDocumentationFile is
+# already false in both, which is what actually stops CS1591 firing; this pins the
+# intent so turning it back on does not read as an oversight.
+[src/DR.Simple_UI.Catalogue{,.Tests}/**.cs]
+dotnet_diagnostic.CS1591.severity = none

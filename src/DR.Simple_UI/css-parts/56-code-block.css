@@ -89,3 +89,58 @@
 }
 /* With a head, the button sits in the head row instead of over the code. */
 .code-block-head .code-block-copy { position: static; opacity: 1; }
+
+/* ── Clamped ────────────────────────────────────────────────────────────────
+   A long block bounded to a readable height, scrolling inside, with a fading lip and
+   a control that opens it in full. Forty lines of markup between two paragraphs is a
+   page nobody scrolls past.
+
+   `--clamped` caps it; the expand control removes the class. The height is a token so
+   an app can raise it, and the fade is a gradient over the lip rather than a shorter
+   box, so the reader can see there is more without a scrollbar being the only clue.
+
+   The pane keeps `tabindex="0"` in both states: a scroll container that a keyboard
+   cannot reach is a part of the page a keyboard cannot read. */
+.code-block--clamped pre {
+    max-height: var(--code-clamp);
+    overflow-y: auto;
+}
+/* The lip. `sticky` inside the scroller, so it sits over the last visible line at
+   whatever scroll position rather than at the bottom of the content. */
+.code-block--clamped .code-block-lip {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 68px;
+    margin-top: -68px;
+    padding-bottom: var(--space-4);
+    background: linear-gradient(transparent, var(--bg) 70%);
+    pointer-events: none;
+}
+/* Not clamped: no fade, and the control still has to be clickable. */
+.code-block-lip {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-3) 0 var(--space-4);
+}
+.code-block-expand {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-height-sm);
+    padding: var(--space-2) var(--space-6);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--fg-soft);
+    font-family: inherit;
+    font-size: var(--text-2);
+    cursor: pointer;
+    transition: background var(--motion-fast), color var(--motion-fast);
+}
+.code-block-expand:hover { background: var(--bg-hover); color: var(--fg); }
+.code-block-expand:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.code-block-expand i { font-size: var(--text-4); }

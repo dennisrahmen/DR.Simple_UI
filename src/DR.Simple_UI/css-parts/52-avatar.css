@@ -16,8 +16,20 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: 28px;
-    height: 28px;
+    /* One source for the diameter, because the group's overlap and its cut-out are
+       both derived from it. A size variant sets these two numbers and the geometry
+       below follows.
+
+       --avatar-cut-x is the centre of the hole the group masks out: the next
+       avatar's centre, measured from this one's own box. Past the right edge in
+       LTR; 70-rtl.css mirrors it, because a radial-gradient position is physical
+       and margin-inline-start is not. */
+    --avatar-size: 28px;
+    --avatar-overlap: 8px;
+    --avatar-gap: 2px;
+    --avatar-cut-x: calc(100% + var(--avatar-size) / 2 - var(--avatar-overlap));
+    width: var(--avatar-size);
+    height: var(--avatar-size);
     border-radius: 50%;
     overflow: hidden;
     background: var(--brand-tint);
@@ -31,9 +43,9 @@
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 .avatar i { font-size: var(--text-6); }
 
-.avatar-sm { width: 22px; height: 22px; font-size: var(--text-1); }
+.avatar-sm { --avatar-size: 22px; --avatar-overlap: 6px; font-size: var(--text-1); }
 .avatar-sm i { font-size: var(--text-4); }
-.avatar-lg { width: 40px; height: 40px; font-size: var(--text-6); }
+.avatar-lg { --avatar-size: 40px; --avatar-overlap: 11px; font-size: var(--text-6); }
 .avatar-lg i { font-size: var(--text-9); }
 
 /* Neutral, for an actor with no brand meaning — a system account, an unknown
@@ -42,20 +54,33 @@
 .avatar--muted { background: var(--surface-strong); color: var(--muted); }
 
 /* ── Avatar group ───────────────────────────────────────────────────────────
-   Overlapping avatars for "these several people". The ring is drawn with a
-   box-shadow rather than a border so it does not change the box size and the
-   spacing stays exact; it is the surface colour, so each avatar cuts a clean edge
-   out of the one behind it.
+   Overlapping avatars for "these several people".
 
-   Reverse the paint order with a negative z-index step? No — a plain source order
-   means the LAST avatar sits on top, which is the wrong way round for a "+3 more"
-   chip at the end. `flex-direction: row-reverse` on a reversed list would fix the
-   painting and break the reading order, so instead each avatar simply overlaps the
-   one before it and the counter goes last, unoverlapped. */
-.avatar-group { display: inline-flex; align-items: center; }
-.avatar-group > * + * { margin-inline-start: -8px; }
-.avatar-group > .avatar { box-shadow: 0 0 0 2px var(--card-bg); }
-.avatar-group > .avatar-sm + .avatar-sm { margin-inline-start: -6px; }
+   The separating gap is a hole cut out of the avatar BEHIND, not a ring painted on the
+   one in front. A ring has to be drawn in the colour of whatever is underneath, and a
+   shared component cannot know what that is — `box-shadow: 0 0 0 2px var(--card-bg)`
+   is right inside a card and a grey halo on the page background, in a toast and over a
+   selected table row. Masking takes colour out of the problem, so the group is correct
+   on every surface and in every theme.
+
+   Paint order is plain source order: each avatar overlaps the one before it, the LAST
+   one sits on top, and the counter goes last and unoverlapped. Do not reverse it with
+   a negative z-index step or with `flex-direction: row-reverse` — the second fixes the
+   painting and breaks the reading order. */
+/* The default is declared on the group as well as on .avatar, so the counter — which
+   is not an .avatar and inherits from here — resolves it too. */
+.avatar-group { display: inline-flex; align-items: center; --avatar-overlap: 8px; }
+.avatar-group > * + * { margin-inline-start: calc(var(--avatar-overlap) * -1); }
+
+/* :has(+ .avatar), not :not(:last-child) — the last thing in a group is usually the
+   .avatar-more counter, which overlaps nothing, so the avatar before it must not be
+   cut either. Only an avatar with an avatar after it is. */
+.avatar-group > .avatar:has(+ .avatar) {
+    mask-image: radial-gradient(
+        circle calc(var(--avatar-size) / 2 + var(--avatar-gap))
+        at var(--avatar-cut-x) 50%,
+        transparent 100%, currentColor 100%);
+}
 
 /* The overflow counter. Not an .avatar: it is a number, not an actor, and giving it
    the brand tint would make it look like one more person. */

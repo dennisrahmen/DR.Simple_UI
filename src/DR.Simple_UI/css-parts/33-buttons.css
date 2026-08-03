@@ -6,15 +6,18 @@
      .btn-warn-solid filled amber   — changes who is in control (take over)
      .btn-warn       tinted amber   — a SECONDARY of the above, beside a primary
      .btn-danger     tinted red     — destructive
-   The min-heights pin icon-only buttons to the height of their text siblings:
-   a bare icon's line box (15px/1) is shorter than the 1.4-line text next to it,
-   so without them an icon-only button sits ~3px short in a mixed row. */
+
+   --control-height is shared with the text input, the select and the search box, so
+   a button beside a field is the same height as the field. It also pins an icon-only
+   button to the height of its text siblings: a bare icon's line box (15px/1) is
+   shorter than the 1.4-line text next to it, so without it an icon-only button sits
+   several pixels short in a mixed row. */
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
-    min-height: 33px;
+    min-height: var(--control-height);
     padding: var(--space-3) var(--space-7);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
@@ -35,8 +38,12 @@
 .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .btn:disabled      { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 
-.btn-sm   { min-height: 27px; padding: var(--space-2) var(--space-5); font-size: var(--text-3); }
+/* Three tiers. Each sets its height from the matching token and scales its padding,
+   text and icon with it. */
+.btn-sm   { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-5); font-size: var(--text-3); }
 .btn-sm i { font-size: var(--text-4); }
+.btn-lg   { min-height: var(--control-height-lg); padding: var(--space-4) var(--space-9); font-size: var(--text-5); gap: var(--space-4); }
+.btn-lg i { font-size: var(--text-8); }
 
 .btn-primary        { background: var(--brand); border-color: var(--brand); color: var(--on-solid); }
 .btn-primary:hover  { background: var(--brand-hover); border-color: var(--brand-hover); }
@@ -61,6 +68,6 @@
 .btn-danger        { color: var(--danger-fg); border-color: var(--danger-border); background: var(--danger-bg); }
 .btn-danger:hover  { background: var(--danger-bg-hover); border-color: var(--danger-border-strong); }
 .btn-danger:active { background: var(--danger-bg-active); }
-/* Was inheriting .btn's brand ring: a blue halo around a red destructive button. */
+/* Its own ring, so focus is not a blue halo around a red destructive button. */
 .btn-danger:focus-visible { box-shadow: 0 0 0 2px var(--danger-ring); }
 

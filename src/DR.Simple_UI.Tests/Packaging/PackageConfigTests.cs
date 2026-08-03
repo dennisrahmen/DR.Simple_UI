@@ -66,4 +66,31 @@ public class PackageConfigTests
         Assert.True(File.Exists(Path.Combine(Assets.RepoRoot, "README.md")));
         Assert.True(File.Exists(Path.Combine(Assets.RepoRoot, "LICENSE")));
     }
+
+    [Fact]
+    public void Only_one_project_in_this_repository_is_packable()
+    {
+        // The mechanised form of "one package ships from this repo". There are three
+        // projects now — the library, the catalogue app and two test suites — and
+        // the app taking a dependency the library may not is only safe while it
+        // stays unpackable.
+        var packable = Directory
+            .EnumerateFiles(Path.Combine(Assets.RepoRoot, "src"), "*.csproj",
+                SearchOption.AllDirectories)
+            .Where(path =>
+            {
+                var project = XDocument.Load(path);
+                var declared = project.Descendants("IsPackable").FirstOrDefault()?.Value;
+
+                // A Web or test SDK defaults to false; a library SDK defaults to
+                // true. Absent therefore means "packable" only for the library.
+                return declared is null
+                    ? project.Root?.Attribute("Sdk")?.Value == "Microsoft.NET.Sdk.Razor"
+                    : string.Equals(declared, "true", StringComparison.OrdinalIgnoreCase);
+            })
+            .Select(Path.GetFileName)
+            .ToList();
+
+        Assert.Equal(["DR.Simple_UI.csproj"], packable);
+    }
 }

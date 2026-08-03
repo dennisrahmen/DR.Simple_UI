@@ -41,9 +41,13 @@
 /* ── Icon-only and floating buttons ─────────────────────────────────────────
    .btn-icon is a square button with no label. It still needs an aria-label, and
    `.btn`'s min-height already matches it to text buttons beside it — this only
-   squares the padding so it is not a wide box around one glyph. */
-.btn-icon { padding-inline: 0; width: 33px; }
-.btn-icon.btn-sm { width: 27px; }
+   squares the padding so it is not a wide box around one glyph.
+
+   Square by construction, from the same token as the height. Do not hard-code the
+   width: it drifts from the height the moment either tier changes. */
+.btn-icon { padding-inline: 0; width: var(--control-height); }
+.btn-icon.btn-sm { width: var(--control-height-sm); }
+.btn-icon.btn-lg { width: var(--control-height-lg); }
 
 /* .btn-ghost carries no border or fill until hovered, for a dense row of secondary
    actions — a table row's actions, a toolbar. Everything the button does is still

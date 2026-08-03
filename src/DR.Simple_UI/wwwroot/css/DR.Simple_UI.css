@@ -17,13 +17,13 @@
      11-frame-sidebar.css
      12-frame-collapsed-rail.css
      13-frame-topbar.css
-     14-frame-health-indicator.css
      15-frame-user-widget.css
      16-frame-page-scroll.css
      17-frame-hover-hints.css
      18-frame-reconnect-banner.css
      19-frame-responsive.css
      20-frame-layouts.css
+     21-frame-search.css
      30-cards.css
      31-badges.css
      32-tables.css
@@ -58,6 +58,9 @@
      62-media-and-prose.css
      63-drawer.css
      64-palette-spotlight.css
+     65-popover.css
+     66-status-indicator.css
+     67-output.css
      70-rtl.css
      71-forced-colors.css
      72-print.css
@@ -96,18 +99,16 @@
       shadow and tint is a `var(--…)`. A test (CssTokenContractTests) fails the
       build if a hex or rgb() literal appears past the `:root` blocks — that is
       what makes an app able to rebrand by redefining a handful of tokens.
-   2. Content UI is a CLASS, never a component. If you want `<DataTable>`,
-      stop — see CLAUDE.md §"The two tiers".
+   2. Content UI is a CLASS, never a component. There is no `<DataTable>`, no
+      `<Card>` and no `<AppShell>`; pages write markup and apply these classes.
 
    Consuming apps load this file first, then their own override file which
    redefines only the tokens it needs (typically the --brand* family, --accent
    and --sidebar-active). Apps must not invent tokens; a missing token is added
    here, the version is bumped, and the app upgrades.
 
-   Because every theme difference is expressed as a token, the light and colour-
-   blind blocks below contain NO selector overrides. Load order is therefore not
-   load-bearing, unlike the two-file site.css + app.css setup this library was
-   extracted from.
+   Every theme difference is expressed as a token, so the light and colour-blind
+   blocks below contain NO selector overrides and CSS load order is irrelevant.
 
    Everything here is inside a cascade layer. A consuming app's stylesheet is
    unlayered, so it beats every rule in this file whatever the specificity — which
@@ -175,13 +176,12 @@
     --brand-text:       #93c5fd;         /* readable brand text on the theme bg */
     /* Mixed from --brand rather than restated as literals, so redefining --brand
        alone carries the tint and every focus ring with it. An app may still pin any
-       of them. Measured: each mix paints the same pixel the literal did.
-       One observable difference — getComputedStyle now reports
-       `color(srgb 0.145098 0.388235 0.921569 / 0.14)` where it reported
-       `rgba(37, 99, 235, 0.14)`. The rendering is identical; only the serialisation
-       moved, and it moves for any derived colour (relative `rgb(from …)` serialises
-       the same way). A computed-style differ comparing strings will therefore flag
-       every brand-tinted surface as changed when it has not. */
+       of them.
+
+       A derived colour serialises as `color(srgb 0.145098 0.388235 0.921569 / 0.14)`
+       rather than `rgba(37, 99, 235, 0.14)` — the painted pixel is the same, only the
+       string differs. A computed-style differ that compares strings therefore reports
+       every brand-tinted surface as changed. */
     --brand-tint:       color-mix(in srgb, var(--brand) 14%, transparent);
     --brand-ring:       color-mix(in srgb, var(--brand) 50%, transparent);  /* filled primary focus ring */
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
@@ -202,12 +202,11 @@
        "info", "secret" — informational and sensitive-value surfaces
        [data-cvd="1"] swaps ONLY the go family to blue, so go-vs-danger reads as
        blue-vs-red for deuteranopia/protanopia. Amber and brand keep their roles. */
-    /* The three filled families are one ramp step darker than they look like they
-       should be, and the reason is measured: --on-solid is white, and white on
-       #16a34a is 3.30:1 while white on #d97706 is 3.19:1 — both below AA for the
-       13px/500 label a .btn actually renders. #15803d and #b45309 reach 5.02:1.
-       Do not lighten these back without re-running the contrast audit in
-       docs/accessibility.md. */
+    /* The three filled families are one ramp step darker than the palette's own mid
+       tone, because --on-solid is white: white on #16a34a is 3.30:1 and on #d97706 is
+       3.19:1, both below AA for the 13px/500 label a .btn renders, while #15803d and
+       #b45309 reach 5.02:1. Do not lighten them without re-running the contrast audit
+       in docs/accessibility.md. */
     --go-solid:   #15803d;
     --go-hover:   #166534;
     --go-active:  #14532d;
@@ -227,8 +226,8 @@
     --warn-ring:       rgba(245, 158, 11, 0.4);
     --warn-ring-solid: rgba(245, 158, 11, 0.5);
 
-    /* #dc2626, not #ef4444: white on #ef4444 is 3.76:1. The light theme already
-       used #dc2626, so the two themes now agree. */
+    /* #dc2626, not #ef4444: white on #ef4444 is 3.76:1, below AA. Both themes use
+       the same value. */
     --danger-solid:         #dc2626;
     --danger-bg:            rgba(127, 29, 29, 0.15);
     --danger-bg-hover:      rgba(185, 28, 28, 0.25);
@@ -241,6 +240,8 @@
     --info-bg:      rgba(96, 165, 250, 0.12);
     --info-border:  #1e40af;
     --info-fg:      #93c5fd;
+    --info-solid:   #1d4ed8;                     /* a filled info dot or bar */
+    --info-ring:    rgba(96, 165, 250, 0.5);     /* its glow */
 
     --secret-bg:     rgba(124, 58, 237, 0.12);
     --secret-border: #5b21b6;
@@ -317,6 +318,24 @@
     --space-9:  24px;
     --space-10: 32px;
     --space-11: 40px;
+
+    /* ── Control height ─────────────────────────────────────────────────────
+       Three heights, shared by everything that can sit in a row with another
+       control: the button, the icon button, the text input, the select, the
+       read-only value, the search box, the input group and the stepper. A control's
+       own padding and line box stay UNDER its tier, so the tier is what decides the
+       height rather than a floor the content walks past.
+
+       The chip takes the small and normal tiers because it is interactive. A badge
+       does not: it is a label, so it has its own scale in 31-badges.css that lines
+       up with text instead of with a target. */
+    --control-height-sm: 28px;
+    --control-height:    36px;
+    --control-height-lg: 44px;   /* the WCAG AAA target size */
+
+    /* How tall a clamped code block is before it scrolls. Raise it for docs, lower it
+       for a dense admin page. */
+    --code-clamp: 360px;
 
     /* ── Type scale ─────────────────────────────────────────────────────────
        Ten steps. 13px is the body size for content, 14px for the page. The three
@@ -413,11 +432,9 @@
     --warn-border: #fcd34d;
     --warn-fg:     #b45309;
 
-    /* The hover and active tints and the strong border were left on their dark
-       values, so .btn-danger jumped from a 8%-tinted pink to a 25% wash of a
-       much darker red on hover, and its border went from #fca5a5 to near-black.
-       Remapped to the same steps the dark theme takes, scaled for a light
-       surface. */
+    /* The hover and active tints and the strong border take the same steps as the
+       dark theme, scaled for a light surface. All four move together: a tint
+       remapped without its hover pair jumps between two unrelated reds. */
     --danger-solid: #dc2626;
     --danger-bg:            rgba(220, 38, 38, 0.08);
     --danger-bg-hover:      rgba(220, 38, 38, 0.14);
@@ -430,6 +447,8 @@
     --info-bg:     rgba(37, 99, 235, 0.08);
     --info-border: #93c5fd;
     --info-fg:     #1d4ed8;
+    --info-solid:  #2563eb;
+    --info-ring:   rgba(37, 99, 235, 0.4);
 
     --secret-bg:     rgba(124, 58, 237, 0.08);
     --secret-border: #c4b5fd;
@@ -516,8 +535,8 @@
      · Borders go to full strength and dividers become real lines. Most of what makes
        this library low-contrast is not the text — it is the 3%-alpha surfaces and the
        6%-alpha dividers, which disappear entirely for anybody who needs this mode.
-     · Muted text stops being muted. --muted at 4.39:1 was the worst measured pair in
-       the light theme even after the audit; here it goes to the body colour.
+     · Muted text stops being muted. --muted is the lowest-contrast pair the light
+       theme ships, at 4.39:1; here it goes to the body colour.
      · Translucent tints become opaque. A 12% tint over an unknown surface has an
        unknown contrast, which is the one thing this mode cannot have.
      · Shadows are NOT removed. They are the only depth cue left once every surface
@@ -565,6 +584,7 @@
     --info-bg:     #172554;
     --info-border: #93c5fd;
     --info-fg:     #bfdbfe;
+    --info-solid:  #93c5fd;
     --secret-bg:     #2e1065;
     --secret-border: #c4b5fd;
     --secret-fg:     #ddd6fe;
@@ -625,6 +645,7 @@
     --info-bg:     #dbeafe;
     --info-border: #1e40af;
     --info-fg:     #1e3a8a;
+    --info-solid:  #1e3a8a;
     --secret-bg:     #ede9fe;
     --secret-border: #5b21b6;
     --secret-fg:     #4c1d95;
@@ -680,8 +701,20 @@
 html, body { margin: 0; height: 100%; }
 
 /* On <html>, not :root — the selectors are equivalent, but a :root block in this
-   library is a token block and may hold custom properties only. */
-html { color-scheme: var(--color-scheme); }
+   library is a token block and may hold custom properties only.
+
+   `scrollbar-width` and `scrollbar-color` are inherited properties, so declaring them
+   here reaches every scroll container in the document: a modal body, a drawer, the
+   palette list, a code block, a table wrapper, and an app's own scrollers. Declare
+   them here rather than on a list of the containers the library creates: that list is
+   never complete, and one unthemed OS scrollbar inside a modal is what a gap in it
+   looks like. Anything that wants a different bar overrides these two on itself,
+   which is what `.breadcrumb` does to hide its own. */
+html {
+    color-scheme: var(--color-scheme);
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+}
 
 body {
     background: var(--bg);
@@ -694,6 +727,16 @@ body {
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
+/* overflow-wrap: anywhere, because what goes in an inline <code> is exactly the kind
+   of string that has no spaces to break at — an asset path, a class list, a token
+   name. Without it a long one runs past its container and is clipped, which on a
+   phone means the end of the path is simply not there. `anywhere` rather than
+   `break-word`: it also shrinks the min-content width, so a <code> in a table cell or
+   a flex item stops forcing the whole column wide.
+
+   It does nothing to a code BLOCK. `white-space: pre` there means lines never wrap at
+   all, so there is no wrap opportunity for this to take, and the block goes on
+   scrolling instead. */
 code {
     font-family: var(--font-mono);
     font-size: var(--text-4);
@@ -701,6 +744,7 @@ code {
     background: var(--code-bg);
     padding: 1px var(--space-2);
     border-radius: var(--radius-small);
+    overflow-wrap: anywhere;
 }
 
 h1 { font-size: var(--text-9); margin: 0 0 var(--space-4); }
@@ -764,11 +808,16 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     transition: width var(--motion-fast) ease;
 }
 
+/* flex-shrink: 0 because the sidebar is a flex column and the brand is the only
+   item in it that can shrink. A nav taller than the viewport — a collapsed rail
+   with more links than fit — would otherwise squeeze the header down onto the
+   logo. A fixed-height header stays its height. */
 .brand {
     display: flex;
     align-items: center;
     gap: var(--space-5);
     height: 44px;
+    flex-shrink: 0;
     padding: 0 var(--space-7);
     border-bottom: 1px solid var(--sidebar-border);
     color: inherit;
@@ -782,7 +831,13 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     text-transform: uppercase; letter-spacing: 0.06em; margin-top: var(--space-1);
 }
 
-.nav { display: flex; flex-direction: column; flex: 1; margin-top: var(--space-4); overflow: hidden; }
+/* No margin above the nav. It would put the scroll container's top edge below
+   the brand's divider, which reads as a gap the first time the nav is scrolled:
+   the content slides under a strip of empty sidebar instead of under the
+   divider, and the scrollbar and the scroll shadow both start late. Nothing is
+   lost: every element that can be first in the nav (.nav-section-label, .nav-link,
+   .nav-status-card) carries its own top padding. */
+.nav { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
 .nav-scroll { flex: 1; overflow-y: auto; min-height: 0; }
 .nav-section { margin-bottom: var(--space-2); }
 .nav-section-label {
@@ -807,8 +862,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .nav-link i { font-size: var(--text-7); flex-shrink: 0; opacity: 0.6; }
 .nav-link:hover { background: var(--bg-elevated); text-decoration: none; }
 .nav-link:hover i { opacity: 1; }
-/* Tinted rather than a solid brand pill: a saturated fill made the count badge
-   unreadable and fought every brand colour. */
+/* Tinted rather than a solid brand pill, so the count badge on the same row stays
+   readable and any brand hue works underneath. */
 .nav-link.active { background: var(--brand-tint); color: var(--brand-text); }
 .nav-link.active i { opacity: 1; color: var(--brand-text); }
 /* Specificity, not !important: `.nav-link i` (0-1-1) above would otherwise win
@@ -833,8 +888,15 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     padding: var(--space-2) 0 var(--space-4);
     box-shadow: var(--shadow-nav-tools);
 }
-.nav-link-tool { font-size: var(--text-3); opacity: 0.55; }
-.nav-link-tool:hover { opacity: 1; }
+/* Quietened by colour, never by opacity. `opacity: 0.55` is theme-blind: on the
+   dark sidebar it lands around 4.6:1 and on the light theme's white sidebar around
+   3:1, under the 4.5:1 floor for 12px text — and a control at half strength beside
+   full-strength siblings reads as disabled rather than as secondary. --muted is the
+   token each theme already tunes for exactly this job. */
+.nav-link-tool { font-size: var(--text-3); color: var(--muted); }
+.nav-link-tool i { opacity: 0.75; }
+.nav-link-tool:hover { color: var(--sidebar-fg); }
+.nav-link-tool:hover i { opacity: 1; }
 .nav-tools-sep { border: none; border-top: 1px solid var(--sidebar-border); margin: var(--space-5) var(--space-8) var(--space-2); }
 
 /* Sidebar status card (a monitored dependency: API reachable, DB connected, …).
@@ -884,8 +946,6 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 .sidebar.collapsed .nav-section-label { display: none; }
 .sidebar.collapsed .nav-section { margin-bottom: var(--space-4); }
-/* let the rail flyouts escape the 56px column */
-.sidebar.collapsed .nav, .sidebar.collapsed .nav-scroll { overflow: visible; }
 .sidebar.collapsed .nav-link { justify-content: center; padding: var(--space-4) 0; gap: 0; position: relative; }
 .sidebar.collapsed .nav-section .nav-link { padding-inline-start: 0; }
 .sidebar.collapsed .nav-link > span:not(.nav-count) {
@@ -913,10 +973,31 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .sidebar.collapsed .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
 
 /* Rail-only hover flyout. The JS tip engine skips .sidebar precisely so this
-   pure-CSS variant owns the collapsed rail (no double tooltip). */
+   pure-CSS variant owns the collapsed rail (no double tooltip).
+
+   ANCHOR-POSITIONED, and it has to be. The rail scrolls: .nav-scroll keeps its
+   `overflow-y: auto` when collapsed, and a scroll container clips both axes —
+   there is no combination of overflow values that scrolls vertically and lets a
+   child out sideways. So the flyout is `position: fixed`, which takes the
+   viewport as its containing block and is therefore not clipped by any of it.
+
+   That leaves the question of where to put it, and `position-area` answers it
+   without a measurement: `inline-end` is the column beside the anchor,
+   `align-self: anchor-center` lines it up with the anchor's middle. Both are
+   logical, so this mirrors under dir="rtl" with no rule in 70-rtl.css.
+
+   The name has to be scoped. Every rail item declares the SAME anchor-name, and
+   without `anchor-scope` the last one in tree order would win for all of them —
+   every flyout would appear beside the bottom item. `anchor-scope` confines each
+   name to its own element's subtree, which is where its ::after lives. */
+.sidebar.collapsed [data-tip] { anchor-name: --dr-rail-tip; anchor-scope: --dr-rail-tip; }
 .sidebar.collapsed [data-tip]:hover::after {
     content: attr(data-tip);
-    position: absolute; inset-inline-start: calc(100% + var(--space-5)); top: 50%; transform: translateY(-50%);
+    position: fixed;
+    position-anchor: --dr-rail-tip;
+    position-area: inline-end;
+    align-self: anchor-center;
+    margin-inline-start: var(--space-5);
     background: var(--card-bg); color: var(--fg); border: 1px solid var(--border);
     padding: var(--space-2) var(--space-4); border-radius: var(--radius-surface); font-size: var(--text-3); font-weight: 500;
     white-space: nowrap; z-index: 400; box-shadow: var(--shadow-flyout);
@@ -962,21 +1043,6 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 .topbar-btn:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
 .topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--border); }
-
-}
-
-/* ── 14-frame-health-indicator.css → @layer dr.frame ──────────────────────────────────────────────── */
-@layer dr.frame {
-/* ── Health indicator ───────────────────────────────────────────────────── */
-.health-badge {
-    display: inline-flex; align-items: center; gap: var(--space-3);
-    font-size: var(--text-3); font-weight: 500; white-space: nowrap;
-}
-.health-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.health-badge--healthy  { color: var(--go-fg); }
-.health-badge--healthy  .health-dot { background: var(--go-solid); box-shadow: 0 0 6px var(--go-ring); }
-.health-badge--degraded { color: var(--warn-fg); }
-.health-badge--degraded .health-dot { background: var(--warn-solid); }
 
 }
 
@@ -1045,13 +1111,24 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    .page is the scroll container. Its width stays 100% and the horizontal
    padding grows instead of capping the width, so the scrollbar stays pinned to
    the far right of the screen while the content is held to --page-max and
-   centred. On narrow screens the padding floors at 24px. */
+   centred. On narrow screens the padding floors at 24px.
+
+   position: relative is load-bearing, not decoration. An `overflow` container
+   only clips the absolutely positioned descendants it is the containing block
+   for — so without this, a `.visually-hidden` span inside a page (an
+   icon-only link's label, a table caption) is laid out against the initial
+   containing block instead, escapes the clip, and extends the DOCUMENT's
+   scrollable height by however far down the page it sits. The symptom is a
+   second scrollbar on <html> that scrolls the whole 100dvh shell off the top
+   and reveals empty space below it. `position: relative` with `z-index: auto`
+   creates no stacking context, so nothing in the z-order changes. */
 .page {
     padding: var(--space-9);
     padding-inline: max(var(--space-9), calc((100% - var(--page-max)) / 2));
     flex: 1;
     overflow-y: auto;
     min-height: 0;
+    position: relative;
 }
 
 .back-link {
@@ -1060,23 +1137,20 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 .back-link:hover { color: var(--fg); }
 
-/* Themed scrollbars — the OS-default chunky grey bar looks wrong on these
-   surfaces. Thin, track-less thumb with breathing room from a transparent,
-   clipped border. Apply .dr-scroll to any nested scroller. */
-.page, .dr-scroll { scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
-.page::-webkit-scrollbar,
-.dr-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-.page::-webkit-scrollbar-track,
-.dr-scroll::-webkit-scrollbar-track { background: transparent; }
-.page::-webkit-scrollbar-thumb,
-.dr-scroll::-webkit-scrollbar-thumb {
+/* The scrollbar's SHAPE. Its colour and width are inherited from <html> in
+   06-base-elements.css; these pseudo-elements are not inheritable, so the selector is
+   the universal one for the same reason — every scroll container in the document, not
+   a list of the ones the library creates.
+
+   Thin, track-less thumb with breathing room from a transparent, clipped border. */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
     background: var(--scrollbar); border-radius: var(--radius-pill);
     border: 2px solid transparent; background-clip: padding-box;
 }
-.page::-webkit-scrollbar-thumb:hover,
-.dr-scroll::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
-.page::-webkit-scrollbar-corner,
-.dr-scroll::-webkit-scrollbar-corner { background: transparent; }
+*::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+*::-webkit-scrollbar-corner { background: transparent; }
 
 /* Soft top/bottom scroll shadows so the scroll edge fades instead of cutting
    hard. The two solid cover gradients (background-attachment: local) ride the
@@ -1084,7 +1158,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    (attachment: scroll) are pinned to the box and only show when there IS more
    content that way. --scroll-bg MUST match the surface the scroller sits on, or
    the cover itself reads as a permanent dark band. */
-.page, .dr-scroll {
+.page, .nav-scroll, .dr-scroll, .drawer-body, .palette-list {
     --scroll-bg: var(--bg);
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
@@ -1095,8 +1169,13 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     background-size: 100% 26px, 100% 26px, 100% 10px, 100% 10px;
     background-attachment: local, local, scroll, scroll;
 }
-/* Scrollers hosted on an elevated surface (modal bodies) match that surface. */
-.modal .dr-scroll { --scroll-bg: var(--bg-elevated); }
+/* Scrollers on an elevated surface match that surface, or the cover gradient reads as
+   a permanent dark band across the top of the panel. */
+.modal .dr-scroll,
+.drawer-body,
+.palette-list { --scroll-bg: var(--bg-elevated); }
+/* The nav scroller sits on the sidebar, which is its own surface. */
+.nav-scroll { --scroll-bg: var(--sidebar-bg); }
 
 }
 
@@ -1134,7 +1213,28 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 /* ── 18-frame-reconnect-banner.css → @layer dr.frame ──────────────────────────────────────────────── */
 @layer dr.frame {
-/* ── Blazor reconnect banner ────────────────────────────────────────────── */
+/* ── Blazor reconnect banner ──────────────────────────────────────────────────
+   Two things, deliberately separated: `.reconnect-banner` is a strip that says the
+   connection is in trouble, and `#components-reconnect-modal` is the state machine
+   Blazor drives. The strip is visible on its own and goes dark only inside the modal,
+   so a row can be shown outside it — which is how the catalogue demonstrates all of
+   them at once.
+
+   Blazor sets six state classes on the modal. They map onto four rows:
+
+   | Blazor sets                          | The row that shows                        |
+   |--------------------------------------|-------------------------------------------|
+   | `components-reconnect-show`          | `.reconnect-attempting`                   |
+   | `components-reconnect-retrying`      | `.reconnect-attempting`, plus its counter |
+   | `components-reconnect-paused`        | `.reconnect-paused`, or attempting if absent |
+   | `components-reconnect-failed`        | `.reconnect-failed`                       |
+   | `components-reconnect-resume-failed` | `.reconnect-failed`                       |
+   | `components-reconnect-rejected`      | `.reconnect-rejected`                     |
+   | `components-reconnect-hide`          | nothing — this is the connected state     |
+
+   `retrying` is added alongside `show`; every other state replaces the last.
+   `.reconnect-paused` is optional, so a host page written against the three original
+   rows keeps working and only misses the softer wording. */
 #components-reconnect-modal {
     display: none;
     position: fixed;
@@ -1142,11 +1242,14 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     z-index: 1000;
 }
 #components-reconnect-modal.components-reconnect-show,
+#components-reconnect-modal.components-reconnect-retrying,
+#components-reconnect-modal.components-reconnect-paused,
 #components-reconnect-modal.components-reconnect-failed,
+#components-reconnect-modal.components-reconnect-resume-failed,
 #components-reconnect-modal.components-reconnect-rejected { display: block; }
 
 .reconnect-banner {
-    display: none;
+    display: flex;
     align-items: center;
     gap: var(--space-5);
     padding: var(--space-5) var(--space-8);
@@ -1156,10 +1259,29 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .reconnect-banner i { font-size: var(--text-7); flex-shrink: 0; }
 .reconnect-banner .btn { margin-inline-start: auto; }
 
-#components-reconnect-modal.components-reconnect-show     .reconnect-attempting { display: flex; }
-#components-reconnect-modal.components-reconnect-failed   .reconnect-failed     { display: flex; }
-#components-reconnect-modal.components-reconnect-rejected .reconnect-rejected   { display: flex; }
+/* The counter. Hidden until Blazor has put a number in it, which it does from the
+   second attempt on — before that the markup's placeholder would read as a real count. */
+.reconnect-attempt { opacity: 0.75; font-weight: 400; }
+#components-reconnect-modal .reconnect-attempt { display: none; }
+#components-reconnect-modal.components-reconnect-retrying .reconnect-attempt { display: inline; }
 
+/* Inside the modal, one row at a time. The id carries the specificity, so no
+   !important and nothing for an app to fight. */
+#components-reconnect-modal .reconnect-banner { display: none; }
+/* Blazor adds `retrying` alongside `show`, but it is keyed separately so the row still
+   appears if it ever arrives on its own. */
+#components-reconnect-modal.components-reconnect-show     .reconnect-attempting { display: flex; }
+#components-reconnect-modal.components-reconnect-retrying .reconnect-attempting { display: flex; }
+#components-reconnect-modal.components-reconnect-paused  .reconnect-paused     { display: flex; }
+#components-reconnect-modal.components-reconnect-failed  .reconnect-failed     { display: flex; }
+#components-reconnect-modal.components-reconnect-rejected .reconnect-rejected  { display: flex; }
+/* A failed resume reads as a failed reconnect. */
+#components-reconnect-modal.components-reconnect-resume-failed .reconnect-failed { display: flex; }
+/* Paused with no row of its own falls back to attempting, rather than to an empty bar. */
+#components-reconnect-modal.components-reconnect-paused:not(:has(.reconnect-paused))
+    .reconnect-attempting { display: flex; }
+
+/* Working on it. */
 .reconnect-attempting {
     background: var(--reconnect-warn-bg);
     border-top: 1px solid var(--reconnect-warn-border);
@@ -1167,14 +1289,21 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 .reconnect-attempting i { animation: dr-pulse var(--pulse-duration) ease-in-out infinite; }
 
+/* Paused is not a lost connection: the server released the circuit and kept the state,
+   and the next interaction resumes it. Same amber, no pulse — nothing is in progress. */
+.reconnect-paused {
+    background: var(--reconnect-warn-bg);
+    border-top: 1px solid var(--reconnect-warn-border);
+    color: var(--reconnect-warn-fg);
+}
+
+/* Over. Only a reload helps. */
 .reconnect-failed,
 .reconnect-rejected {
     background: var(--reconnect-fail-bg);
     border-top: 1px solid var(--reconnect-fail-border);
     color: var(--reconnect-fail-fg);
 }
-
-
 }
 
 /* ── 19-frame-responsive.css → @layer dr.frame ──────────────────────────────────────────────── */
@@ -1183,18 +1312,17 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    Below 900px the sidebar becomes the icon rail, whether or not `.collapsed` is
    set. Add `.layout--responsive` to `.layout` to turn it on.
 
-   OPT-IN, NOT AUTOMATIC. Collapsing the sidebar on its own would change how every
-   already-released app looks on a narrow screen with nobody editing anything — a
-   Major change by the release rules, in a minor version. The modifier keeps it a
-   new class an app chooses, which is additive.
+   OPT-IN, NOT AUTOMATIC. A bare width query would change how an already-released app
+   looks on a narrow screen with nobody editing anything. The modifier keeps it a new
+   class an app chooses.
 
-   It also fixes the reverse hazard. An app that sets `.sidebar { width: 260px }`
-   unconditionally — several do — would beat a bare `@media .sidebar { width: 56px }`
-   rule, because equal specificity plus later source order goes to the app's own
-   stylesheet. `.layout--responsive .sidebar` is (0,2,0) and outranks it, so the
-   rail actually applies.
+   The modifier also carries the specificity. An app that sets
+   `.sidebar { width: 260px }` unconditionally beats a bare
+   `@media .sidebar { width: 56px }` rule, because equal specificity plus later source
+   order goes to the app's own stylesheet. `.layout--responsive .sidebar` is (0,2,0)
+   and outranks it.
 
-   Two consequences worth knowing before switching it on:
+   Two things to know before switching it on:
      · Below 900px a collapse toggle does nothing, because the rail is forced.
        Hide the toggle at that width, or leave it and accept the no-op.
      · The rules below mirror 12-frame-collapsed-rail.css. CSS cannot alias a
@@ -1217,8 +1345,6 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     }
     .layout--responsive .sidebar .nav-section-label { display: none; }
     .layout--responsive .sidebar .nav-section { margin-bottom: var(--space-4); }
-    .layout--responsive .sidebar .nav,
-    .layout--responsive .sidebar .nav-scroll { overflow: visible; }
     .layout--responsive .sidebar .nav-link { justify-content: center; padding: var(--space-4) 0; gap: 0; position: relative; }
     .layout--responsive .sidebar .nav-section .nav-link { padding-inline-start: 0; }
     .layout--responsive .sidebar .nav-link > span:not(.nav-count) {
@@ -1246,11 +1372,18 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     .layout--responsive .sidebar .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
 
     /* The rail's own flyout, which is what carries the label once the text is
-       gone. Every value here is geometry; the surface comes from the tokens the
-       expanded flyout already uses. */
+       gone. Anchor-positioned for the reason spelled out in
+       12-frame-collapsed-rail.css: the rail scrolls, and a scroll container
+       clips both axes. Every value here is geometry; the surface comes from the
+       tokens the expanded flyout already uses. */
+    .layout--responsive .sidebar [data-tip] { anchor-name: --dr-rail-tip; anchor-scope: --dr-rail-tip; }
     .layout--responsive .sidebar [data-tip]:hover::after {
         content: attr(data-tip);
-        position: absolute; inset-inline-start: calc(100% + var(--space-5)); top: 50%; transform: translateY(-50%);
+        position: fixed;
+        position-anchor: --dr-rail-tip;
+        position-area: inline-end;
+        align-self: anchor-center;
+        margin-inline-start: var(--space-5);
         background: var(--card-bg); color: var(--fg); border: 1px solid var(--border);
         padding: var(--space-2) var(--space-4); border-radius: var(--radius-surface); font-size: var(--text-3); font-weight: 500;
         white-space: nowrap; z-index: 400; box-shadow: var(--shadow-flyout);
@@ -1258,16 +1391,24 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     }
 
     /* The user widget's second line is the first thing to go: it is the longest
-       string in the header and the least load-bearing. */
-    .layout--responsive .user-email { display: none; }
+       string in the header and the least load-bearing.
+
+       `.topbar--responsive` reaches the same rules without a `.layout` around it, for
+       a header in `.bare-layout`, in `.auth-layout`, or on its own. Same opt-in, same
+       specificity — a topbar's own narrow behaviour must not depend on which shell it
+       happens to be inside. */
+    .layout--responsive .user-email,
+    .topbar--responsive .user-email { display: none; }
 }
 
 /* Under ~560px the name goes too, leaving the avatar. The sign-out button and any
    header controls keep their full hit area, which is what actually matters on a
    touch screen. */
 @media (max-width: 560px) {
-    .layout--responsive .user-info { display: none; }
-    .layout--responsive .user-trigger { padding: 0 var(--space-6); }
+    .layout--responsive .user-info,
+    .topbar--responsive .user-info { display: none; }
+    .layout--responsive .user-trigger,
+    .topbar--responsive .user-trigger { padding: 0 var(--space-6); }
 }
 }
 
@@ -1302,7 +1443,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    editor. `.page` is the frame's scroll container and pads its content; this
    replaces it, taking the padding off and handing scrolling to the child.
 
-   Used INSTEAD of .page, as AppShell's PageClass cannot remove .page's own padding. */
+   Used INSTEAD of .page, never alongside it. */
 .full-layout {
     flex: 1;
     min-height: 0;
@@ -1350,9 +1491,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 .nav-group[open] > summary::after { transform: rotate(-180deg); }
 /* Sub-items indent to sit under the parent's label rather than its icon. */
-/* The indent is derived, not chosen: the parent's own padding plus the width of its
-   icon and the gap after it. Written as that sum so it stays aligned when the scale
-   is rescaled, instead of being a number that silently stops lining up. */
+/* The indent is the parent's own padding plus the width of its icon and the gap after
+   it. Written as that sum so it stays aligned when the spacing scale is redefined. */
 .nav-group .nav-link {
     padding-inline-start: calc(var(--space-7) + var(--text-7) + var(--space-4));
     font-size: var(--text-3);
@@ -1371,8 +1511,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 /* ── Skip link ──────────────────────────────────────────────────────────────
    The first focusable thing on the page, jumping past the navigation to the content.
-   Without it a keyboard user tabs through every nav item on every page — which is the
-   single most common reason a shell like this is exhausting to use without a mouse.
+   Without it a keyboard user tabs through every nav item on every page.
 
    Hidden until focused, and then it must be visible ABOVE the header, hence the
    reconnect/tip rung at 1000: it is the one thing that has to be readable whatever
@@ -1405,14 +1544,189 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 }
 
+/* ── 21-frame-search.css → @layer dr.frame ──────────────────────────────────────────────── */
+@layer dr.frame {
+/* ── Header search ──────────────────────────────────────────────────────────
+   The free-text box that sits at the start of the topbar, and the result panel
+   that drops out of it.
+
+     <div class="search">
+       <i class="ri-search-line search-icon"></i>
+       <input class="search-input" type="search" data-search placeholder="Search…">
+     </div>
+
+   The clear button and the whole panel are built by drSimpleUi.search — see
+   js-parts/25-search.js — so the classes below the input have no markup an app
+   writes. An app that wants to render the results itself (a Blazor component
+   over its own database, say) uses the same classes and skips data-search.
+
+   The panel is appended to <body> and positioned with inline top/left/width, not
+   nested in .search: .topbar creates a stacking context at z-index 60, so a panel
+   inside it can never rise above the modal backdrop however high its own z-index,
+   and Blazor owns the topbar's subtree while nothing but this library owns <body>'s
+   tail. 550 is the popover and dropdown rung on the documented scale.
+   ─────────────────────────────────────────────────────────────────────────── */
+.search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    /* Takes the space it is given up to 480px and gives it back first: the
+       status pills and the controls at the far end matter more than a wider
+       box. */
+    flex: 0 1 480px;
+    min-width: 130px;
+    /* Logical, so the box keeps its breathing room from the nav toggles on its
+       leading side under dir="rtl". A four-value `margin` shorthand would slip
+       past the RTL guard and still be wrong. */
+    margin-inline: var(--space-6) var(--space-7);
+}
+
+.search-icon {
+    position: absolute;
+    inset-inline-start: var(--space-6);
+    color: var(--muted);
+    font-size: var(--text-6);
+    pointer-events: none;
+}
+
+.search-input {
+    width: 100%;
+    /* The same height as every other control, from the same token, so a .btn beside
+       the box — an "advanced" toggle, a saved-search picker — lines up with it. */
+    height: var(--control-height);
+    /* Symmetric room for the icon at one end and the clear button at the other,
+       both of which are positioned over the input rather than beside it. */
+    padding: 0 var(--space-10);
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: var(--text-4);
+    outline: none;
+}
+.search-input::placeholder { color: var(--muted); }
+/* type="search" brings the platform's own ✕, which sits in the same place as
+   .search-clear and does not follow the theme. */
+.search-input::-webkit-search-cancel-button { display: none; }
+.search-input:focus { border-color: var(--brand); background: var(--card-bg); }
+
+.search-clear {
+    position: absolute;
+    inset-inline-end: var(--space-3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    background: none;
+    border-radius: var(--radius-control);
+    color: var(--muted);
+    font-size: var(--text-6);
+    cursor: pointer;
+}
+.search-clear:hover { background: var(--bg-hover); color: var(--fg); }
+/* Shown only when there is something to clear, decided by CSS rather than by
+   script: the button is markup the app writes, so a rendered-and-hidden button
+   is the one form that also works with scripting blocked. It needs the input to
+   carry a placeholder — without one :placeholder-shown never matches and the
+   button simply stays visible, which is the harmless failure. */
+.search-input:placeholder-shown ~ .search-clear { display: none; }
+
+.search-panel {
+    position: fixed;
+    z-index: 550;
+    max-height: 360px;
+    overflow-y: auto;
+    padding: var(--space-2);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+    --scroll-bg: var(--card-bg);
+}
+
+/* Searching, and nothing found. Both are a line of muted text rather than an
+   empty box: a panel that opens on nothing reads as broken. */
+.search-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    color: var(--muted);
+    font-size: var(--text-3);
+}
+
+.search-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    width: 100%;
+    padding: var(--space-4) var(--space-5);
+    border: none;
+    background: none;
+    border-radius: var(--radius-surface);
+    color: inherit;
+    font-family: inherit;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+}
+/* Where the keyboard is, which is a different thing from where the pointer is.
+   Both land on the same tint here because the two never disagree: the pointer
+   moving over a result also moves the selection. */
+.search-item--sel { background: var(--bg-hover); }
+.search-item:hover { background: var(--bg-hover); text-decoration: none; }
+
+.search-item-title {
+    overflow: hidden;
+    color: var(--fg);
+    font-size: var(--text-4);
+    font-weight: 600;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.search-item-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    color: var(--muted);
+    font-size: var(--text-2);
+}
+
+/* A pill inside a result's meta line — "closed", "needs approval". Not a
+   .badge: that is a content-sized pill for a table cell, and at 11px inside a
+   dropdown row it is the wrong weight. */
+.search-tag {
+    padding: 0 var(--space-3);
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--muted);
+    font-size: var(--text-1);
+}
+.search-tag--warn { border-color: var(--warn-border); color: var(--warn-fg); }
+
+/* Below this the box would crowd the status pills and the controls beside it.
+   An app that hides the search here needs another way in — its own list page
+   usually already has one. */
+@media (max-width: 720px) {
+    .search { display: none; }
+}
+}
+
 /* ── 30-cards.css → @layer dr.paint ──────────────────────────────────────────────── */
 @layer dr.paint {
 /* ═══ TIER 2 — the paint ════════════════════════════════════════════════════
-   Page content. Classes only, never components: pages write plain open HTML
-   and apply these, so the markup — and therefore the spacing that emerges —
-   stays visible and reasonable-about in the .razor file. Copy-pasteable
-   examples for every class below live in the catalogue/ folder of this
-   package. */
+   Page content. Classes only, never components: pages write plain HTML and apply
+   these, so the markup — and the spacing that emerges from it — stays visible in
+   the .razor file. Copy-pasteable examples for every class below are on the
+   catalogue at https://simpleui.dennisrahmen.dev/. */
 
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .card {
@@ -1457,15 +1771,32 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 @layer dr.paint {
 /* ── Badges ─────────────────────────────────────────────────────────────────
    .badge is the neutral pill; the modifiers are the semantic families plus
-   three categorical hues that carry no meaning of their own. */
+   three categorical hues that carry no meaning of their own.
+
+   A badge is a label, not a target, so its three sizes are a type scale rather than
+   the control heights: it has to sit inside a line of text, a table cell and a card
+   title without setting the line's height. That is why `.badge-lg` is 12px text and
+   not a 36px pill. The chip, which is interactive, does take the control heights. */
 .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
     background: var(--badge-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
     font-size: var(--text-2);
     padding: var(--space-1) var(--space-4);
     color: var(--muted);
+    line-height: 1.45;
+    white-space: nowrap;
+    vertical-align: middle;
 }
+.badge i { font-size: var(--text-3); }
+
+.badge-sm   { font-size: var(--text-1); padding: 0 var(--space-3); }
+.badge-sm i { font-size: var(--text-2); }
+.badge-lg   { font-size: var(--text-3); padding: var(--space-2) var(--space-5); }
+.badge-lg i { font-size: var(--text-4); }
 .badge-go     { background: var(--go-bg);     border-color: var(--go-border);     color: var(--go-fg); }
 .badge-warn   { background: var(--warn-bg);   border-color: var(--warn-border);   color: var(--warn-fg); }
 .badge-danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-fg); }
@@ -1510,15 +1841,18 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
      .btn-warn-solid filled amber   — changes who is in control (take over)
      .btn-warn       tinted amber   — a SECONDARY of the above, beside a primary
      .btn-danger     tinted red     — destructive
-   The min-heights pin icon-only buttons to the height of their text siblings:
-   a bare icon's line box (15px/1) is shorter than the 1.4-line text next to it,
-   so without them an icon-only button sits ~3px short in a mixed row. */
+
+   --control-height is shared with the text input, the select and the search box, so
+   a button beside a field is the same height as the field. It also pins an icon-only
+   button to the height of its text siblings: a bare icon's line box (15px/1) is
+   shorter than the 1.4-line text next to it, so without it an icon-only button sits
+   several pixels short in a mixed row. */
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
-    min-height: 33px;
+    min-height: var(--control-height);
     padding: var(--space-3) var(--space-7);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
@@ -1539,8 +1873,12 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 .btn:disabled      { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 
-.btn-sm   { min-height: 27px; padding: var(--space-2) var(--space-5); font-size: var(--text-3); }
+/* Three tiers. Each sets its height from the matching token and scales its padding,
+   text and icon with it. */
+.btn-sm   { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-5); font-size: var(--text-3); }
 .btn-sm i { font-size: var(--text-4); }
+.btn-lg   { min-height: var(--control-height-lg); padding: var(--space-4) var(--space-9); font-size: var(--text-5); gap: var(--space-4); }
+.btn-lg i { font-size: var(--text-8); }
 
 .btn-primary        { background: var(--brand); border-color: var(--brand); color: var(--on-solid); }
 .btn-primary:hover  { background: var(--brand-hover); border-color: var(--brand-hover); }
@@ -1565,7 +1903,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .btn-danger        { color: var(--danger-fg); border-color: var(--danger-border); background: var(--danger-bg); }
 .btn-danger:hover  { background: var(--danger-bg-hover); border-color: var(--danger-border-strong); }
 .btn-danger:active { background: var(--danger-bg-active); }
-/* Was inheriting .btn's brand ring: a blue halo around a red destructive button. */
+/* Its own ring, so focus is not a blue halo around a red destructive button. */
 .btn-danger:focus-visible { box-shadow: 0 0 0 2px var(--danger-ring); }
 
 }
@@ -1583,8 +1921,18 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     color: var(--muted);
 }
 
+/* min-height, not height: a <textarea> and a <select multiple> are taller by nature
+   and must stay so. It is the same token the button uses, which is what makes a
+   button beside a field line up with it.
+
+   The block padding matches the button's for the same reason, and has to stay small
+   enough that the natural height — padding + line box + borders — is UNDER
+   --control-height. A min-height is a floor: at 8px of block padding the field
+   measures 36.2px, the token never binds, and the field sits a couple of pixels
+   taller than everything beside it. */
 .form-input {
-    padding: var(--space-4) var(--space-5);
+    min-height: var(--control-height);
+    padding: var(--space-3) var(--space-5);
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
@@ -1602,9 +1950,21 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 .form-input::placeholder { color: var(--border-strong); }
 
-/* A read-only value rendered in the shape of an input. */
+/* The same three tiers as the button, so a field and the button beside it agree at
+   every size. Padding stays under the tier so the tier is what sets the height. */
+.form-input-sm { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-4); font-size: var(--text-3); }
+.form-input-lg { min-height: var(--control-height-lg); padding: var(--space-5) var(--space-7); font-size: var(--text-5); }
+
+/* A read-only value rendered in the shape of an input — so it takes the input's
+   height too, or a form of mixed editable and read-only rows steps up and down. */
+/* display:flex, so min-height applies and the text sits centred in the box. min-height
+   does nothing on an inline element, so a bare <span> here comes out several pixels
+   shorter than the field above it. */
 .form-value-display {
-    padding: var(--space-4) var(--space-5);
+    display: flex;
+    align-items: center;
+    min-height: var(--control-height);
+    padding: var(--space-3) var(--space-5);
     background: var(--surface-soft);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
@@ -1708,7 +2068,6 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     width: 100%;
     max-width: 480px;
     box-shadow: var(--shadow-modal);
-    animation: dr-modal-in var(--motion-fast) ease;
 }
 /* Width only. A confirmation needs less room than a form, and a diff or a table
    needs more; nothing else about the panel changes. */
@@ -1724,16 +2083,24 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    No .modal-backdrop is involved: ::backdrop is the platform's own, so the
    dimming comes from the pseudo-element rather than from an element in the page.
 
-   --dialog-backdrop is a deliberate indirection. ::backdrop only recently began
-   inheriting from its originating element, so referencing var(--backdrop) directly
-   resolved to nothing — and an unresolved background is a transparent one, which
-   silently removes the dimming rather than failing visibly. Declaring the value on
-   the dialog itself puts it one inheritance step away instead of at the document
-   root. */
+   --dialog-backdrop is declared on the dialog itself rather than referencing
+   var(--backdrop) from ::backdrop directly. ::backdrop inherits from its originating
+   element, so the token has to be one inheritance step away rather than at the
+   document root; an unresolved background is a transparent one, which removes the
+   dimming without failing visibly. */
+/* The entrance animation belongs on `dialog.modal` and never on `.modal`: only a
+   dialog has an opening, going from display:none to shown, which is what starts the
+   animation. A `.modal` panel sitting in the page has nothing to animate from.
+
+   A resting appearance must never depend on an animation having run. An animation with
+   no fill-mode still applies its 0% keyframe while it is PAUSED, and a document is
+   paused whenever its tab is in the background — so the same animation on `.modal`
+   leaves a panel in a background tab at `scale(0.97) translateY(-10px)` for good. */
 dialog.modal {
     padding: 0;
     color: var(--fg);
     --dialog-backdrop: var(--backdrop);
+    animation: dr-modal-in var(--motion-fast) ease;
 }
 dialog.modal::backdrop {
     background: var(--dialog-backdrop);
@@ -1837,8 +2204,12 @@ dialog.modal::backdrop {
     display: flex;
     align-items: flex-start;
     gap: var(--space-5);
+    /* 320px, capped by the viewport AND by whatever contains it. The stack is fixed
+       to a corner, where `100%` is the viewport and the first term binds; a toast
+       rendered inside a narrower box takes the second and shrinks rather than
+       overflowing it. */
     width: 320px;
-    max-width: calc(100vw - 40px);
+    max-width: min(calc(100vw - 40px), 100%);
     padding: var(--space-5) var(--space-6);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
@@ -1977,15 +2348,41 @@ dialog.modal::backdrop {
 /* Sits directly on the page rather than inside a card. */
 .empty-state--bare { padding: var(--space-9) 0; }
 
-/* The reduced-motion switch-off for the spinner, skeleton and progress bar moved
-   to 85-reduced-motion.css, which holds the whole library's in one block. */
+/* ── Not empty yet, and empty because something broke ───────────────────────
+   The same block, for the two states a live view spends most of its time in. Say
+   which one it is: "nothing here" and "we could not load it" call for different
+   actions, and showing the first when it is the second is how a broken page looks
+   fine.
+
+   `--pending` is for a wait with no progress to report — the first event of a stream,
+   a long request. Put a `.spinner-lg` where the icon goes. Where there IS progress,
+   use `.progress`; where the shape of what is coming is known, use `.skeleton`.
+
+   `--failed` keeps the error's own colour on the icon only. A whole red panel reads as
+   destructive rather than as unavailable. */
+.empty-state--pending .spinner,
+.empty-state--pending .spinner-lg { color: var(--muted); }
+.empty-state--failed i { color: var(--danger-fg); }
+/* The line under the title, for the detail that makes a failure actionable: the code,
+   the endpoint, when it was last tried. */
+.empty-state-detail {
+    font-family: var(--font-mono);
+    font-size: var(--text-2);
+    color: var(--muted);
+}
 
 }
 
 /* ── 43-content-grids.css → @layer dr.paint ──────────────────────────────────────────────── */
 @layer dr.paint {
 /* ── Content grids ──────────────────────────────────────────────────────────
-   Layout primitives. Page-specific grids belong in the app, not here. */
+   Layout primitives. Page-specific grids belong in the app, not here.
+
+   Every track minimum is `min(Npx, 100%)` rather than a bare `Npx`. A bare track
+   minimum does not shrink, so a grid whose column floor exceeds the container
+   overflows it instead of dropping to one column — on a phone, and inside any narrow
+   card. `min()` keeps the floor above that width and lets the track collapse below it,
+   which is what makes these breakpoint-free rather than breakpoint-free above 340px. */
 
 /* Cards of similar height flow across as many balanced columns as the width
    allows and stack to fill each column, instead of piling into one strip. Every
@@ -1993,7 +2390,7 @@ dialog.modal::backdrop {
    present always stretch to fill the row — no stranded empty column. */
 .card-masonry {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
     gap: var(--space-7);
     align-items: start;
 }
@@ -2005,14 +2402,14 @@ dialog.modal::backdrop {
    when the cards have very different heights. */
 .card-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
     gap: var(--space-7);
 }
 
 /* Two-up field rows that collapse to one column when there isn't room. */
 .field-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
     gap: var(--space-7);
 }
 
@@ -2310,15 +2707,33 @@ dialog.modal::backdrop {
    button stays clickable and a unit stays selectable. The ring moves out to the
    group with :focus-within and the inner control gives up its own border and
    ring — otherwise the group draws two of each, nested. */
+/* The GROUP owns the height, and its children give theirs up. The group draws the
+   border, so a child still holding min-height: var(--control-height) makes the group
+   that height PLUS its own two border pixels. */
 .input-group {
     display: flex;
     align-items: stretch;
     width: 100%;
+    min-height: var(--control-height);
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
+/* The group carries the tier, because it is the group that draws the border. Its
+   children have already given up their own height.
+
+   A min-height is a floor, not a cap, so the small tier also has to bring its
+   children's block padding and text down — otherwise the field's own 6px + 18.2px line
+   box + the group's two borders comes to 32px and the 28px tier never binds. */
+.input-group--sm { min-height: var(--control-height-sm); }
+.input-group--sm .form-input,
+.input-group--sm .btn,
+.input-group--sm .input-affix { padding-block: var(--space-1); font-size: var(--text-3); }
+.input-group--lg { min-height: var(--control-height-lg); }
+.input-group--lg .form-input,
+.input-group--lg .btn,
+.input-group--lg .input-affix { font-size: var(--text-5); }
 .input-group:focus-within {
     border-color: var(--brand-soft);
     box-shadow: 0 0 0 2px var(--brand-glow);
@@ -2326,6 +2741,7 @@ dialog.modal::backdrop {
 .input-group .form-input {
     flex: 1;
     min-width: 0;              /* or a long value pushes the affixes out */
+    min-height: 0;             /* the group holds the height — see above */
     border: none;
     border-radius: 0;
     background: none;
@@ -2356,6 +2772,7 @@ dialog.modal::backdrop {
 /* A .btn inside the group gives up its outer edge and keeps its ring inside, so
    focus on the button is still distinguishable from focus in the field. */
 .input-group .btn {
+    min-height: 0;             /* the group holds the height — see above */
     border: none;
     border-radius: 0;
     background: var(--surface-strong);
@@ -2450,6 +2867,12 @@ dialog.modal::backdrop {
    input the reader cannot see. */
 .form-file:has(input:focus-visible) .btn { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 
+/* Almost no block padding. A file input's content is the UA's own button, which is
+   taller than a line of text, so `.form-input`'s padding on top of it pushes a bare
+   file input past every other control in the row. The button supplies the height, and
+   --control-height binds as it does everywhere else. */
+.form-input[type="file"] { padding-block: var(--space-1); }
+
 .form-input::file-selector-button {
     margin-inline-end: var(--space-5);
     padding: var(--space-2) var(--space-5);
@@ -2468,8 +2891,11 @@ dialog.modal::backdrop {
    keyboard and awkward on touch, so the zone wraps a real file input and the drag
    handling is an enhancement on top.
 
-   .dropzone--over is added by the app on dragenter and removed on dragleave/drop:
-   there is no CSS pseudo-class for "something is being dragged over me". */
+   .dropzone--over says "something is being dragged over me", for which there is no
+   CSS pseudo-class. Add `data-dropzone` and DR.Simple_UI.js maintains it, and hands
+   a dropped file to the zone's own <input type="file"> as a `change` event; an app
+   that would rather own the drag handling leaves the attribute off and sets the
+   class itself. */
 .dropzone {
     display: flex;
     flex-direction: column;
@@ -2728,13 +3154,11 @@ dialog.modal::backdrop {
 
    The chosen state is `:has(input:checked)` on the label, so the whole label — which
    is also the whole hit area — is what gets painted, and the markup stays a label
-   wrapping an input and its text. This was briefly rewritten to a `+ span` sibling
-   selector after the chosen option appeared never to repaint; that reading was wrong.
-   Everything here has a `transition`, and getComputedStyle immediately after the
-   change returns the value at t=0, which is the one being transitioned away from.
-   `Interactive_states_repaint_when_the_state_changes` now switches transitions off
-   before measuring, and keeps a `.sidebar.collapsed` sentinel to catch the same
-   mistake next time.
+   wrapping an input and its text.
+
+   When measuring this state from a test, switch transitions off first: everything here
+   has a `transition`, and getComputedStyle immediately after the change returns the
+   value at t=0, which is the one being transitioned away from.
    ─────────────────────────────────────────────────────────────────────────── */
 .segmented {
     display: inline-flex;
@@ -2768,7 +3192,12 @@ dialog.modal::backdrop {
     opacity: 0;
     cursor: pointer;
 }
-.segmented-option:hover { color: var(--fg); }
+/* The disabled option is excluded from the hover state, and the input overlay gives up
+   its pointer cursor. The overlay is the element actually under the pointer, so its
+   cursor wins over the label's `not-allowed` — without both rules a disabled option
+   shows a hand and lights up on hover while refusing to be chosen. */
+.segmented-option:hover:not(:has(input:disabled)) { color: var(--fg); }
+.segmented-option input:disabled { cursor: not-allowed; }
 
 /* Flat, not raised: a shadow inside a 2px track reads as a rendering artefact at
    this size. The elevated surface against the inset track is enough. */
@@ -2797,8 +3226,20 @@ dialog.modal::backdrop {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: 28px;
-    height: 28px;
+    /* One source for the diameter, because the group's overlap and its cut-out are
+       both derived from it. A size variant sets these two numbers and the geometry
+       below follows.
+
+       --avatar-cut-x is the centre of the hole the group masks out: the next
+       avatar's centre, measured from this one's own box. Past the right edge in
+       LTR; 70-rtl.css mirrors it, because a radial-gradient position is physical
+       and margin-inline-start is not. */
+    --avatar-size: 28px;
+    --avatar-overlap: 8px;
+    --avatar-gap: 2px;
+    --avatar-cut-x: calc(100% + var(--avatar-size) / 2 - var(--avatar-overlap));
+    width: var(--avatar-size);
+    height: var(--avatar-size);
     border-radius: 50%;
     overflow: hidden;
     background: var(--brand-tint);
@@ -2812,9 +3253,9 @@ dialog.modal::backdrop {
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 .avatar i { font-size: var(--text-6); }
 
-.avatar-sm { width: 22px; height: 22px; font-size: var(--text-1); }
+.avatar-sm { --avatar-size: 22px; --avatar-overlap: 6px; font-size: var(--text-1); }
 .avatar-sm i { font-size: var(--text-4); }
-.avatar-lg { width: 40px; height: 40px; font-size: var(--text-6); }
+.avatar-lg { --avatar-size: 40px; --avatar-overlap: 11px; font-size: var(--text-6); }
 .avatar-lg i { font-size: var(--text-9); }
 
 /* Neutral, for an actor with no brand meaning — a system account, an unknown
@@ -2823,20 +3264,33 @@ dialog.modal::backdrop {
 .avatar--muted { background: var(--surface-strong); color: var(--muted); }
 
 /* ── Avatar group ───────────────────────────────────────────────────────────
-   Overlapping avatars for "these several people". The ring is drawn with a
-   box-shadow rather than a border so it does not change the box size and the
-   spacing stays exact; it is the surface colour, so each avatar cuts a clean edge
-   out of the one behind it.
+   Overlapping avatars for "these several people".
 
-   Reverse the paint order with a negative z-index step? No — a plain source order
-   means the LAST avatar sits on top, which is the wrong way round for a "+3 more"
-   chip at the end. `flex-direction: row-reverse` on a reversed list would fix the
-   painting and break the reading order, so instead each avatar simply overlaps the
-   one before it and the counter goes last, unoverlapped. */
-.avatar-group { display: inline-flex; align-items: center; }
-.avatar-group > * + * { margin-inline-start: -8px; }
-.avatar-group > .avatar { box-shadow: 0 0 0 2px var(--card-bg); }
-.avatar-group > .avatar-sm + .avatar-sm { margin-inline-start: -6px; }
+   The separating gap is a hole cut out of the avatar BEHIND, not a ring painted on the
+   one in front. A ring has to be drawn in the colour of whatever is underneath, and a
+   shared component cannot know what that is — `box-shadow: 0 0 0 2px var(--card-bg)`
+   is right inside a card and a grey halo on the page background, in a toast and over a
+   selected table row. Masking takes colour out of the problem, so the group is correct
+   on every surface and in every theme.
+
+   Paint order is plain source order: each avatar overlaps the one before it, the LAST
+   one sits on top, and the counter goes last and unoverlapped. Do not reverse it with
+   a negative z-index step or with `flex-direction: row-reverse` — the second fixes the
+   painting and breaks the reading order. */
+/* The default is declared on the group as well as on .avatar, so the counter — which
+   is not an .avatar and inherits from here — resolves it too. */
+.avatar-group { display: inline-flex; align-items: center; --avatar-overlap: 8px; }
+.avatar-group > * + * { margin-inline-start: calc(var(--avatar-overlap) * -1); }
+
+/* :has(+ .avatar), not :not(:last-child) — the last thing in a group is usually the
+   .avatar-more counter, which overlaps nothing, so the avatar before it must not be
+   cut either. Only an avatar with an avatar after it is. */
+.avatar-group > .avatar:has(+ .avatar) {
+    mask-image: radial-gradient(
+        circle calc(var(--avatar-size) / 2 + var(--avatar-gap))
+        at var(--avatar-cut-x) 50%,
+        transparent 100%, currentColor 100%);
+}
 
 /* The overflow counter. Not an .avatar: it is a number, not an actor, and giving it
    the brand tint would make it look like one more person. */
@@ -2860,14 +3314,19 @@ dialog.modal::backdrop {
    away, it is a chip. If it reflects data, it is a badge. Getting this the wrong way
    round produces a page of pills where nobody can tell which ones are clickable.
 
-   `.chip` rather than `.tag`: several apps around this library already use `.tag`
-   for something else, and a plain name is a claim on a shared namespace.
+   `.chip` rather than `.tag`: a plain name is a claim on a shared namespace, and
+   `.tag` is commonly already taken in a consuming app.
    ─────────────────────────────────────────────────────────────────────────── */
+/* A chip is interactive, so it takes the control heights rather than a type scale.
+   The default is the SMALL tier: a chip's home is a filter bar beside a `.btn-sm`,
+   and that is the pairing it has to line up with. `.chip-lg` is the normal tier, for
+   a chip beside a full-size button. */
 .chip {
     display: inline-flex;
     align-items: center;
     gap: var(--space-3);
     max-width: 100%;
+    min-height: var(--control-height-sm);
     padding: var(--space-1) var(--space-2) var(--space-1) var(--space-5);
     background: var(--surface-strong);
     border: 1px solid var(--border);
@@ -2876,6 +3335,8 @@ dialog.modal::backdrop {
     font-size: var(--text-3);
     line-height: 1.6;
 }
+.chip-lg { min-height: var(--control-height); font-size: var(--text-4); padding-inline-start: var(--space-6); }
+.chip-lg .chip-dismiss { width: 22px; height: 22px; }
 /* A chip with no dismiss button does not need the trailing room for one. */
 .chip:not(:has(.chip-dismiss)) { padding-inline-end: var(--space-5); }
 .chip i { font-size: var(--text-5); color: var(--muted); }
@@ -2980,13 +3441,51 @@ dialog.modal::backdrop {
 .stat-delta--bad  { color: var(--danger-fg); }
 .stat-delta--warn { color: var(--warn-fg); }
 
+/* ── Against a target ───────────────────────────────────────────────────────
+   A number is rarely interesting on its own. `.stat-target` is the line that says what
+   it is being measured against — "62 of 80", "of a 120 cap" — and `.stat-bar` is the
+   optional filled track under it.
+
+   The bar is a `.progress` with no extra rules: a stat against a target IS progress
+   towards it, and a second track class would drift from the first. */
+.stat-target { font-size: var(--text-3); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* ── A stat that opens something ────────────────────────────────────────────
+   For a tile that leads to the thing it counts. An <a>, so it is a real link. The
+   whole tile is the target, which is why the padding and the hover are on it rather
+   than on the value. */
+a.stat {
+    padding: var(--space-4) var(--space-5);
+    margin: calc(var(--space-4) * -1) calc(var(--space-5) * -1);
+    border-radius: var(--radius-surface);
+    color: inherit;
+    text-decoration: none;
+    transition: background var(--motion-fast);
+}
+a.stat:hover { background: var(--bg-hover); text-decoration: none; }
+a.stat:hover .stat-value { color: var(--brand-text); }
+a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+
+/* ── Unavailable ────────────────────────────────────────────────────────────
+   The number could not be read. An em dash, not a zero: zero is a measurement and
+   this is the absence of one, and a dashboard that shows 0 for "the endpoint did not
+   answer" is a dashboard that lies. */
+.stat--unavailable .stat-value { color: var(--border-strong); font-weight: 500; }
+.stat--unavailable .stat-delta,
+.stat--unavailable .stat-target { visibility: hidden; }
+
 /* A row of tiles. Breakpoint-free, like the other grids: it responds to the space
    it is given, so it behaves correctly inside a narrow column too. */
 .stat-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
     gap: var(--space-7);
 }
+/* Dividers between tiles outside a card too, for a row that sits straight on the
+   page and still has to read as one object. */
+.stat-row--divided { gap: 0; }
+.stat-row--divided > .stat { padding-inline: var(--space-7); border-inline-start: 1px solid var(--divider); }
+.stat-row--divided > .stat:first-child { padding-inline-start: 0; border-inline-start: none; }
 /* Tiles inside a card get a dividing rule between them rather than a gap, so the
    card reads as one object. */
 .card-body > .stat-row { gap: 0; }
@@ -3179,6 +3678,61 @@ dialog.modal::backdrop {
 }
 /* With a head, the button sits in the head row instead of over the code. */
 .code-block-head .code-block-copy { position: static; opacity: 1; }
+
+/* ── Clamped ────────────────────────────────────────────────────────────────
+   A long block bounded to a readable height, scrolling inside, with a fading lip and
+   a control that opens it in full. Forty lines of markup between two paragraphs is a
+   page nobody scrolls past.
+
+   `--clamped` caps it; the expand control removes the class. The height is a token so
+   an app can raise it, and the fade is a gradient over the lip rather than a shorter
+   box, so the reader can see there is more without a scrollbar being the only clue.
+
+   The pane keeps `tabindex="0"` in both states: a scroll container that a keyboard
+   cannot reach is a part of the page a keyboard cannot read. */
+.code-block--clamped pre {
+    max-height: var(--code-clamp);
+    overflow-y: auto;
+}
+/* The lip. `sticky` inside the scroller, so it sits over the last visible line at
+   whatever scroll position rather than at the bottom of the content. */
+.code-block--clamped .code-block-lip {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 68px;
+    margin-top: -68px;
+    padding-bottom: var(--space-4);
+    background: linear-gradient(transparent, var(--bg) 70%);
+    pointer-events: none;
+}
+/* Not clamped: no fade, and the control still has to be clickable. */
+.code-block-lip {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-3) 0 var(--space-4);
+}
+.code-block-expand {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-height-sm);
+    padding: var(--space-2) var(--space-6);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--fg-soft);
+    font-family: inherit;
+    font-size: var(--text-2);
+    cursor: pointer;
+    transition: background var(--motion-fast), color var(--motion-fast);
+}
+.code-block-expand:hover { background: var(--bg-hover); color: var(--fg); }
+.code-block-expand:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.code-block-expand i { font-size: var(--text-4); }
 }
 
 /* ── 57-navigation-aids.css → @layer dr.paint ──────────────────────────────────────────────── */
@@ -3275,7 +3829,10 @@ dialog.modal::backdrop {
     text-decoration: none;
 }
 .breadcrumb-item i { font-size: var(--text-5); }
-a.breadcrumb-item:hover { color: var(--fg); text-decoration: underline; }
+/* Colour, not an underline. `text-decoration` propagates to every descendant and
+   cannot be cancelled by one, so an underline here also underlines the item's icon and
+   the `/` separator after it. */
+a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .breadcrumb-item + .breadcrumb-item::before {
     content: '/';
     color: var(--border-strong);
@@ -3316,15 +3873,77 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: underline; }
 
 /* Wrap trigger + panel in this to anchor the panel under the trigger. It is what
    makes the panel's `position: absolute` resolve against the trigger rather than
-   against the page, so nothing has to be measured and no anchor positioning is
-   needed — Firefox ESR 140 has none. */
-.menu-anchor { position: relative; display: inline-flex; }
+   against the page, so nothing has to be measured.
+
+   Deliberately NOT CSS anchor positioning, which the floor does have and which
+   `.popover` uses. Anchor positioning earns its keep where the alternative is a
+   measurement in script; here the alternative is one `position: relative`. */
+/* align-self: start alongside the inline display, because the display alone does not
+   hold. A flex or grid item is blockified and then stretched by the default
+   `align-items: stretch`, so an `inline-flex` anchor inside a flex column becomes
+   full-width — and the panel, which hangs off the anchor's inline-END edge, detaches
+   from its trigger and appears at the far side of the container. An app that genuinely
+   wants a full-width anchor sets `align-self: stretch` back. */
+.menu-anchor { position: relative; display: inline-flex; align-self: start; }
 .menu-anchor > .menu {
     position: absolute;
     top: calc(100% + 4px);
     inset-inline-end: 0;
     z-index: 550;
 }
+
+/* The panel hangs off the anchor's inline-END edge, so a trigger narrower than the
+   panel's 220px overhangs on the leading side. That is right for a trigger at the
+   trailing end of a row — a table row's actions, a toolbar's overflow — and wrong for
+   one near the leading edge, where the overhang leaves the container. `--start` aligns
+   the panel to the anchor's inline-START edge instead. Put it on the panel, so the
+   choice sits with the panel that moves. */
+.menu-anchor > .menu--start { inset-inline-start: 0; inset-inline-end: auto; }
+
+/* ── Value trigger ──────────────────────────────────────────────────────────
+   A control that shows the CURRENT value of something and opens a menu to change it —
+   a status, an assignee, a queue, a time range. It sits inside a line of text or a
+   table cell, so it is quieter than a button: no border and no fill until hovered.
+
+   Use it where a <select> would be wrong because the options need icons, colour or a
+   description. Where a plain list of values would do, use a <select>: it is one
+   element and the platform gives you the keyboard.
+
+   The chevron is drawn by CSS, so the markup is the value and nothing else. Pair it
+   with data-menu-toggle and a sibling .menu. */
+.value-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    max-width: 100%;
+    padding: var(--space-1) var(--space-3);
+    margin-inline: calc(var(--space-3) * -1);   /* so the text still lines up with its column */
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-inner);
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+.value-trigger::after {
+    content: '';
+    flex-shrink: 0;
+    width: 0;
+    height: 0;
+    border-inline: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.5;
+}
+.value-trigger:hover { background: var(--bg-hover); border-color: var(--border); }
+.value-trigger:hover::after { opacity: 1; }
+.value-trigger:focus-visible { outline: none; border-color: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand-ring-soft); }
+.value-trigger[aria-expanded="true"] { background: var(--bg-hover); border-color: var(--border); }
+.value-trigger[aria-expanded="true"]::after { transform: rotate(180deg); }
+.value-trigger[aria-disabled="true"] { color: var(--muted); pointer-events: none; }
+.value-trigger[aria-disabled="true"]::after { display: none; }
+/* The value itself, so a long one truncates instead of pushing the chevron out. */
+.value-trigger > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Works on an <a> or a <button>, so an item can navigate or act. */
 .menu-item {
@@ -3462,11 +4081,10 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: underline; }
    Right-aligned and tabular, so digits line up by place value down the column and
    two numbers can be compared by their shape. Put it on the th AND the td.
 
-   Scoped to `.table .col-num`, not bare `.col-num`. A single-purpose class is
-   (0,1,0) and `.table th, .table td` is (0,1,1), so the bare form loses the
-   text-align it exists to set — and loses it silently, which reads as the class
-   being broken. This is the same trap that stops a general utility layer landing
-   before tier 2 has a specificity cap. */
+   Scoped to `.table .col-num`, not bare `.col-num`. A single-purpose class is (0,1,0)
+   and `.table th, .table td` is (0,1,1), so the bare form loses the text-align it
+   exists to set, silently. A class in `@layer dr.utilities` wins that collision on
+   layer order instead; this file is in dr.paint, so it needs the specificity. */
 .table .col-num { text-align: end; font-variant-numeric: tabular-nums; }
 
 /* ── Row selection ──────────────────────────────────────────────────────────
@@ -3584,6 +4202,16 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 /* Inside a card the rows meet the card's edges, so the divider spans the full
    width instead of floating with a gap at each end. */
 .card > .list > li > .list-row { padding-inline: var(--space-7); }
+
+/* ── The row as a lockup ────────────────────────────────────────────────────
+   `.list-row` + `.list-main` + `.list-title` + `.list-sub` + `.list-meta` is a leading
+   visual, two stacked lines and a trailing slot. Put an `.avatar` first and it is a
+   person; put an icon there and it is a device, a file or a queue. Nothing in it names
+   what the thing is, which is why it serves for all of them.
+
+   `--flush` drops the row's own padding, for the places where the surrounding cell
+   already provides it: a table cell, a card header, a form row. */
+.list-row--flush { padding: 0; gap: var(--space-5); }
 
 /* ── Steps ──────────────────────────────────────────────────────────────────
    Progress through a sequence that has an order — a wizard, an approval chain.
@@ -3779,9 +4407,13 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 /* ── Icon-only and floating buttons ─────────────────────────────────────────
    .btn-icon is a square button with no label. It still needs an aria-label, and
    `.btn`'s min-height already matches it to text buttons beside it — this only
-   squares the padding so it is not a wide box around one glyph. */
-.btn-icon { padding-inline: 0; width: 33px; }
-.btn-icon.btn-sm { width: 27px; }
+   squares the padding so it is not a wide box around one glyph.
+
+   Square by construction, from the same token as the height. Do not hard-code the
+   width: it drifts from the height the moment either tier changes. */
+.btn-icon { padding-inline: 0; width: var(--control-height); }
+.btn-icon.btn-sm { width: var(--control-height-sm); }
+.btn-icon.btn-lg { width: var(--control-height-lg); }
 
 /* .btn-ghost carries no border or fill until hovered, for a dense row of secondary
    actions — a table row's actions, a toolbar. Everything the button does is still
@@ -3864,7 +4496,7 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
    opening the full item, never a bare div with a click handler. */
 .gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr));
     gap: var(--space-5);
 }
 .gallery > * { position: relative; display: block; text-decoration: none; }
@@ -4019,12 +4651,52 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
    cannot be interpolated without opting in. Without them the panel simply appears —
    which is correct, just abrupt, so this degrades rather than breaks. */
 dialog.drawer {
+    /* The UA stylesheet centres a dialog with `margin: auto` and sizes it to its
+       content with `width`/`height: fit-content`. Both fight the edge anchoring above,
+       and both have to be given back here, or the panel is sized to its own text and
+       vertically centred while every rule that put it at the edge still applies.
+       `height: auto` is what lets `inset-block: 0` mean full height. */
+    margin: 0;
+    height: auto;
+    /* The UA also sets BOTH inline insets to 0 — that is how `margin: auto` centres a
+       dialog. With a definite width and no auto margins that over-constrains the box,
+       and the inset the spec then ignores is the END one, which puts the panel on the
+       START edge. Only one inset may bind. */
+    inset-inline-start: auto;
+    inset-inline-end: 0;
     max-width: none;
     max-height: none;
     padding: 0;
+    /* And the UA gives a dialog `border: solid`, which is 3px of currentColor — a
+       near-white frame against the viewport edges. All four edges are restated here
+       rather than left to `.drawer`, whose class selector this rule outranks. */
+    border: none;
+    border-inline-start: 1px solid var(--border);
     color: var(--fg);
     --dialog-backdrop: var(--backdrop);
     transition: transform var(--motion-mid) ease, display var(--motion-mid) allow-discrete, overlay var(--motion-mid) allow-discrete;
+}
+/* A closed dialog goes back to `display: none`. `.drawer`'s own `display: flex` would
+   otherwise keep it in the document as a hidden fixed box, and it is what the
+   `display` transition above animates between. */
+dialog.drawer:not([open]) { display: none; }
+
+/* The two variants, restated at this specificity because the rule above outranks their
+   own class selectors. */
+dialog.drawer.drawer--start {
+    inset-inline-start: 0;
+    inset-inline-end: auto;
+    border-inline-start: none;
+    border-inline-end: 1px solid var(--border);
+}
+/* A sheet spans the inline axis, is content-sized in the block axis and capped, and
+   carries its edge on top. */
+dialog.sheet {
+    inset-inline: 0;
+    height: fit-content;
+    max-height: 85vh;
+    border: none;
+    border-top: 1px solid var(--border);
 }
 dialog.drawer::backdrop { background: var(--dialog-backdrop); }
 /* The div form hides itself when closed; a dialog is already display:none, so `open`
@@ -4138,16 +4810,22 @@ dialog.drawer[open] { visibility: visible; transform: none; }
    arrows, Home/End, Enter, and the highlight moving while focus stays in the input.
    aria-selected on a plain button is invalid and axe rejects it.
 
-   No fuzzy-match library. A subsequence scorer is about twenty lines and this package
-   loads nothing at runtime; see js-parts/ when the behaviour lands.
+   No fuzzy-match library. The scorer is `ui._.score` in js-parts/00-core.js, shared
+   with the header search — this package loads nothing at runtime.
    ─────────────────────────────────────────────────────────────────────────── */
+/* Any class that gives a <dialog> a display has to gate it on [open], or it overrides
+   the UA's `display: none` for a closed dialog. The palette is built once and reused,
+   so without the gate it stays in the page as a 560px panel below the content from the
+   first Ctrl-K onwards. */
+dialog.palette[open] {
+    display: flex;
+    flex-direction: column;
+}
 dialog.palette {
     width: min(560px, calc(100vw - 32px));
     max-height: 60vh;
     margin: 12vh auto auto;
     padding: 0;
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
     background: var(--bg-elevated);
     border: 1px solid var(--border);
@@ -4274,6 +4952,234 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 .spotlight-step { color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }
 }
 
+/* ── 65-popover.css → @layer dr.paint ──────────────────────────────────────────────── */
+@layer dr.paint {
+/* ── Popover ────────────────────────────────────────────────────────────────
+   A small panel of *content* anchored to the control that opened it: why a row
+   is pending, what a setting does, the detail behind a number.
+
+     <button class="btn" popovertarget="sla-detail">Why is this overdue?</button>
+
+     <div class="popover" id="sla-detail" popover>
+       <strong class="popover-title">Breached 2h ago</strong>
+       <p>Priority 2 carries a four-hour response target…</p>
+     </div>
+
+   Not a .menu. A menu is a list of *actions* and its items are links and
+   buttons; this is prose, a definition, a small table. Two panels that look
+   alike but mean different things is how a design system starts to rot, so the
+   difference is in what goes inside, and the surfaces are deliberately distinct:
+   a menu is flush-padded for rows, this one has reading padding.
+
+   THE `popover` ATTRIBUTE IS REQUIRED, and so is opening it from a
+   `popovertarget` control. The platform then supplies everything this file would
+   otherwise need JavaScript for — the top layer, light dismiss, Escape, focus
+   handling, and `:popover-open`. There is no drSimpleUi.popover and there does
+   not need to be one.
+
+   `popovertarget` also makes the invoker the popover's IMPLICIT ANCHOR, which is
+   what lets `position-area` place this with no `anchor-name` anywhere. That
+   matters more than it looks: the alternative is a unique --dashed-ident per
+   instance, which means an inline style on every popover in the app.
+
+   The top layer ignores z-index entirely and paints by promotion order, so the
+   550 below never applies to a real popover. It is there for the fallback path
+   in the z-order table, and so that a panel carrying this class while something
+   has gone wrong lands on the rung the documentation says it does.
+   ─────────────────────────────────────────────────────────────────────────── */
+.popover {
+    /* inset: auto and margin: 0 undo the UA rule that centres a popover in the
+       viewport. Without both, position-area has nothing to do. */
+    inset: auto;
+    margin: 0;
+    position: fixed;
+    position-area: block-end span-inline-end;
+    /* Flips above the trigger when there is no room below. The flip takes the
+       margin with it, so the gap stays on the side facing the invoker. */
+    position-try-fallbacks: flip-block;
+    margin-block-start: var(--space-3);
+    z-index: 550;
+
+    width: max-content;
+    max-width: min(320px, calc(100vw - 32px));
+    padding: var(--space-6) var(--space-7);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-pop);
+    color: var(--fg-soft);
+    font-size: var(--text-4);
+    line-height: 1.6;
+}
+.popover > :first-child { margin-top: 0; }
+.popover > :last-child { margin-bottom: 0; }
+
+.popover-title {
+    display: block;
+    margin-bottom: var(--space-3);
+    color: var(--fg);
+    font-size: var(--text-4);
+    font-weight: 600;
+}
+}
+
+/* ── 66-status-indicator.css → @layer dr.paint ──────────────────────────────────────────────── */
+@layer dr.paint {
+/* ── Status indicator ───────────────────────────────────────────────────────
+   A dot and a word for the state of something the app is connected to: a device, a
+   stream, a job runner, an API. Small enough for a topbar, a table cell, a card
+   header or above an output pane.
+
+   Six states, in two groups. The three ACTIVE ones pulse, because something is
+   happening and a static dot cannot say so; the three SETTLED ones do not.
+
+     --live        connected, nothing in flight        pulses
+     --streaming   receiving now                       pulses
+     --connecting  establishing, or retrying           pulses
+     --idle        connected, deliberately quiet       still
+     --degraded    working, but not properly           still
+     --down        not connected                      still
+
+   The word is not optional. A colour alone fails for anybody who cannot see it, and
+   "green" does not say whether green means connected or healthy or done. */
+.health-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-3);
+    font-weight: 500;
+    white-space: nowrap;
+}
+.health-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--border-hover);
+}
+
+.health-badge--live       { color: var(--go-fg); }
+.health-badge--live       .health-dot { background: var(--go-solid); box-shadow: 0 0 6px var(--go-ring); }
+.health-badge--streaming  { color: var(--info-fg); }
+.health-badge--streaming  .health-dot { background: var(--info-solid); box-shadow: 0 0 6px var(--info-ring); }
+.health-badge--connecting { color: var(--warn-fg); }
+.health-badge--connecting .health-dot { background: var(--warn-solid); }
+.health-badge--idle       { color: var(--muted); }
+.health-badge--idle       .health-dot { background: var(--border-hover); }
+.health-badge--degraded   { color: var(--warn-fg); }
+.health-badge--degraded   .health-dot { background: var(--warn-solid); }
+.health-badge--down       { color: var(--danger-fg); }
+.health-badge--down       .health-dot { background: var(--danger-solid); }
+
+/* The active states. One animation, three selectors, so the rhythm is identical
+   across a page showing several connections at once. */
+.health-badge--live .health-dot,
+.health-badge--streaming .health-dot,
+.health-badge--connecting .health-dot { animation: dr-pulse var(--pulse-duration) ease-in-out infinite; }
+
+/* `--healthy` is an alias for `--live`, kept for apps already using it. Prefer
+   `--live` in new markup. */
+.health-badge--healthy { color: var(--go-fg); }
+.health-badge--healthy .health-dot {
+    background: var(--go-solid);
+    box-shadow: 0 0 6px var(--go-ring);
+    animation: dr-pulse var(--pulse-duration) ease-in-out infinite;
+}
+
+/* ── Freshness ──────────────────────────────────────────────────────────────
+   How old the number beside it is. For anything polled or pushed, where the reader
+   has to know whether they are looking at now or at four minutes ago.
+
+   `--warn` when it is old enough to distrust. What counts as old is the app's
+   judgement, not the library's. */
+.stale {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.stale i { font-size: var(--text-3); }
+.stale--warn { color: var(--warn-fg); }
+}
+
+/* ── 67-output.css → @layer dr.paint ──────────────────────────────────────────────── */
+@layer dr.paint {
+/* ── Output pane ────────────────────────────────────────────────────────────
+   Lines of machine output the reader watches or scrolls back through: a build log, a
+   command's stdout, an event stream, an audit trail.
+
+   `.output` and not `.log`: a plain name is a claim on a shared namespace, and `.log`
+   is commonly already taken in a consuming app.
+
+   A real list, so the count is announced and a screen reader can walk it. The pane is
+   the scroll container; add `data-follow` and DR.Simple_UI.js sticks it to the newest
+   line, releasing when the reader scrolls up.
+
+   Monospace with tabular figures, because the reader is comparing columns —
+   timestamps, levels, ids — down the page rather than reading prose. */
+.output {
+    display: block;
+    max-height: 320px;
+    overflow-y: auto;
+    margin: 0;
+    padding: var(--space-4) 0;
+    list-style: none;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    color: var(--fg-soft);
+    font-family: var(--font-mono);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.65;
+}
+
+/* A header strip for the pane: what is being watched, and its state. Sits outside
+   `.output` so it does not scroll away with the lines. */
+.output-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-6);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-start-start-radius: var(--radius-surface);
+    border-start-end-radius: var(--radius-surface);
+    font-size: var(--text-3);
+    color: var(--muted);
+}
+.output-head + .output {
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+}
+
+/* One line. `white-space: pre-wrap` keeps the output's own alignment while still
+   wrapping a long line rather than forcing the pane to scroll sideways. */
+.output-line {
+    display: block;
+    padding: 0 var(--space-6);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.output-line:hover { background: var(--bg-hover); }
+
+/* A timestamp or a level, quieter than the message it introduces. */
+.output-time { color: var(--muted); }
+
+/* Severity. The whole line is tinted rather than a marker at the start, because the
+   reader is scanning a wall of text and a coloured word is easy to miss in it. */
+.output-line--warn   { background: var(--warn-bg);   color: var(--warn-fg); }
+.output-line--error  { background: var(--danger-bg); color: var(--danger-fg); }
+.output-line--go     { color: var(--go-fg); }
+/* Something the app emitted about itself — "reconnected", "stream closed" — rather
+   than a line from the thing being watched. */
+.output-line--note   { color: var(--muted); font-style: italic; }
+}
+
 /* ── 70-rtl.css → @layer dr.paint ──────────────────────────────────────────────── */
 @layer dr.paint {
 /* ═══ Right-to-left ═════════════════════════════════════════════════════════
@@ -4325,15 +5231,22 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 [dir="rtl"] .drawer--start { transform: translateX(100%); }
 [dir="rtl"] .drawer--open { transform: none; }
 
+/* Kind 2 again. An avatar group's separating gap is a hole masked out of the avatar
+   behind, centred on where the next one lands — and a radial-gradient position is
+   measured from the physical left edge whatever the direction, while the overlap
+   that put it there is a `margin-inline-start`. So the offset is restated from the
+   other edge; the arithmetic is the same, mirrored. */
+[dir="rtl"] .avatar { --avatar-cut-x: calc(var(--avatar-overlap) - var(--avatar-size) / 2); }
+
 /* The tree's disclosure caret points along the inline axis, so it starts mirrored
    and rotates the other way when open. */
 [dir="rtl"] .tree summary::before { transform: rotate(180deg); }
 [dir="rtl"] .tree details[open] > summary::before { transform: rotate(90deg); }
 
-/* The collapsed rail's flyout escapes towards the inline end, which
-   `inset-inline-start: calc(100% + 10px)` already handles — but the vertical centring
-   translate must not be undone, so it is restated rather than left to a blanket
-   reset. Nothing else in the rail needs mirroring. */
+/* The collapsed rail's flyout needs nothing here, and neither does anything else in
+   the rail. `position-area: inline-end` and `align-self: anchor-center` are both
+   logical and resolve against the writing mode, and the offset is a
+   `margin-inline-start`. */
 }
 
 /* ── 71-forced-colors.css → @layer dr.paint ──────────────────────────────────────────────── */
@@ -4549,10 +5462,10 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
    Single-purpose classes, in `@layer dr.utilities`.
 
    The layer is what makes them work at all. A utility is (0,1,0) and a component rule
-   like `.table th, .table td` is (0,1,1), so before layers a utility silently lost
-   whenever it collided — `.text-end` next to `.card-body` would do nothing and read
-   as broken rather than outranked. dr.utilities sits after dr.paint, so it now wins
-   regardless of specificity, and no cap convention has to be remembered.
+   like `.table th, .table td` is (0,1,1), so on specificity alone a utility loses
+   every collision — `.text-end` on a table cell would do nothing. dr.utilities sits
+   after dr.paint, so it wins regardless of specificity and no cap convention has to be
+   remembered.
 
    Deliberately short, and staying short. This is not a utility framework: the point
    of tier 2 is semantic classes that carry meaning, and a page assembled out of
@@ -4593,8 +5506,8 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 }
 
 /* ── Text ───────────────────────────────────────────────────────────────────
-   Logical, so they mirror with the document direction. `.text-end` on a table cell
-   is the common case, and it is the one that used to lose to `.table td`. */
+   Logical, so they mirror with the document direction. `.text-end` on a table cell is
+   the common case. */
 .text-start  { text-align: start; }
 .text-center { text-align: center; }
 .text-end    { text-align: end; }
@@ -4604,6 +5517,24 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 /* Digits that line up down a column, for anything a reader compares. */
 .text-nums  { font-variant-numeric: tabular-nums; }
 .text-nowrap { white-space: nowrap; }
+/* Two type steps either side of the body size, for a line that has to be quieter or
+   louder than its surroundings without becoming a heading. */
+.text-sm { font-size: var(--text-3); }
+.text-lg { font-size: var(--text-6); }
+/* Breaks inside a word when there is nowhere else to break — an id, a URL, a token
+   name in a narrow column. `anywhere` rather than `break-word` because it also shrinks
+   the min-content width, so the element stops forcing its container wide. */
+.text-break { overflow-wrap: anywhere; }
+/* Cut after n lines with an ellipsis. `-webkit-` prefixed and `display: -webkit-box`
+   are load-bearing: line-clamp has no unprefixed form that works. */
+.text-clamp-2,
+.text-clamp-3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.text-clamp-2 { -webkit-line-clamp: 2; }
+.text-clamp-3 { -webkit-line-clamp: 3; }
 /* One line, cut with an ellipsis. `min-width: 0` is included because the usual
    parent is a flex item, which otherwise refuses to shrink below its content and
    the ellipsis never appears — the single most common reason truncation "does not
@@ -4624,6 +5555,48 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 /* Pushes everything after it to the far end of a flex container. */
 .dr-push { margin-inline-start: auto; }
 
+/* Three gap steps and none. `.dr-row` and `.dr-col` set one gap; these are for the
+   rows that need a tighter or looser one, which was an inline `style="gap:12px"`. */
+.dr-gap-0 { gap: 0; }
+.dr-gap-1 { gap: var(--space-4); }
+.dr-gap-2 { gap: var(--space-6); }
+.dr-gap-3 { gap: var(--space-8); }
+
+/* Cross-axis alignment. `.dr-row` centres; a row of fields with labels wants
+   `.dr-start`, and a row of text of different sizes wants `.dr-baseline`. */
+.dr-wrap     { flex-wrap: wrap; }
+.dr-start    { align-items: flex-start; }
+.dr-center   { align-items: center; }
+.dr-end      { align-items: flex-end; }
+.dr-baseline { align-items: baseline; }
+.dr-between  { justify-content: space-between; }
+
+/* The flex child that takes the remaining room. `min-width: 0` comes with it, because
+   without it the child refuses to shrink below its content and every ellipsis inside
+   stops working — the commonest truncation bug there is. */
+.dr-fill { flex: 1; min-width: 0; }
+.dr-shrink-0 { flex-shrink: 0; }
+.dr-w-full { width: 100%; }
+
+/* Block margins only, and only for removing or adding a step. There is no inline
+   pair: horizontal placement belongs to the layout, not to a utility on the child. */
+.dr-mt-0 { margin-top: 0; }
+.dr-mt-1 { margin-top: var(--space-4); }
+.dr-mt-2 { margin-top: var(--space-6); }
+.dr-mt-3 { margin-top: var(--space-8); }
+.dr-mb-0 { margin-bottom: 0; }
+.dr-mb-1 { margin-bottom: var(--space-4); }
+.dr-mb-2 { margin-bottom: var(--space-6); }
+.dr-mb-3 { margin-bottom: var(--space-8); }
+
+/* A hairline between rows without an <hr> and without a wrapper. */
+.dr-divider-top    { border-top: 1px solid var(--divider); }
+.dr-divider-bottom { border-bottom: 1px solid var(--divider); }
+
+/* A scroll container on the inline axis — a table too wide for its column, a row of
+   cards. `.dr-scroll` styles a scroller; this one creates it. */
+.dr-scroll-x { overflow-x: auto; }
+
 /* ── State ──────────────────────────────────────────────────────────────────
    Not a `hidden` replacement: use the `hidden` ATTRIBUTE for that, because it also
    removes the element from the accessibility tree and the tab order. This is for
@@ -4633,6 +5606,27 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 /* Marks a block as busy without removing it. Pair it with aria-busy="true", which is
    what is announced; this only stops the reader interacting with stale content. */
 .dr-busy { opacity: 0.55; pointer-events: none; cursor: progress; }
+
+/* For something unavailable that is NOT a <button>, <input> or <a> — those have the
+   `disabled` attribute, which is announced and removes them from the tab order, and
+   this is no substitute for it. Add aria-disabled="true" alongside. */
+.dr-disabled {
+    color: var(--muted);
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* ── Print ──────────────────────────────────────────────────────────────────
+   The two every printed page needs: keep the chrome off the paper, and let a sheet
+   carry something the screen does not. 72-print.css handles the frame; these are for
+   an app's own content. */
+@media print {
+    .dr-no-print { display: none; }
+}
+.dr-print-only { display: none; }
+@media print {
+    .dr-print-only { display: revert; }
+}
 }
 
 /* ── 90-density.css → @layer dr.overrides ──────────────────────────────────────────────── */
@@ -4644,12 +5638,10 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
    Anything that should tighten with the tables uses var(--cell-pad-y) /
    var(--cell-pad-x) and gets it for free — an app's own dense card, for instance.
 
-   There is deliberately no selector override alongside this. An earlier version
-   carried one at (0,3,1) so it would outrank apps still holding a copied
-   `.table th, .table td { padding: … }` from before the extraction. That was
-   propping up the thing the extraction exists to remove: with cascade layers an
-   app's unlayered rule wins whatever this file does, so the override only worked by
-   accident and only until the layers landed. Delete the copied rule in the app.
+   There is deliberately no selector override alongside this. An app's own stylesheet is
+   unlayered and wins whatever this file declares, so an app holding its own
+   `.table th, .table td { padding: … }` does not go compact until that rule is deleted.
+   No specificity here can substitute for deleting it.
    ─────────────────────────────────────────────────────────────────────────── */
 :root[data-density="compact"] {
     --cell-pad-y: var(--space-2);
@@ -4691,6 +5683,10 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
        is kept as a step, not a fade, by removing the transition entirely. */
     .dr-tip           { transition: none; transform: none; }
     .reconnect-attempting i { animation: none; }   /* 18 */
+    .nav-group > summary::after { transition: none; }   /* 20 — the group caret */
+    /* 20 — the skip link jumps into view rather than sliding down. It has to still
+       become visible, so only the transition goes. */
+    .skip-link        { transition: none; }
 
     /* ── Tier 2 — the paint ─────────────────────────────────────────────── */
     .btn              { transition: none; }   /* 33 */
@@ -4700,12 +5696,34 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     .switch input[type="checkbox"]     { transition: none; }   /* 45 */
     .switch input[type="checkbox"]::after { transition: none; }
     .input-group      { transition: none; }   /* 46 */
-    .modal            { animation: none; }    /* 36 */
+    .dropzone         { transition: none; }   /* 47 */
+    dialog.modal      { animation: none; }    /* 36 */
     .modal-close      { transition: none; }   /* 36 */
     .spinner          { animation: none; }    /* 39 */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
     .progress-bar     { transition: none; }   /* 41 */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
+    .tab              { transition: none; }   /* 50 */
+    a.stat            { transition: none; }   /* 54 */
+    /* 66 — the dot keeps its colour and the word keeps saying the state; only the
+       pulse stops. Nothing is lost, because the pulse was never the only signal. */
+    .health-badge--live .health-dot,
+    .health-badge--streaming .health-dot,
+    .health-badge--connecting .health-dot { animation: none; }
+    .health-badge--healthy .health-dot { animation: none; }
+    .segmented-option { transition: none; }   /* 51 */
+    .code-block-copy  { transition: none; }   /* 56 */
+    .code-block-expand { transition: none; }  /* 56 */
+    .accordion summary::after { transition: none; }   /* 60 — the disclosure caret */
+    .tree summary::before     { transition: none; }   /* 63 — the same caret in a tree */
+
+    /* 63 — the drawer appears and disappears instead of sliding. `visibility` and
+       `display` are in those transition lists only to keep the panel present while it
+       moves, so with no movement the whole transition goes and the panel is simply
+       there or not. */
+    .drawer-scrim     { transition: none; }
+    .drawer           { transition: none; }
+    dialog.drawer     { transition: none; }
 }
 }
 

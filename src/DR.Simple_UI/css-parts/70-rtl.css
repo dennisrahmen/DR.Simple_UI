@@ -47,12 +47,19 @@
 [dir="rtl"] .drawer--start { transform: translateX(100%); }
 [dir="rtl"] .drawer--open { transform: none; }
 
+/* Kind 2 again. An avatar group's separating gap is a hole masked out of the avatar
+   behind, centred on where the next one lands — and a radial-gradient position is
+   measured from the physical left edge whatever the direction, while the overlap
+   that put it there is a `margin-inline-start`. So the offset is restated from the
+   other edge; the arithmetic is the same, mirrored. */
+[dir="rtl"] .avatar { --avatar-cut-x: calc(var(--avatar-overlap) - var(--avatar-size) / 2); }
+
 /* The tree's disclosure caret points along the inline axis, so it starts mirrored
    and rotates the other way when open. */
 [dir="rtl"] .tree summary::before { transform: rotate(180deg); }
 [dir="rtl"] .tree details[open] > summary::before { transform: rotate(90deg); }
 
-/* The collapsed rail's flyout escapes towards the inline end, which
-   `inset-inline-start: calc(100% + 10px)` already handles — but the vertical centring
-   translate must not be undone, so it is restated rather than left to a blanket
-   reset. Nothing else in the rail needs mirroring. */
+/* The collapsed rail's flyout needs nothing here, and neither does anything else in
+   the rail. `position-area: inline-end` and `align-self: anchor-center` are both
+   logical and resolve against the writing mode, and the offset is a
+   `margin-inline-start`. */

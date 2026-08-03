@@ -33,17 +33,19 @@ public class BrandAssetTests
     [Fact]
     public void The_catalogues_brand_copies_match_their_source_in_assets_brand()
     {
-        // assets/brand/ is the documented home of the brand, but the catalogue needs
-        // its favicon and nav logo as static web assets so they travel with the pages
-        // that use them. That makes them copies, and a copy drifts silently: update
-        // the icon in its documented home and the catalogue keeps shipping the old
-        // one, on the hosted site and inside every restored package.
+        // assets/brand/ is the documented home of the brand, but the catalogue app
+        // serves its own favicon and nav logo from its own wwwroot. That makes them
+        // copies, and a copy drifts silently: update the icon in its documented home
+        // and the site keeps serving the old one.
+        //
+        // These are no longer static web assets travelling inside the package — the
+        // catalogue does not ship — but the drift hazard is identical.
         (string Source, string Copy)[] pairs =
         [
             (Path.Combine("assets", "brand", "favicon.ico"),
-             Path.Combine("src", "DR.Simple_UI", "wwwroot", "catalogue", "favicon.ico")),
+             Path.Combine("src", "DR.Simple_UI.Catalogue", "wwwroot", "favicon.ico")),
             (Path.Combine("assets", "brand", "dr-simple-ui-icon-64.png"),
-             Path.Combine("src", "DR.Simple_UI", "wwwroot", "catalogue", "logo.png")),
+             Path.Combine("src", "DR.Simple_UI.Catalogue", "wwwroot", "logo.png")),
         ];
 
         var offenders = new List<string>();
@@ -60,7 +62,7 @@ public class BrandAssetTests
         }
 
         Assert.True(offenders.Count == 0,
-            "Re-copy the brand asset so the catalogue ships the current one: " +
+            "Re-copy the brand asset so the catalogue serves the current one: " +
             string.Join("; ", offenders));
     }
 }

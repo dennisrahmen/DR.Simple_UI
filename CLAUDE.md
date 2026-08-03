@@ -8,20 +8,18 @@ Stack: **.NET 10 / Blazor / server-side Razor**. `net10.0`, `LangVersion latest`
 ## Two tiers
 
 **Tier 1 — the frame.** Shell, sidebar and nav, header, user widget, toasts, modal shell.
-Pixel-identical in every app, never restyled per project. CSS classes plus, from `0.2.0`, the
-`AppShell` / `Sidebar` / `NavItem` / `AppHeader` / `UserWidget` components, which emit exactly those
-classes. Conventions and the naming trap live in `src/DR.Simple_UI/Components/CLAUDE.md`.
+Pixel-identical in every app, never restyled per project.
 
-**Tier 2 — the paint.** Tables, forms, cards, badges, buttons, panels, alerts. **CSS classes only, never
-components.** Pages write plain HTML and apply the classes.
+**Tier 2 — the paint.** Tables, forms, cards, badges, buttons, panels, alerts. Pages write plain HTML
+and apply the classes.
 
-### New content UI is a CSS class, not a component
+**Both tiers are CSS classes. There are no components.** Do not add a `<DataTable>`, a `<Card>` or an
+`<AppShell>` — the frame is markup on the catalogue's Shell & nav page, copied like everything else.
+Adding UI means adding classes and a catalogue page.
 
-Do not add a `<DataTable>` or any other wrapper around page content. Add classes and a catalogue page.
-
-Which tier: if anyone needs to adjust the inside of it, it is a class. If not, it is a component.
-
-Most of this library is CSS.
+The package is the stylesheet, the script, the icons, the token export, and a small C# surface for the
+things markup cannot express: `ActiveLink` (which link is the current page), `IDrSimpleUi` (typed
+access to the browser API) and `AddDrSimpleUi()`. Most of this library is CSS.
 
 ## The stylesheet and the script are generated
 
@@ -66,40 +64,65 @@ Permanently out of scope:
 
 - MudBlazor, Syncfusion, Radzen, Tailwind.
 - Wrapping tables, forms or page content in components.
-- Loading anything from a remote URL at runtime. Everything the package needs ships inside it, so no
-  host outage can affect a customer site.
-- **Any third-party package reference.** `Microsoft.AspNetCore.Components.Web` is the only dependency
-  and is unavoidable — `ComponentBase` and `NavigationManager` live there. A third-party package is the
-  same exposure moved to build time: a supply-chain risk, a licence to audit, and a transitive version
-  conflict in every consuming app. A test fails on one.
-- An MCP server. The in-package catalogue covers discovery.
+- Wrapping the frame in components. They existed on `main` between `0.1.0` and this release and were
+  removed before shipping; do not bring them back.
+- **The package** loading anything from a remote URL at runtime. Everything it needs ships inside it,
+  so no host outage can affect a customer site. The catalogue application is a web server, and that
+  rule is about the package.
+- **Any third-party package reference in the library.** `Microsoft.AspNetCore.Components.Web` is the
+  only dependency and is unavoidable — `NavigationManager`, `NavLinkMatch` and `IJSRuntime` live there.
+  A third-party package is the same exposure moved to build time: a supply-chain risk, a licence to
+  audit, and a transitive version conflict in every consuming app. A test fails on one, and
+  `build/verify-package.sh` asserts the packed dependency list is exactly that one name.
 - A second icon set. Remix Icon is bundled and is the only one.
 
 ## The catalogue
 
-`src/DR.Simple_UI/wwwroot/catalogue/` — one page per tier-2 class family, with copy-pasteable markup.
-Add catalogue pages as classes are added.
+`src/DR.Simple_UI.Catalogue/` — a Blazor Web App with interactive server rendering, deployed to
+<https://simpleui.dennisrahmen.dev/>. One page per class family, with copy-pasteable markup. Add
+catalogue pages as classes are added; a class with no page is a class nobody can find.
 
 Two rules, both test-enforced:
 
-1. **Single source of CSS.** Every page links `../css/DR.Simple_UI.css`, never a copy.
-2. **The catalogue ships in the package.** It lives under `wwwroot/`, so it travels as a static web asset:
-   same version as the CSS, browsable at `_content/DR.Simple_UI/catalogue/index.html` in a consuming app,
-   and readable in the restored package.
+1. **Single source of CSS.** The app serves the library's own static web assets from
+   `_content/DR.Simple_UI/…`, never a copy. A test compares the bytes the running app returns against
+   the file in the repo.
+2. **The catalogue does not ship in the package.** `build/verify-package.sh` fails on any
+   `staticwebassets/catalogue/` entry and on the app's assembly appearing in the `.nupkg`.
 
-A hosted copy is published from `main` by `pages.yml` to <https://github.dennisrahmen.de/>. The
-in-package copy remains the source of truth for any AI agent, since the site can be ahead of a released
-version. Hosted pages render a notice saying so (`catHostedNotice` in `catalogue.js`), hidden when the
-path contains `/_content/`. Keep that notice working.
+The site is built from `main` and can be ahead of any released version. Every class, token and example
+carries `since` — the release it first shipped in, or `"unreleased"` — so an agent can check before
+copying, and the strip under the header says the same thing to a human. Keep the notice and the `since`
+data working.
 
-Write each example once, inside a `<template>`. `catalogue.js` clones it into the demo and prints the same
-nodes as the code block. Do not hand-write a `<pre>` next to a demo. Use `data-code-only` for a template
-that is not live HTML for that page.
+**Write each example once, as a file under `Examples/`.** A live example is a `.razor` file the page
+renders *and* prints, from the same embedded bytes, so a demo and its snippet cannot drift. A code-only
+snippet is a `.html`, `.css` or `.txt` file rendered by `CatSnippet`, and must never be named `.razor` —
+the Razor SDK's own glob would sweep it into a component. Do not hand-write a `<pre>` beside a demo.
 
-Adding a page: create the `.html`, then add it to `CAT_PAGES` in `catalogue.js`. Tests fail on an orphaned
-page and on a nav entry with no page.
+**An example `.razor` file is plain HTML with no Razor syntax at all.** Then the bytes on disk are the
+bytes compiled, rendered and printed, so nothing is escaped and the snippet pastes into a `.razor` page
+and an `.html` file alike. `Examples/Interop/` is the one exception, for demonstrating the C# surface,
+and a test asserts from both directions that it is used for nothing else.
 
-`catalogue.css` is the docs' own chrome and may only style `.cat-*` / `.ex-*`.
+Adding a page: create `Components/Pages/<Name>.razor` with a `@page` route, then add it to
+`CataloguePages`. Tests fail on an orphaned page and on a registry entry with no page.
+
+`catalogue.css` is the docs' own chrome and may only style `.cat-*` / `.ex-*`. **The app's own
+JavaScript reads and never writes to the DOM** — Blazor owns the document, and anything it mutated
+would be reverted on the next render, silently and only sometimes.
+
+### The MCP server
+
+`/mcp` on the same app: Streamable HTTP, **public, unauthenticated and read-only**. Six tools —
+`search`, `get_example`, `describe_class`, `get_page`, `get_tokens`, `get_integration_guide` — plus
+four resources. **There must never be a seventh tool that writes.** A client honouring the read-only
+hint calls these without prompting, which is only safe while that stays true.
+
+Rate limited on `/mcp` alone, never globally: a global limiter would also count Blazor's SignalR
+upgrades, so one person browsing would trip a limit sized for MCP calls. A concurrency limiter is the
+actual control; the per-caller token bucket is fairness, because behind a proxy whose addresses we do
+not control per-IP limiting is not a security measure. `docs/architecture.md` says so out loud.
 
 ## Structure
 
@@ -111,21 +134,33 @@ src/
     wwwroot/css/DR.Simple_UI.css      GENERATED by build/bundle-css.sh — do not edit
     wwwroot/js/DR.Simple_UI.js        GENERATED by build/bundle-js.sh — do not edit
     wwwroot/js/DR.Simple_UI.boot.js   pre-paint theme, loaded in <head>; standalone
-    wwwroot/catalogue/                the catalogue, ships in the package
     wwwroot/tokens/…tokens.json       GENERATED by build/export-tokens.sh
-    Components/                       tier 1 only — markup in .razor, documented API in .razor.cs
-  DR.Simple_UI.Tests/                 xUnit + bUnit
+    Navigation/ActiveLink.cs          which link is the current page
+    Interop/                          IDrSimpleUi — typed access to the browser API
+  DR.Simple_UI.Tests/                 xUnit + bUnit + Playwright, over the shipped assets
+  DR.Simple_UI.Catalogue/             the hosted catalogue and the MCP server
+    Components/Pages/                 one .razor page per class family
+    Examples/                         one file per example — rendered AND printed
+    Mcp/                              the six tools, the ranker, the version envelope
+    Navigation/                       the page registry
+    Dockerfile                        build context is the REPOSITORY ROOT
+  DR.Simple_UI.Catalogue.Tests/       WebApplicationFactory + Kestrel + Playwright
 assets/brand/                         icon, logo, favicon, social preview
 build/verify-package.sh               unpacks the .nupkg and asserts its contents
 docs/                                 long-form documentation
+railway.json                          deploy configuration, reviewable in a pull request
 ```
 
-Both projects live under `src/`. Tests sit beside the project they test.
+All four projects live under `src/`. Tests sit beside the project they test, and
+`dotnet test src/DR.Simple_UI.Tests` passes with the catalogue project deleted — which is the honest
+statement of the split, and what stops the coupling growing back.
 
-**One package ships from this repo.** There is no project template and one must not be added: it is a
-second package to version, a second trusted-publishing policy, and a second copy of the host page to keep
-in step with `docs/getting-started.md`. Getting started is a documented block to copy, and
-`The_documented_host_page_loads_the_assets_in_the_right_order` keeps that block correct.
+**One package ships from this repo.** The catalogue is a second project but not a second package
+(`IsPackable=false`, asserted by `PackageConfigTests` and again by `build/verify-package.sh`). A second
+*package* must not be added: it is a second version to keep in step, a second trusted-publishing policy,
+and a second copy of the host page to keep in step with `docs/getting-started.md`. Getting started is a
+documented block to copy, and `HostPageTests` keeps that block correct by executing it — the
+catalogue's own host page **is** that block.
 
 **Do not state a count of anything in prose.** File counts, class counts and token counts go stale in
 silence, and all three figures on the catalogue landing page were wrong at some point. Where a number
@@ -133,17 +168,20 @@ matters it is **calculated**, never typed:
 
 - `build/css-inventory.sh` is the one implementation of "what does this stylesheet declare". Both
   extractions in it are subtle — see the header before writing a third one.
-- `build/catalogue-figures.sh` writes the landing page's figures, `--check` in CI. Generated rather than
-  computed in the browser because Chromium refuses `cssRules` for a `file://` stylesheet, which is how
-  the catalogue is read inside a restored package.
 - `build/release-inventory.sh` derives the class and token lists a release adds, for the notes.
+- `build/class-history.sh` derives which release first shipped each class and token, which is what the
+  MCP server's `since` reports. `--check` in CI; regenerate and commit after cutting a tag.
 
-`Catalogue/FigureTests` derives the same three numbers independently in C#. That duplication is the
-point: every one of those figures was wrong while a single implementation agreed with itself.
+The landing page's figures are computed at runtime by the browser's own CSS parser
+(`drSimpleUiCatalogue.readInventory`), and a test compares them against a .NET regex over the same
+file. **That duplication is the point:** every one of those figures was wrong while a single
+implementation agreed with itself — and the CSSOM implementation immediately found a fourth, because
+the browser re-serialises the icon font's `:before` as `::before`, so a regex copied from the .NET side
+reported zero icons.
 
-Four directories carry their own `CLAUDE.md`, next to the files an agent will edit: `css-parts/`,
-`js-parts/`, `Components/` and `wwwroot/catalogue/`. Read the local one before adding a file there — it
-holds the rules that only apply inside it, including which number prefix to choose and which names are
+Three directories carry their own `CLAUDE.md`, next to the files an agent will edit: `css-parts/`,
+`js-parts/` and `src/DR.Simple_UI.Catalogue/`. Read the local one before adding a file there — it holds
+the rules that only apply inside it, including which number prefix to choose and which names are
 already taken.
 
 Keep `README.md` short — hero, badges, the two-tier summary, versioning, licence, links into `docs/`.
@@ -172,8 +210,9 @@ Three are wired into things that fail quietly if renamed, and a test pins them:
 - `dr-simple-ui-icon-128.png` → packed as `icon.png`, the NuGet package icon. nuget.org requires a raster
   image of 128×128 or smaller.
 - `dr-simple-ui-social-preview.png` → the README hero.
-- `wwwroot/catalogue/favicon.ico` and `logo.png` — copies inside the catalogue folder, so they ship as
-  static web assets with the pages that use them.
+- `src/DR.Simple_UI.Catalogue/wwwroot/favicon.ico` and `logo.png` — the catalogue application's own
+  copies. They no longer travel inside the package, but the drift hazard is identical: update the icon
+  in `assets/brand/` and the site keeps serving the old one.
 
 ## Icons
 
@@ -208,8 +247,13 @@ in `assets/brand/` are bespoke rather than built from an icon.
 ## JavaScript
 
 `DR.Simple_UI.js` holds generic UI behaviour only: hover hints, theme settings, clipboard, notifications,
-toasts, confirm dialogs, delegated menus, tabs and the command palette, and the Markdown editor.
-App-specific interop stays in the app's own script. The member table is in `docs/architecture.md`.
+toasts, confirm dialogs, delegated menus, tabs, the command palette and the header search, and the
+Markdown editor. App-specific interop stays in the app's own script. The member table is in
+`docs/architecture.md`.
+
+- `palette` and `search` share one matcher, `ui._.score`. Do not write a second one.
+- `search`'s index is client-side and registered up front. Searching a database is the app's own job —
+  it renders `.search-panel` with the library's classes and leaves `data-search` off the input.
 
 - The hover-hint engine skips elements inside `.sidebar`; the collapsed rail has a CSS flyout, and both
   firing produces a double tooltip.
@@ -229,9 +273,14 @@ backdrop 500 < spotlight 510 < popover and dropdown 550 < toast 600 < hover hint
 are not part of the scale. Every rung is in use. A test fails on any value not on the scale, so a new
 layer is added to the table in `docs/architecture.md` first.
 
-550 carries the dropdown panels (`.menu`, and the user widget's own). It is named for the popover too
-because an anchored `.popover` will land on it — that class is not shipped, since anchoring it needs CSS
-anchor positioning, which Firefox ESR 140 does not have.
+550 carries the dropdown panels: `.menu`, `.search-panel`, `.popover` and the user widget's own. A real
+`.popover` is in the top layer and ignores the scale entirely; the rung is its fallback.
+
+**The browser floor is Chromium — current Chrome and Edge.** CSS anchor positioning is therefore
+available and two things use it: `.popover`, and the collapsed rail's hover flyout, which has no other
+option because `.nav-scroll` scrolls and a scroll container clips both axes. `.menu` stays on
+`position: relative` and must: use anchor positioning where the alternative is measuring in JavaScript,
+not as a default.
 
 The drawer sits **below** the modal backdrop on purpose, so a modal opened from inside a drawer still
 covers it.

@@ -30,6 +30,10 @@
        is kept as a step, not a fade, by removing the transition entirely. */
     .dr-tip           { transition: none; transform: none; }
     .reconnect-attempting i { animation: none; }   /* 18 */
+    .nav-group > summary::after { transition: none; }   /* 20 — the group caret */
+    /* 20 — the skip link jumps into view rather than sliding down. It has to still
+       become visible, so only the transition goes. */
+    .skip-link        { transition: none; }
 
     /* ── Tier 2 — the paint ─────────────────────────────────────────────── */
     .btn              { transition: none; }   /* 33 */
@@ -39,10 +43,32 @@
     .switch input[type="checkbox"]     { transition: none; }   /* 45 */
     .switch input[type="checkbox"]::after { transition: none; }
     .input-group      { transition: none; }   /* 46 */
-    .modal            { animation: none; }    /* 36 */
+    .dropzone         { transition: none; }   /* 47 */
+    dialog.modal      { animation: none; }    /* 36 */
     .modal-close      { transition: none; }   /* 36 */
     .spinner          { animation: none; }    /* 39 */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
     .progress-bar     { transition: none; }   /* 41 */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
+    .tab              { transition: none; }   /* 50 */
+    a.stat            { transition: none; }   /* 54 */
+    /* 66 — the dot keeps its colour and the word keeps saying the state; only the
+       pulse stops. Nothing is lost, because the pulse was never the only signal. */
+    .health-badge--live .health-dot,
+    .health-badge--streaming .health-dot,
+    .health-badge--connecting .health-dot { animation: none; }
+    .health-badge--healthy .health-dot { animation: none; }
+    .segmented-option { transition: none; }   /* 51 */
+    .code-block-copy  { transition: none; }   /* 56 */
+    .code-block-expand { transition: none; }  /* 56 */
+    .accordion summary::after { transition: none; }   /* 60 — the disclosure caret */
+    .tree summary::before     { transition: none; }   /* 63 — the same caret in a tree */
+
+    /* 63 — the drawer appears and disappears instead of sliding. `visibility` and
+       `display` are in those transition lists only to keep the panel present while it
+       moves, so with no movement the whole transition goes and the panel is simply
+       there or not. */
+    .drawer-scrim     { transition: none; }
+    .drawer           { transition: none; }
+    dialog.drawer     { transition: none; }
 }

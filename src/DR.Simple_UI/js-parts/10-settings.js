@@ -1,7 +1,7 @@
 /* ── Theme / accessibility settings ──────────────────────────────────────────
    localStorage is the source of truth; the data-theme / data-cvd / data-density
-   attributes on <html> drive the CSS token layer. The boot script applies them
-   before first paint; save() keeps them applied.
+   attributes and the dir attribute on <html> drive the CSS. The boot script applies
+   them before first paint; save() keeps them applied.
 
    data-theme is ALWAYS written, `light` or `dark`, never absent — consuming apps
    brand the light palette with `:root[data-theme="light"]`, so that selector has
@@ -19,10 +19,20 @@
         load: function () {
             var g = function (k) { return readRaw(key(k)); };
             return {
-                lang:    g('lang') || (navigator.language || 'en').slice(0, 2).toLowerCase(),
+                // The document's own language before the browser's: boot.js leaves
+                // <html lang> alone unless a choice was stored, so reporting
+                // navigator.language here would tell an app's language picker
+                // something different from what the page is actually marked as.
+                lang:    g('lang') || document.documentElement.lang
+                             || (navigator.language || 'en').slice(0, 2).toLowerCase(),
                 theme:   g('theme') === 'light' ? 'light' : 'dark',
                 cvd:     g('cvd') === '1',
-                compact: g('density') === 'compact'
+                compact: g('density') === 'compact',
+                // The document's own direction when nothing is stored, for the same
+                // reason as lang above: the host page is the authority until the
+                // reader chooses otherwise.
+                dir:     g('dir') === 'rtl' ? 'rtl' : (g('dir') === 'ltr' ? 'ltr'
+                             : (document.documentElement.dir || 'ltr'))
             };
         },
         save: function (k, value) {
@@ -45,6 +55,12 @@
             else root.removeAttribute('data-cvd');
             if (g('density') === 'compact') root.setAttribute('data-density', 'compact');
             else root.removeAttribute('data-density');
+            // Only a stored choice writes dir, and "ltr" is stored explicitly rather
+            // than treated as absent — otherwise switching back would delete a dir
+            // the host page set for itself. An app whose document is RTL by default
+            // says so in its own markup and this leaves it alone.
+            var dir = g('dir');
+            if (dir === 'rtl' || dir === 'ltr') root.dir = dir;
         }
     };
 

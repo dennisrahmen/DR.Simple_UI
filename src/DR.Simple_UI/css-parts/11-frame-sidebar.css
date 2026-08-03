@@ -11,11 +11,16 @@
     transition: width var(--motion-fast) ease;
 }
 
+/* flex-shrink: 0 because the sidebar is a flex column and the brand is the only
+   item in it that can shrink. A nav taller than the viewport — a collapsed rail
+   with more links than fit — would otherwise squeeze the header down onto the
+   logo. A fixed-height header stays its height. */
 .brand {
     display: flex;
     align-items: center;
     gap: var(--space-5);
     height: 44px;
+    flex-shrink: 0;
     padding: 0 var(--space-7);
     border-bottom: 1px solid var(--sidebar-border);
     color: inherit;
@@ -29,7 +34,13 @@
     text-transform: uppercase; letter-spacing: 0.06em; margin-top: var(--space-1);
 }
 
-.nav { display: flex; flex-direction: column; flex: 1; margin-top: var(--space-4); overflow: hidden; }
+/* No margin above the nav. It would put the scroll container's top edge below
+   the brand's divider, which reads as a gap the first time the nav is scrolled:
+   the content slides under a strip of empty sidebar instead of under the
+   divider, and the scrollbar and the scroll shadow both start late. Nothing is
+   lost: every element that can be first in the nav (.nav-section-label, .nav-link,
+   .nav-status-card) carries its own top padding. */
+.nav { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
 .nav-scroll { flex: 1; overflow-y: auto; min-height: 0; }
 .nav-section { margin-bottom: var(--space-2); }
 .nav-section-label {
@@ -54,8 +65,8 @@
 .nav-link i { font-size: var(--text-7); flex-shrink: 0; opacity: 0.6; }
 .nav-link:hover { background: var(--bg-elevated); text-decoration: none; }
 .nav-link:hover i { opacity: 1; }
-/* Tinted rather than a solid brand pill: a saturated fill made the count badge
-   unreadable and fought every brand colour. */
+/* Tinted rather than a solid brand pill, so the count badge on the same row stays
+   readable and any brand hue works underneath. */
 .nav-link.active { background: var(--brand-tint); color: var(--brand-text); }
 .nav-link.active i { opacity: 1; color: var(--brand-text); }
 /* Specificity, not !important: `.nav-link i` (0-1-1) above would otherwise win
@@ -80,8 +91,15 @@
     padding: var(--space-2) 0 var(--space-4);
     box-shadow: var(--shadow-nav-tools);
 }
-.nav-link-tool { font-size: var(--text-3); opacity: 0.55; }
-.nav-link-tool:hover { opacity: 1; }
+/* Quietened by colour, never by opacity. `opacity: 0.55` is theme-blind: on the
+   dark sidebar it lands around 4.6:1 and on the light theme's white sidebar around
+   3:1, under the 4.5:1 floor for 12px text — and a control at half strength beside
+   full-strength siblings reads as disabled rather than as secondary. --muted is the
+   token each theme already tunes for exactly this job. */
+.nav-link-tool { font-size: var(--text-3); color: var(--muted); }
+.nav-link-tool i { opacity: 0.75; }
+.nav-link-tool:hover { color: var(--sidebar-fg); }
+.nav-link-tool:hover i { opacity: 1; }
 .nav-tools-sep { border: none; border-top: 1px solid var(--sidebar-border); margin: var(--space-5) var(--space-8) var(--space-2); }
 
 /* Sidebar status card (a monitored dependency: API reachable, DB connected, …).

@@ -1,12 +1,11 @@
 using DR.Simple_UI.Tests.TestSupport;
-using Microsoft.Playwright;
 
 namespace DR.Simple_UI.Tests;
 
 /// <summary>
 /// Interactive states really repaint. Transitions are frozen first: getComputedStyle read at t=0 returns the value being transitioned away from, which once looked like a broken selector.
 /// </summary>
-public class RepaintTests : CatalogueBrowserTestBase
+public class RepaintTests : ScriptTestBase
 {
     [Fact]
     public async Task Interactive_states_repaint_when_the_state_changes()
@@ -27,7 +26,7 @@ public class RepaintTests : CatalogueBrowserTestBase
         //
         // So transitions are switched off first, and the sentinel stays in as the
         // thing that catches the mistake next time.
-        var (page, errors) = await Open("tabs.html");
+        var (page, errors) = await OpenStyled("<p>fixture</p>");
         Assert.Empty(errors);
 
         var report = await page.EvaluateAsync<string[]>(@"() => {

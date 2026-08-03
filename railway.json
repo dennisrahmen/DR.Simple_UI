@@ -1,0 +1,22 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "src/DR.Simple_UI.Catalogue/Dockerfile",
+    "watchPatterns": [
+      "src/DR.Simple_UI/**",
+      "src/DR.Simple_UI.Catalogue/**",
+      "docs/**",
+      "global.json",
+      "railway.json"
+    ]
+  },
+  "deploy": {
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 120,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 5,
+    "numReplicas": 1,
+    "overlapSeconds": 20
+  }
+}

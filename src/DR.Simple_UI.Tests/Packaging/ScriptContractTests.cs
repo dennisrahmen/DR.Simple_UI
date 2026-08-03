@@ -49,16 +49,44 @@ public class ScriptContractTests
     [Fact]
     public void The_scripts_carry_no_application_specific_naming()
     {
-        string[] forbidden = ["atheneConsole", "athene.", "netpoint", "servicenow"];
+        // Names AND the identifiers a consuming app's data looks like. The shipped script
+        // is served publicly by every app that installs the package, and its comments are
+        // part of what ships — an example ticket number in one of them is a customer's
+        // record number in somebody else's browser.
+        string[] forbidden = ["atheneConsole", "athene.", "netpoint", "servicenow", "SD-Network"];
+        string[] forbiddenPatterns = [@"INC\d{4,}", @"\bCHG\d{4,}", @"\bREQ\d{4,}"];
 
         foreach (var path in new[] { Assets.JsPath, Assets.BootJsPath })
         {
             var js = File.ReadAllText(path);
-            var found = forbidden.Where(f => js.Contains(f, StringComparison.OrdinalIgnoreCase)).ToList();
+            var found = forbidden
+                .Where(f => js.Contains(f, StringComparison.OrdinalIgnoreCase))
+                .Concat(forbiddenPatterns
+                    .SelectMany(p => Regex.Matches(js, p, RegexOptions.IgnoreCase).Select(m => m.Value)))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
             Assert.True(found.Count == 0,
                 $"{Path.GetFileName(path)} carries app-specific naming: {string.Join(", ", found)}");
         }
+    }
+
+    [Fact]
+    public void The_stylesheet_carries_no_application_specific_naming()
+    {
+        // The same rule for the sheet, which ships and is served publicly too. The class
+        // guard in ColourTests covers app-prefixed CLASSES; this covers prose in comments.
+        string[] forbidden = ["athene", "netpoint", "servicenow", "SD-Network", "gsearch"];
+        var css = File.ReadAllText(Assets.CssPath);
+
+        var found = forbidden
+            .Where(f => css.Contains(f, StringComparison.OrdinalIgnoreCase))
+            .Concat(Regex.Matches(css, @"INC\d{4,}", RegexOptions.IgnoreCase).Select(m => m.Value))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        Assert.True(found.Count == 0,
+            $"The stylesheet carries app-specific naming: {string.Join(", ", found)}");
     }
 
     [Fact]

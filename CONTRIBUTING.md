@@ -53,13 +53,13 @@ See [docs/development.md](docs/development.md) for what each guard covers.
 - **A second icon set.** Remix Icon is bundled and is the only one.
 - **Colour literals in the library CSS.** Every colour resolves through a token; a test enforces it.
 - **App-specific business UI** — approval panels, SLA badges, tour overlays, page-specific grids.
-- **Anything loaded from a remote URL at runtime.** Everything ships inside the package.
+- **Anything the package loads from a remote URL at runtime.** Everything it needs ships inside it.
 
 ## Adding a class
 
 1. Add it to `src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css`, referencing tokens for every colour.
-2. Add or extend a catalogue page under `src/DR.Simple_UI/wwwroot/catalogue/`, and register it in
-   `CAT_PAGES` in `catalogue.js`.
+2. Add or extend a catalogue page under `src/DR.Simple_UI.Catalogue/Components/Pages/`, with its
+   example markup as a file under `Examples/`, and register the page in `CataloguePages`.
 3. `dotnet test`.
 
 Conventions — naming, the token contract, the two tiers — are in [CLAUDE.md](CLAUDE.md). It is written for
@@ -68,7 +68,7 @@ both humans and AI agents working in this repo.
 ## Reporting a bug
 
 Include the library version, the browser, and the smallest markup that reproduces it. If it is visual,
-state which theme (`data-theme`, `data-cvd`, `data-density`) it appears under — several past issues were
+state which theme (`data-theme`, `data-cvd`, `data-density`) it appears under: a visual defect is often
 theme-specific.
 
 ## Maintainers

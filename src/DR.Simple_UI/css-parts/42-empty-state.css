@@ -20,6 +20,26 @@
 /* Sits directly on the page rather than inside a card. */
 .empty-state--bare { padding: var(--space-9) 0; }
 
-/* The reduced-motion switch-off for the spinner, skeleton and progress bar moved
-   to 85-reduced-motion.css, which holds the whole library's in one block. */
+/* ── Not empty yet, and empty because something broke ───────────────────────
+   The same block, for the two states a live view spends most of its time in. Say
+   which one it is: "nothing here" and "we could not load it" call for different
+   actions, and showing the first when it is the second is how a broken page looks
+   fine.
+
+   `--pending` is for a wait with no progress to report — the first event of a stream,
+   a long request. Put a `.spinner-lg` where the icon goes. Where there IS progress,
+   use `.progress`; where the shape of what is coming is known, use `.skeleton`.
+
+   `--failed` keeps the error's own colour on the icon only. A whole red panel reads as
+   destructive rather than as unavailable. */
+.empty-state--pending .spinner,
+.empty-state--pending .spinner-lg { color: var(--muted); }
+.empty-state--failed i { color: var(--danger-fg); }
+/* The line under the title, for the detail that makes a failure actionable: the code,
+   the endpoint, when it was last tried. */
+.empty-state-detail {
+    font-family: var(--font-mono);
+    font-size: var(--text-2);
+    color: var(--muted);
+}
 
