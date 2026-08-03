@@ -61,6 +61,17 @@ emit_first_seen() {
         [[ -n "$name" ]] && current["$name"]=1
     done < <("$inventory" "$root/$sheet" "$kind")
 
+    # The inventory runs inside process substitution, where a non-zero exit is
+    # not seen by `set -e` and an unreadable script is simply no output. The
+    # stylesheet always declares both kinds, so an empty result means the
+    # inventory failed to run — say so, instead of emitting an almost-empty file
+    # and letting --check report it as merely out of date.
+    if [[ ${#current[@]} -eq 0 ]]; then
+        echo "::error::$inventory produced no $kind. It did not run." >&2
+        echo "        Check it is executable (git ls-files -s build/) and try: bash $inventory $sheet $kind" >&2
+        exit 1
+    fi
+
     for tag in "${tags[@]}"; do
         version="${tag#v}"
         # A tag from before the stylesheet existed has nothing to read.
