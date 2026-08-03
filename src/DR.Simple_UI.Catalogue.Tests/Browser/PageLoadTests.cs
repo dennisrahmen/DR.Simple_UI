@@ -96,21 +96,28 @@ public class PageLoadTests(CatalogueAppFixture app)
     {
         if (app.NoBrowser) return;
 
-        // The defect this pins is the one a reader reports first: a demo whose
-        // content hangs off the side of the bordered box it is in. It has three
-        // causes and they all look the same — a dropdown anchored to its trailing
-        // edge next to a narrow trigger, a control wider than the column, and a
-        // fixed element inside a demo that ignores the box entirely. A source scan
-        // cannot see any of them; only a layout engine can.
-        var problems = new List<string>();
-
-        // What is measured is each element's VISIBLE box: its own rect clipped by
-        // every scrolling or hidden ancestor between it and the demo. Without that,
-        // an animation that overshoots its own clipped track — the indeterminate
-        // progress bar does — reads as a spill nobody can see.
+        // The defect this pins is the one a reader reports first: a panel that hangs
+        // off the side of the bordered box it is in, so it has to be scrolled to
+        // before it can be read. A source scan cannot see it; only a layout engine
+        // can.
+        //
+        // OUT-OF-FLOW ELEMENTS ONLY, and that restriction is the whole design.
+        // `.ex-demo` is itself a scroll container, so anything in the normal flow
+        // that is wider than the box — a table, a wide toolbar — scrolls inside it,
+        // which is correct and is what the library's own `.dr-scroll` documents. A
+        // dropdown cannot use that escape: scrolling the box to reach the panel
+        // moves the trigger out from under it. So a floating panel must fit, and a
+        // table need not.
+        //
+        // It also makes the measurement machine-independent. Whether a table is a
+        // few pixels wider than a phone depends on the font stack, and this suite
+        // runs on Windows and on a Linux runner; whether an absolutely positioned
+        // panel is anchored to the wrong edge does not.
         //
         // Two pixels of tolerance, because a subpixel box measured against a
         // subpixel parent differs in the last decimal on any fractional layout.
+        var problems = new List<string>();
+
         const string measure =
             """
             () => Array.from(document.querySelectorAll('.ex-demo')).flatMap(demo => {
@@ -118,23 +125,31 @@ public class PageLoadTests(CatalogueAppFixture app)
                 return Array.from(demo.querySelectorAll('*')).filter(el => {
                     const style = getComputedStyle(el);
                     if (style.display === 'none' || style.visibility === 'hidden') return false;
-                    if (style.position === 'fixed') return false;
+
+                    // The top layer is not in the box at all and is not meant to be.
+                    if (el.matches(':popover-open') || el.matches('dialog[open]')) return false;
+                    if (el.closest('[popover], dialog')) return false;
+
+                    if (style.position !== 'absolute' && style.position !== 'sticky') return false;
 
                     const r = el.getBoundingClientRect();
                     if (r.width === 0 && r.height === 0) return false;
 
-                    let left = r.left, right = r.right;
-                    for (let a = el.parentElement; a && a !== demo; a = a.parentElement) {
-                        if (getComputedStyle(a).overflowX === 'visible') continue;
-                        const ar = a.getBoundingClientRect();
-                        left = Math.max(left, ar.left);
-                        right = Math.min(right, ar.right);
-                    }
-                    if (right <= left) return false;
-
-                    return left < box.left - 2 || right > box.right + 2;
+                    return r.left < box.left - 2 || r.right > box.right + 2;
                 }).map(el => (el.className || el.tagName) + '');
             })
+            """;
+
+        // And the user-visible consequence at the narrow width, which is the same
+        // question asked of the document rather than of one box: nothing may push
+        // the page sideways. This holds whatever the font metrics, because a demo
+        // that scrolls internally does not widen its ancestors.
+        const string documentScroll =
+            """
+            () => {
+                const el = document.documentElement;
+                return Math.max(0, el.scrollWidth - el.clientWidth);
+            }
             """;
 
         foreach (var route in RoutedPages.All)
@@ -162,6 +177,10 @@ public class PageLoadTests(CatalogueAppFixture app)
 
             foreach (var spill in spills.Distinct(StringComparer.Ordinal))
                 problems.Add($"{route} at {width}px {dir}: '{spill}' extends outside its .ex-demo box");
+
+            var overflow = await page.EvaluateAsync<int>(documentScroll);
+            if (overflow > 2)
+                problems.Add($"{route} at {width}px {dir}: the page scrolls {overflow}px sideways");
 
             await page.CloseAsync();
         }
