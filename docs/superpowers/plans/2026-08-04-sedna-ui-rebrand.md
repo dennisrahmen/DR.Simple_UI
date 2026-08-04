@@ -1462,7 +1462,23 @@ git commit -m "Replace the brand assets and record the Sedna palette"
 These are not implementation tasks and are gated on Dennis, in this order. The README hero URL resolves only once the repository is renamed **and** the branch is on `main`, so the tag comes last.
 
 1. Open the PR from `rebrand/sedna-ui`, review, merge to `main`.
-2. Rename the GitHub repository to `Sedna.UI` — confirm with Dennis immediately before the API call — then update the local `origin` URL.
+2. ~~Rename the GitHub repository and update the local `origin` URL.~~ **DONE
+   2026-08-04, ahead of the merge.** `dennisrahmen/Sedna.UI`; description is now
+   "One design-token contract. Semantic CSS. Consistent Blazor apps."; homepage
+   `https://www.sedna-ui.com`; `origin` repointed and verified reaching `main`.
+   GitHub redirects the old path, and the branch was local-only at the time, so
+   nothing published depended on the old name.
+
+   The ordering originally written here — rename *after* the merge — was wrong.
+   Both the rename and the merge must precede the **tag**, because the nuget.org
+   README hero loads `raw.githubusercontent.com/dennisrahmen/Sedna.UI/main/…`.
+   Their order relative to each other does not matter, and renaming first makes the
+   branch's seven badge URLs resolve instead of 404.
+
+   **Still open on the repository, and Dennis's call:** GitHub Pages is enabled
+   (`has_pages: true`) and still serving the old, old-branded site. Disabling it
+   takes a live site down, so it is a decision rather than a step. The new homepage
+   404s until the Hetzner CNAME for `www.sedna-ui.com` resolves.
 3. **Dennis:** move the nuget.org trusted-publishing policy to repository `Sedna.UI`. Skipping this fails `release.yml` at *Exchange OIDC token*, after a full green build.
 4. Draft the release notes: level Major shipping as `0.2.0`, every added and removed class name from `build/release-inventory.sh`, the identifier table, and the stored-state loss. Confirm with Dennis.
 5. `git tag -a v0.2.0 -F notes.md && git push origin v0.2.0`, with `notes.md` written outside the repository.
