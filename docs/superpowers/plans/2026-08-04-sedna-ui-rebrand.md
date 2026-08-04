@@ -906,16 +906,20 @@ Expected: PASS.
 
 A guard that passes without ever being able to fail is worse than none. Also confirms the word boundary works — the second injection must NOT trip it.
 
+**Inject into a css-part and regenerate — never append to the generated bundle.** The Global Constraint holds even for a throwaway check, and going through the generator is also the more honest test: it proves the guard catches a violation arriving the way a real one would.
+
 ```bash
-printf '\n/* dr-row */\n' >> src/Sedna.UI/wwwroot/css/Sedna.UI.css
+printf '\n/* dr-row */\n' >> src/Sedna.UI/css-parts/80-utilities.css
+bash build/bundle-css.sh
 dotnet test src/Sedna.UI.Tests -c Debug --filter BrandNamingTests
 ```
 
 Expected: FAIL, naming `Sedna.UI.css` and `dr-`.
 
 ```bash
+git checkout -- src/Sedna.UI/css-parts/80-utilities.css
+printf '\n/* --dialog-backdrop-blur is not a violation */\n' >> src/Sedna.UI/css-parts/80-utilities.css
 bash build/bundle-css.sh
-printf '\n/* --dialog-backdrop-blur is not a violation */\n' >> src/Sedna.UI/wwwroot/css/Sedna.UI.css
 dotnet test src/Sedna.UI.Tests -c Debug --filter BrandNamingTests
 ```
 
@@ -934,14 +938,14 @@ Expected: FAIL, naming that example. If `Examples/Utility/FlexRow.razor` does no
 - [ ] **Step 7: Restore everything and re-confirm green**
 
 ```bash
-git checkout -- src/Sedna.UI.Catalogue/Examples
+git checkout -- src/Sedna.UI/css-parts src/Sedna.UI.Catalogue/Examples
 bash build/bundle-css.sh
-git diff --stat src/Sedna.UI/wwwroot src/Sedna.UI.Catalogue/Examples   # expect no diff
+git status --porcelain src/Sedna.UI src/Sedna.UI.Catalogue   # expect empty
 dotnet test src/Sedna.UI.Tests           -c Debug --filter BrandNamingTests
 dotnet test src/Sedna.UI.Catalogue.Tests -c Debug --filter BrandNamingTests
 ```
 
-Expected: no diff, both PASS.
+Expected: empty status — the regenerated bundle must be byte-identical to the committed one — and both tests PASS.
 
 - [ ] **Step 8: Commit**
 
@@ -987,10 +991,26 @@ This covers `RepositoryUrl`, the seven README badge URLs, the README hero's `raw
 
 - [ ] **Step 3: Recolour the README badges from the old brand blue to Sedna Red**
 
+> **STOP. `2563eb` is a live token value.** It is the value of `--brand` and
+> friends in `css-parts/01-tokens.css`, `02-theme-light.css` and
+> `03-theme-colour-blind.css`, and therefore in the generated stylesheet and the
+> generated tokens JSON. A repo-wide `s/2563eb/FF6B4A/` would change the default
+> theme and violate the Global Constraint that no token value changes.
+> **This command must never lose its `README.md` argument.**
+
 ```bash
+grep -c '2563eb' README.md          # expect 6 — six of the seven badges carry a colour
 perl -pi -e 's/2563eb/FF6B4A/g' README.md
-grep -c 'FF6B4A' README.md    # expect 7
+grep -c 'FF6B4A' README.md          # expect 6
+git diff --stat                      # expect README.md and nothing else
 ```
+
+The CI badge has no colour parameter, which is why the count is 6 and not 7.
+
+`src/Sedna.UI.Catalogue/wwwroot/catalogue.css` also carries one `2563eb`, in the
+docs site's own chrome. Leave it: recolouring the catalogue is a visual change
+nobody asked for, and the instruction was to record the palette, not apply it.
+Note it as a deferred minor.
 
 - [ ] **Step 4: Remove the stale sentence from the package description**
 
