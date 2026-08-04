@@ -58,18 +58,51 @@ public class BrandNamingTests
         Path.Combine("Examples", "Mcp", "Config.txt"),
     ];
 
+    /// <summary>
+    /// The exact text <see cref="PendingRenameFiles"/> is allowed to carry. Stripped
+    /// out before matching, so the rest of each file — everything that is not this
+    /// one sanctioned occurrence — stays covered. Skipping the whole file would hide
+    /// unrelated old-brand text landing in either before Task 8 runs.
+    /// </summary>
+    private const string SanctionedOccurrence = "dr-simple-ui";
+
+    /// <summary>
+    /// Files <see cref="CatalogueAssets.ContentFiles"/> doesn't walk, but which still
+    /// ship user-visible or externally-served text.
+    /// </summary>
+    /// <remarks>
+    /// <c>Mcp/*.cs</c> (<c>CatalogueTools.cs</c>, <c>McpInstructions.cs</c>,
+    /// <c>Docs.cs</c> and friends) holds the six tool descriptions served by the
+    /// public, unauthenticated MCP endpoint — the most externally visible text in
+    /// the app. <c>Program.cs</c> is the host. <c>wwwroot/catalogue.js</c>'s absence
+    /// from <c>ContentFiles()</c> was incidental, unlike <c>wwwroot/catalogue.css</c>,
+    /// which that method excludes deliberately and says so in its own comment. Kept
+    /// separate here rather than folded into <c>ContentFiles()</c> itself, because
+    /// CoverageTests depends on that method's exact shape.
+    /// </remarks>
+    private static IEnumerable<string> ExtraContentFiles()
+    {
+        var mcpDir = Path.Combine(CatalogueAssets.AppDir, "Mcp");
+
+        return Directory.EnumerateFiles(mcpDir, "*.cs", SearchOption.AllDirectories)
+            .Append(Path.Combine(CatalogueAssets.AppDir, "Program.cs"))
+            .Append(Path.Combine(CatalogueAssets.AppDir, "wwwroot", "catalogue.js"));
+    }
+
     [Fact]
     public void No_catalogue_content_file_carries_the_old_brand()
     {
         var offenders = new List<string>();
 
-        foreach (var file in CatalogueAssets.ContentFiles())
+        foreach (var file in CatalogueAssets.ContentFiles().Concat(ExtraContentFiles()))
         {
+            var text = File.ReadAllText(file);
+
             if (PendingRenameFiles.Any(pending => file.EndsWith(pending, StringComparison.Ordinal)))
-                continue;
+                text = text.Replace(SanctionedOccurrence, "", StringComparison.Ordinal);
 
             var found = OldBrand
-                .Matches(File.ReadAllText(file))
+                .Matches(text)
                 .Select(m => m.Value)
                 .Distinct(StringComparer.Ordinal)
                 .ToList();
@@ -81,5 +114,30 @@ public class BrandNamingTests
 
         Assert.True(offenders.Count == 0,
             "The old brand survives in: " + string.Join("; ", offenders));
+    }
+
+    /// <summary>
+    /// The two copies of <c>OldBrand</c> — this one and
+    /// <c>Sedna.UI.Tests.BrandNamingTests.OldBrand</c> — are meant to be
+    /// byte-identical. Nothing enforces that automatically once they're written, so
+    /// this reads the other file as plain text and compares its regex literal
+    /// against this one. Reading a sibling source file as text needs no project
+    /// reference, so it does not reopen the split the two-file design exists to keep:
+    /// this lives here, in the catalogue project, which is the one that cannot see
+    /// the library's internals.
+    /// </summary>
+    [Fact]
+    public void The_two_copies_of_OldBrand_stay_in_sync()
+    {
+        var libraryFile = Path.Combine(
+            Assets.RepoRoot, "src", "Sedna.UI.Tests", "Packaging", "BrandNamingTests.cs");
+        var libraryText = File.ReadAllText(libraryFile);
+
+        var match = Regex.Match(libraryText, @"OldBrand\s*=\s*new\(\s*@""(?<pattern>[^""]*)""");
+        Assert.True(match.Success,
+            $"Could not find the OldBrand regex literal in "
+            + $"{Path.GetRelativePath(Assets.RepoRoot, libraryFile)} — did its declaration change shape?");
+
+        Assert.Equal(match.Groups["pattern"].Value, OldBrand.ToString());
     }
 }
