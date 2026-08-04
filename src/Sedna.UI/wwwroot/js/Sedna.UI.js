@@ -1450,7 +1450,7 @@ window.drSimpleUi = window.drSimpleUi || {};
    argument to wire every .md-editor in the document, with a container to wire the ones
    inside it, or with an editor to wire exactly that one — an app renders editors and
    then calls init(), and does not have to know how many there are or hold a reference
-   to each. From C#: IDrSimpleUi.InitMarkdownAsync().
+   to each. From C#: ISednaUi.InitMarkdownAsync().
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
