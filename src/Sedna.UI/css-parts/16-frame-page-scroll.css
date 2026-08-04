@@ -49,7 +49,7 @@
    (attachment: scroll) are pinned to the box and only show when there IS more
    content that way. --scroll-bg MUST match the surface the scroller sits on, or
    the cover itself reads as a permanent dark band. */
-.page, .nav-scroll, .dr-scroll, .drawer-body, .palette-list {
+.page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list {
     --scroll-bg: var(--bg);
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
@@ -62,7 +62,7 @@
 }
 /* Scrollers on an elevated surface match that surface, or the cover gradient reads as
    a permanent dark band across the top of the panel. */
-.modal .dr-scroll,
+.modal .sedna-scroll,
 .drawer-body,
 .palette-list { --scroll-bg: var(--bg-elevated); }
 /* The nav scroller sits on the sidebar, which is its own surface. */

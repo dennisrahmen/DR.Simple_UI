@@ -115,7 +115,7 @@ public class FrameLayoutTests : ScriptTestBase
         // one in tree order would win for all of them and every flyout would appear
         // beside the bottom item. The scope is not observable from the pseudo's
         // geometry, so the declaration itself is the assertion.
-        Assert.Equal("--dr-rail-tip", await page.EvalOnSelectorAsync<string>(
+        Assert.Equal("--sedna-rail-tip", await page.EvalOnSelectorAsync<string>(
             ".nav-link", "el => getComputedStyle(el).anchorScope"));
 
         Assert.Empty(errors);

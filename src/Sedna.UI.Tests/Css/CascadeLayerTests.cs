@@ -77,7 +77,7 @@ public class CascadeLayerTests
             .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
             .ToList();
 
-        Assert.Equal(["dr.tokens", "dr.base", "dr.frame", "dr.paint", "dr.utilities", "dr.overrides"],
+        Assert.Equal(["sedna.tokens", "sedna.base", "sedna.frame", "sedna.paint", "sedna.utilities", "sedna.overrides"],
             declared);
 
         var firstBlock = css.IndexOf("@layer " + declared[0] + " {", StringComparison.Ordinal);
@@ -86,7 +86,7 @@ public class CascadeLayerTests
 
         // Every layer that is used must be declared, or it is appended after all the
         // declared ones and silently outranks them.
-        var used = Regex.Matches(css, @"@layer\s+(dr\.[a-z]+)\s*\{")
+        var used = Regex.Matches(css, @"@layer\s+(sedna\.[a-z]+)\s*\{")
             .Select(m => m.Groups[1].Value)
             .Distinct(StringComparer.Ordinal)
             .ToList();

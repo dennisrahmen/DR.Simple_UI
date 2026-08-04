@@ -2,7 +2,7 @@
    One floating bubble, created and positioned by Sedna.UI.js (fixed and
    appended to <body>, so a card's or table's overflow never clips it).
    Put data-tip="plain-language what-it-does + consequence" on the control. */
-.dr-tip {
+.sedna-tip {
     position: fixed;
     /* rtl-ok: Sedna.UI.js writes `left` in pixels after measuring, so a
        logical property here would be overwritten by a physical one anyway. */
@@ -23,6 +23,6 @@
     transform: translateY(2px);
     transition: opacity var(--motion-fast) ease, transform var(--motion-fast) ease;
 }
-.dr-tip--visible { opacity: 1; transform: none; }
+.sedna-tip--visible { opacity: 1; transform: none; }
 .btn[data-tip] { cursor: pointer; }
 

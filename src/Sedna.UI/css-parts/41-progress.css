@@ -19,9 +19,9 @@
 
 .progress--indeterminate .progress-bar {
     width: 35%;
-    animation: dr-progress var(--progress-duration) ease-in-out infinite;
+    animation: sedna-progress var(--progress-duration) ease-in-out infinite;
 }
-@keyframes dr-progress {
+@keyframes sedna-progress {
     from { transform: translateX(-110%); }
     to   { transform: translateX(340%); }
 }

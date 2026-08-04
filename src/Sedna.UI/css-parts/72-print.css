@@ -27,7 +27,7 @@
     .topbar,
     .skip-link,
     .toast-stack,
-    .dr-tip,
+    .sedna-tip,
     .fab,
     .drawer,
     .drawer-scrim,
@@ -56,7 +56,7 @@
 
     /* Scroll containers have no scrollbar on paper, so their content must be allowed
        out rather than clipped to the box it had on screen. */
-    .dr-scroll,
+    .sedna-scroll,
     .drawer-body,
     .md-editor .md-preview,
     .palette-list { max-height: none; overflow: visible; }

@@ -1,10 +1,10 @@
 /* ═══ Utilities ═════════════════════════════════════════════════════════════
-   Single-purpose classes, in `@layer dr.utilities`.
+   Single-purpose classes, in `@layer sedna.utilities`.
 
    The layer is what makes them work at all. A utility is (0,1,0) and a component rule
    like `.table th, .table td` is (0,1,1), so on specificity alone a utility loses
-   every collision — `.text-end` on a table cell would do nothing. dr.utilities sits
-   after dr.paint, so it wins regardless of specificity and no cap convention has to be
+   every collision — `.text-end` on a table cell would do nothing. sedna.utilities sits
+   after sedna.paint, so it wins regardless of specificity and no cap convention has to be
    remembered.
 
    Deliberately short, and staying short. This is not a utility framework: the point
@@ -89,68 +89,68 @@
 /* ── Layout ─────────────────────────────────────────────────────────────────
    A row and a column with the library's own gap, for the arrangements that would
    otherwise be an inline `style="display:flex; gap:8px"` — which is most of them. */
-.dr-row { display: flex; align-items: center; gap: var(--space-4); }
-.dr-row-wrap { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); }
-.dr-col { display: flex; flex-direction: column; gap: var(--space-4); }
+.sedna-row { display: flex; align-items: center; gap: var(--space-4); }
+.sedna-row-wrap { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); }
+.sedna-col { display: flex; flex-direction: column; gap: var(--space-4); }
 /* Pushes everything after it to the far end of a flex container. */
-.dr-push { margin-inline-start: auto; }
+.sedna-push { margin-inline-start: auto; }
 
-/* Three gap steps and none. `.dr-row` and `.dr-col` set one gap; these are for the
+/* Three gap steps and none. `.sedna-row` and `.sedna-col` set one gap; these are for the
    rows that need a tighter or looser one, which was an inline `style="gap:12px"`. */
-.dr-gap-0 { gap: 0; }
-.dr-gap-1 { gap: var(--space-4); }
-.dr-gap-2 { gap: var(--space-6); }
-.dr-gap-3 { gap: var(--space-8); }
+.sedna-gap-0 { gap: 0; }
+.sedna-gap-1 { gap: var(--space-4); }
+.sedna-gap-2 { gap: var(--space-6); }
+.sedna-gap-3 { gap: var(--space-8); }
 
-/* Cross-axis alignment. `.dr-row` centres; a row of fields with labels wants
-   `.dr-start`, and a row of text of different sizes wants `.dr-baseline`. */
-.dr-wrap     { flex-wrap: wrap; }
-.dr-start    { align-items: flex-start; }
-.dr-center   { align-items: center; }
-.dr-end      { align-items: flex-end; }
-.dr-baseline { align-items: baseline; }
-.dr-between  { justify-content: space-between; }
+/* Cross-axis alignment. `.sedna-row` centres; a row of fields with labels wants
+   `.sedna-start`, and a row of text of different sizes wants `.sedna-baseline`. */
+.sedna-wrap     { flex-wrap: wrap; }
+.sedna-start    { align-items: flex-start; }
+.sedna-center   { align-items: center; }
+.sedna-end      { align-items: flex-end; }
+.sedna-baseline { align-items: baseline; }
+.sedna-between  { justify-content: space-between; }
 
 /* The flex child that takes the remaining room. `min-width: 0` comes with it, because
    without it the child refuses to shrink below its content and every ellipsis inside
    stops working — the commonest truncation bug there is. */
-.dr-fill { flex: 1; min-width: 0; }
-.dr-shrink-0 { flex-shrink: 0; }
-.dr-w-full { width: 100%; }
+.sedna-fill { flex: 1; min-width: 0; }
+.sedna-shrink-0 { flex-shrink: 0; }
+.sedna-w-full { width: 100%; }
 
 /* Block margins only, and only for removing or adding a step. There is no inline
    pair: horizontal placement belongs to the layout, not to a utility on the child. */
-.dr-mt-0 { margin-top: 0; }
-.dr-mt-1 { margin-top: var(--space-4); }
-.dr-mt-2 { margin-top: var(--space-6); }
-.dr-mt-3 { margin-top: var(--space-8); }
-.dr-mb-0 { margin-bottom: 0; }
-.dr-mb-1 { margin-bottom: var(--space-4); }
-.dr-mb-2 { margin-bottom: var(--space-6); }
-.dr-mb-3 { margin-bottom: var(--space-8); }
+.sedna-mt-0 { margin-top: 0; }
+.sedna-mt-1 { margin-top: var(--space-4); }
+.sedna-mt-2 { margin-top: var(--space-6); }
+.sedna-mt-3 { margin-top: var(--space-8); }
+.sedna-mb-0 { margin-bottom: 0; }
+.sedna-mb-1 { margin-bottom: var(--space-4); }
+.sedna-mb-2 { margin-bottom: var(--space-6); }
+.sedna-mb-3 { margin-bottom: var(--space-8); }
 
 /* A hairline between rows without an <hr> and without a wrapper. */
-.dr-divider-top    { border-top: 1px solid var(--divider); }
-.dr-divider-bottom { border-bottom: 1px solid var(--divider); }
+.sedna-divider-top    { border-top: 1px solid var(--divider); }
+.sedna-divider-bottom { border-bottom: 1px solid var(--divider); }
 
 /* A scroll container on the inline axis — a table too wide for its column, a row of
-   cards. `.dr-scroll` styles a scroller; this one creates it. */
-.dr-scroll-x { overflow-x: auto; }
+   cards. `.sedna-scroll` styles a scroller; this one creates it. */
+.sedna-scroll-x { overflow-x: auto; }
 
 /* ── State ──────────────────────────────────────────────────────────────────
    Not a `hidden` replacement: use the `hidden` ATTRIBUTE for that, because it also
    removes the element from the accessibility tree and the tab order. This is for
    hiding something that must stay in the layout's flow calculations. */
-.dr-invisible { visibility: hidden; }
+.sedna-invisible { visibility: hidden; }
 
 /* Marks a block as busy without removing it. Pair it with aria-busy="true", which is
    what is announced; this only stops the reader interacting with stale content. */
-.dr-busy { opacity: 0.55; pointer-events: none; cursor: progress; }
+.sedna-busy { opacity: 0.55; pointer-events: none; cursor: progress; }
 
 /* For something unavailable that is NOT a <button>, <input> or <a> — those have the
    `disabled` attribute, which is announced and removes them from the tab order, and
    this is no substitute for it. Add aria-disabled="true" alongside. */
-.dr-disabled {
+.sedna-disabled {
     color: var(--muted);
     pointer-events: none;
     cursor: not-allowed;
@@ -161,9 +161,9 @@
    carry something the screen does not. 72-print.css handles the frame; these are for
    an app's own content. */
 @media print {
-    .dr-no-print { display: none; }
+    .sedna-no-print { display: none; }
 }
-.dr-print-only { display: none; }
+.sedna-print-only { display: none; }
 @media print {
-    .dr-print-only { display: revert; }
+    .sedna-print-only { display: revert; }
 }

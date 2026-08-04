@@ -64,7 +64,7 @@ public class SearchTests : ScriptTestBase
 
         // The first result is where the keyboard starts, and the input has to say so
         // for a screen reader to follow the highlight without focus moving.
-        Assert.Equal("dr-search-item-0",
+        Assert.Equal("sedna-search-item-0",
             await page.GetAttributeAsync(".search-input", "aria-activedescendant"));
         Assert.Equal("combobox", await page.GetAttributeAsync(".search-input", "role"));
     }

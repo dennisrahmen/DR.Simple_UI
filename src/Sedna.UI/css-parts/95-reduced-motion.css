@@ -10,7 +10,7 @@
    consuming app's own motion, which is not this package's call to make.
 
    So each line below names the selector it is undoing, at the same specificity.
-   Numbered 95 rather than 85 so it lands in @layer dr.overrides, which is the last
+   Numbered 95 rather than 85 so it lands in @layer sedna.overrides, which is the last
    layer: motion has to be switched off whatever declared it, including a utility.
    When you add a transition or an animation anywhere in css-parts/, add its off
    switch here in the same edit.
@@ -28,7 +28,7 @@
     .user-signout     { transition: none; }   /* 15 */
     /* 17 — the hint appears at its final position instead of sliding in. Opacity
        is kept as a step, not a fade, by removing the transition entirely. */
-    .dr-tip           { transition: none; transform: none; }
+    .sedna-tip           { transition: none; transform: none; }
     .reconnect-attempting i { animation: none; }   /* 18 */
     .nav-group > summary::after { transition: none; }   /* 20 — the group caret */
     /* 20 — the skip link jumps into view rather than sliding down. It has to still

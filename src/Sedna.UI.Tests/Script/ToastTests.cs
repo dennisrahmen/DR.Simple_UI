@@ -101,7 +101,7 @@ public class ToastTests : ScriptTestBase
             () => {
                 const theirs = document.getElementById('theirs');
                 const remove = drSimpleUi.toast('From the library', { timeout: 0 });
-                const ours = document.querySelector('[data-dr-toasts]');
+                const ours = document.querySelector('[data-sedna-toasts]');
                 const before = {
                     separate: ours !== theirs,
                     theirChildren: theirs.children.length,
@@ -111,7 +111,7 @@ public class ToastTests : ScriptTestBase
                 remove();
                 return { ...before, theirsStillThere: !!document.getElementById('theirs'),
                          theirChildrenAfter: document.getElementById('theirs').children.length,
-                         oursGone: !document.querySelector('[data-dr-toasts]') };
+                         oursGone: !document.querySelector('[data-sedna-toasts]') };
             }
             """);
 

@@ -3,7 +3,7 @@ search { "query": "filter bar above a sortable table", "installedVersion": "0.2.
   → hits: [ { kind: "page",    ref: "/toolbar", title: "Toolbar",    score: 78 },
             { kind: "example", ref: "Toolbar/FilterBar",   classes: ["toolbar", "toolbar-field", …] },
             { kind: "example", ref: "Table/SortableTable", classes: ["table", "table-sortable", …] },
-            { kind: "class",   ref: ".table-sticky", blurb: "In layer dr.paint. Used by 2 example(s)." } ]
+            { kind: "class",   ref: ".table-sticky", blurb: "In layer sedna.paint. Used by 2 example(s)." } ]
 
 get_example { "ids": ["Toolbar/FilterBar", "Table/SortableTable"] }
 

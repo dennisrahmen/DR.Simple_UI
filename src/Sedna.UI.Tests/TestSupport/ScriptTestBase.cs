@@ -24,7 +24,7 @@ namespace Sedna.UI.Tests.TestSupport;
 /// </remarks>
 public abstract class ScriptTestBase : BrowserTestBase
 {
-    private const string Origin = "https://dr-ui.test";
+    private const string Origin = "https://sedna-ui.test";
 
     /// <summary>
     /// Opens a fixture page with <paramref name="body"/> inside <c>&lt;body&gt;</c> and

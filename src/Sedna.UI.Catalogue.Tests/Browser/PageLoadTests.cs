@@ -104,7 +104,7 @@ public class PageLoadTests(CatalogueAppFixture app)
         // OUT-OF-FLOW ELEMENTS ONLY, and that restriction is the whole design.
         // `.ex-demo` is itself a scroll container, so anything in the normal flow
         // that is wider than the box — a table, a wide toolbar — scrolls inside it,
-        // which is correct and is what the library's own `.dr-scroll` documents. A
+        // which is correct and is what the library's own `.sedna-scroll` documents. A
         // dropdown cannot use that escape: scrolling the box to reach the panel
         // moves the trigger out from under it. So a floating panel must fit, and a
         // table need not.

@@ -219,7 +219,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         function ensureEl() {
             if (!tipEl) {
                 tipEl = document.createElement('div');
-                tipEl.className = 'dr-tip';
+                tipEl.className = 'sedna-tip';
                 tipEl.setAttribute('role', 'tooltip');
                 document.body.appendChild(tipEl);
             }
@@ -250,7 +250,7 @@ window.drSimpleUi = window.drSimpleUi || {};
             // Measure at the origin with a settled width, then position.
             box.style.left = '0px';
             box.style.top = '0px';
-            box.classList.add('dr-tip--visible');
+            box.classList.add('sedna-tip--visible');
 
             var r = el.getBoundingClientRect();
             var b = box.getBoundingClientRect();
@@ -284,7 +284,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         function hide() {
             current = null;
             clearTimeout(showTimer);
-            if (tipEl) tipEl.classList.remove('dr-tip--visible');
+            if (tipEl) tipEl.classList.remove('sedna-tip--visible');
         }
 
         document.addEventListener('mouseover', function (e) {
@@ -637,7 +637,7 @@ window.drSimpleUi = window.drSimpleUi || {};
             li.setAttribute('role', 'presentation');
             var btn = el('div', 'palette-item');
             btn.setAttribute('role', 'option');
-            btn.id = 'dr-palette-' + i;
+            btn.id = 'sedna-palette-' + i;
             btn.setAttribute('aria-selected', String(i === 0));
 
             if (c.icon) {
@@ -653,7 +653,7 @@ window.drSimpleUi = window.drSimpleUi || {};
             list.appendChild(li);
         });
 
-        input.setAttribute('aria-activedescendant', 'dr-palette-0');
+        input.setAttribute('aria-activedescendant', 'sedna-palette-0');
     }
 
     function items() { return list.querySelectorAll('.palette-item'); }
@@ -697,12 +697,12 @@ window.drSimpleUi = window.drSimpleUi || {};
         input.placeholder = 'Search commands…';
         input.setAttribute('role', 'combobox');
         input.setAttribute('aria-expanded', 'true');
-        input.setAttribute('aria-controls', 'dr-palette-list');
+        input.setAttribute('aria-controls', 'sedna-palette-list');
         input.setAttribute('aria-label', 'Search commands');
         input.setAttribute('autocomplete', 'off');
 
         list = el('ul', 'palette-list');
-        list.id = 'dr-palette-list';
+        list.id = 'sedna-palette-list';
         // A real listbox owned by the combobox input. Claimed because the keyboard
         // contract behind it is implemented in full below: arrows, Home/End, Enter,
         // and the highlight moving while focus stays in the input. axe rejects
@@ -897,14 +897,14 @@ window.drSimpleUi = window.drSimpleUi || {};
     }
 
     function build() {
-        // dr-scroll, because the panel scrolls past eight rows and the OS default
+        // sedna-scroll, because the panel scrolls past eight rows and the OS default
         // bar is the one thing on it that would not follow the theme.
-        panel = el('div', 'search-panel dr-scroll');
-        panel.id = 'dr-search-panel';
+        panel = el('div', 'search-panel sedna-scroll');
+        panel.id = 'sedna-search-panel';
         panel.hidden = true;
 
         list = el('div');
-        list.id = 'dr-search-list';
+        list.id = 'sedna-search-list';
         // A real listbox owned by the input as a combobox. The claim is made only
         // because the keyboard contract behind it is implemented in full below:
         // arrows, Home/End, Enter, and the highlight moving while focus stays in
@@ -937,7 +937,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         node.setAttribute('role', 'option');
         node.setAttribute('aria-selected', String(i === 0));
         node.setAttribute('tabindex', '-1');
-        node.id = 'dr-search-item-' + i;
+        node.id = 'sedna-search-item-' + i;
         if (i === 0) node.classList.add('search-item--sel');
 
         node.appendChild(el('span', 'search-item-title', item.title));
@@ -981,7 +981,7 @@ window.drSimpleUi = window.drSimpleUi || {};
                 list.appendChild(el('div', 'search-status',
                     cut + (cut === 1 ? ' more match' : ' more matches') + '. Keep typing to narrow it down.'));
             }
-            input.setAttribute('aria-activedescendant', 'dr-search-item-0');
+            input.setAttribute('aria-activedescendant', 'sedna-search-item-0');
         }
 
         open();
@@ -1025,7 +1025,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         var item = shown[i];
         // Resolved before close(), which is what a keyboard Enter needs: it has no
         // event of its own to let through, so it clicks the row instead.
-        var node = (!e && item && item.href) ? list.querySelector('#dr-search-item-' + i) : null;
+        var node = (!e && item && item.href) ? list.querySelector('#sedna-search-item-' + i) : null;
         close();
         // The query is spent. Left in place it would survive a router navigation
         // and not a full page load, so the box would sometimes hold the last
@@ -1096,7 +1096,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         box = target.closest('.search') || target;
         if (!panel) build();
         input.setAttribute('role', 'combobox');
-        input.setAttribute('aria-controls', 'dr-search-list');
+        input.setAttribute('aria-controls', 'sedna-search-list');
         input.setAttribute('aria-autocomplete', 'list');
     }
 
@@ -1494,7 +1494,7 @@ window.drSimpleUi = window.drSimpleUi || {};
             // roots exist.
             var views = root.querySelectorAll('input[data-md-tab]');
             if (views.length) {
-                var group = 'dr-md-view-' + (++ui.md._seq);
+                var group = 'sedna-md-view-' + (++ui.md._seq);
                 views.forEach(function (r) { r.name = group; });
             }
 
@@ -1826,7 +1826,7 @@ window.drSimpleUi = window.drSimpleUi || {};
    The stack is created on first use and reused, so an app renders nothing and
    positions nothing.
 
-   It is found by `data-dr-toasts`, not by `.toast-stack`, and that distinction is
+   It is found by `data-sedna-toasts`, not by `.toast-stack`, and that distinction is
    load-bearing: only a stack this code created is appended to, re-labelled or removed.
    Matching the class would adopt a stack the app wrote for its own reasons — a
    server-rendered one, an example of the markup on a documentation page — append into
@@ -1846,7 +1846,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         info: 'ri-information-line'
     };
 
-    var OWN = '[data-dr-toasts]';
+    var OWN = '[data-sedna-toasts]';
 
     function stack() {
         var el = document.querySelector(OWN);
@@ -1855,7 +1855,7 @@ window.drSimpleUi = window.drSimpleUi || {};
             el.className = 'toast-stack';
             // The marker is what makes this OURS: only a stack the library created is
             // ever appended to, re-labelled, or removed.
-            el.setAttribute('data-dr-toasts', '');
+            el.setAttribute('data-sedna-toasts', '');
             // The region is a status log, not a landmark to navigate to.
             el.setAttribute('role', 'status');
             el.setAttribute('aria-live', 'polite');

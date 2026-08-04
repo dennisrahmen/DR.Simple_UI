@@ -88,7 +88,7 @@
             li.setAttribute('role', 'presentation');
             var btn = el('div', 'palette-item');
             btn.setAttribute('role', 'option');
-            btn.id = 'dr-palette-' + i;
+            btn.id = 'sedna-palette-' + i;
             btn.setAttribute('aria-selected', String(i === 0));
 
             if (c.icon) {
@@ -104,7 +104,7 @@
             list.appendChild(li);
         });
 
-        input.setAttribute('aria-activedescendant', 'dr-palette-0');
+        input.setAttribute('aria-activedescendant', 'sedna-palette-0');
     }
 
     function items() { return list.querySelectorAll('.palette-item'); }
@@ -148,12 +148,12 @@
         input.placeholder = 'Search commands…';
         input.setAttribute('role', 'combobox');
         input.setAttribute('aria-expanded', 'true');
-        input.setAttribute('aria-controls', 'dr-palette-list');
+        input.setAttribute('aria-controls', 'sedna-palette-list');
         input.setAttribute('aria-label', 'Search commands');
         input.setAttribute('autocomplete', 'off');
 
         list = el('ul', 'palette-list');
-        list.id = 'dr-palette-list';
+        list.id = 'sedna-palette-list';
         // A real listbox owned by the combobox input. Claimed because the keyboard
         // contract behind it is implemented in full below: arrows, Home/End, Enter,
         // and the highlight moving while focus stays in the input. axe rejects

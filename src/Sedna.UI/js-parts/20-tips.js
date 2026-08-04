@@ -16,7 +16,7 @@
         function ensureEl() {
             if (!tipEl) {
                 tipEl = document.createElement('div');
-                tipEl.className = 'dr-tip';
+                tipEl.className = 'sedna-tip';
                 tipEl.setAttribute('role', 'tooltip');
                 document.body.appendChild(tipEl);
             }
@@ -47,7 +47,7 @@
             // Measure at the origin with a settled width, then position.
             box.style.left = '0px';
             box.style.top = '0px';
-            box.classList.add('dr-tip--visible');
+            box.classList.add('sedna-tip--visible');
 
             var r = el.getBoundingClientRect();
             var b = box.getBoundingClientRect();
@@ -81,7 +81,7 @@
         function hide() {
             current = null;
             clearTimeout(showTimer);
-            if (tipEl) tipEl.classList.remove('dr-tip--visible');
+            if (tipEl) tipEl.classList.remove('sedna-tip--visible');
         }
 
         document.addEventListener('mouseover', function (e) {

@@ -133,7 +133,7 @@ public class McpToolTests(CatalogueAppFixture app)
             .GetProperty("classes").EnumerateArray().Single();
 
         Assert.Equal(".badge-go", css.GetProperty("name").GetString());
-        Assert.Equal("dr.paint", css.GetProperty("layer").GetString());
+        Assert.Equal("sedna.paint", css.GetProperty("layer").GetString());
 
         // Read from the sheet, so it cannot describe a rule that is not there.
         var declarations = css.GetProperty("declarations").GetString()!;

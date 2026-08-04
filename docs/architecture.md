@@ -75,7 +75,7 @@ Two rules hold for any layout media query added later:
 The shipped stylesheet is entirely inside cascade layers, declared up front:
 
 ```css
-@layer dr.tokens, dr.base, dr.frame, dr.paint, dr.utilities, dr.overrides;
+@layer sedna.tokens, sedna.base, sedna.frame, sedna.paint, sedna.utilities, sedna.overrides;
 ```
 
 **Your stylesheet is unlayered, so it beats all of them, whatever the specificity.** That is the point:
@@ -84,12 +84,12 @@ out-specify.
 
 | Layer | Parts | Holds |
 |---|---|---|
-| `dr.tokens` | `00`–`04` | tokens and the theme remap blocks |
-| `dr.base` | `05`–`09` | bare element styles |
-| `dr.frame` | `10`–`29` | tier 1 |
-| `dr.paint` | `30`–`79` | tier 2, then RTL, forced colours, print |
-| `dr.utilities` | `80`–`89` | single-purpose classes |
-| `dr.overrides` | `90`–`99` | density, reduced motion |
+| `sedna.tokens` | `00`–`04` | tokens and the theme remap blocks |
+| `sedna.base` | `05`–`09` | bare element styles |
+| `sedna.frame` | `10`–`29` | tier 1 |
+| `sedna.paint` | `30`–`79` | tier 2, then RTL, forced colours, print |
+| `sedna.utilities` | `80`–`89` | single-purpose classes |
+| `sedna.overrides` | `90`–`99` | density, reduced motion |
 
 Each part's layer comes from its numeric prefix, so it cannot drift away from the source order. Two
 tests hold the model up: one fails if any rule escapes a layer — an unlayered library rule would
@@ -107,7 +107,7 @@ compact density: an app carrying its own `.table th, .table td { padding: 8px 12
 copied rule.
 
 **`!important` is actively harmful here, not merely unnecessary.** Layer order *inverts* for important
-declarations, so an `!important` inside `dr.paint` is harder for you to override than an ordinary
+declarations, so an `!important` inside `sedna.paint` is harder for you to override than an ordinary
 declaration. The library uses none, and a test enforces it.
 
 ## The token contract
@@ -221,7 +221,7 @@ A panel's primary action is a filled button in its semantic colour.
 | Spotlight | 510 | `.spotlight-hole`, `.spotlight-tip` |
 | Popover, dropdown menu | 550 | `.menu`, `.search-panel`, `.popover`, the user widget's own panel |
 | Toast | 600 | `.toast-stack` |
-| Hover hints, reconnect banner | 1000 | `.dr-tip`, `#components-reconnect-modal`, `.skip-link` |
+| Hover hints, reconnect banner | 1000 | `.sedna-tip`, `#components-reconnect-modal`, `.skip-link` |
 
 A new overlay uses one of these values. `Every_z_index_comes_from_the_documented_scale` fails on any
 other, so adding a layer means adding it to this table first.
@@ -248,7 +248,7 @@ Two things the flat list does not say:
 | `configure(options)` | Storage prefix, notification icon, language cookie |
 | `settings` | `load()`, `save(key, value)`, `apply()`. Keys: `theme`, `cvd`, `density`, `dir`, `lang` |
 | `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally |
-| `toast(message, options)` | Creates and reuses its own `.toast-stack[data-dr-toasts]`, and leaves any stack the app wrote alone. Returns its own remover; `timeout: 0` stays until dismissed |
+| `toast(message, options)` | Creates and reuses its own `.toast-stack[data-sedna-toasts]`, and leaves any stack the app wrote alone. Returns its own remover; `timeout: 0` stays until dismissed |
 | `confirm(options)` | A `<dialog>.showModal()` confirmation. Returns a promise; `danger: true` reddens confirm and focuses cancel |
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
 | `tabs` | Delegated tabs with the arrow/Home/End keyboard contract. `select(tabOrPanelId)` |

@@ -48,7 +48,7 @@
    across a page showing several connections at once. */
 .health-badge--live .health-dot,
 .health-badge--streaming .health-dot,
-.health-badge--connecting .health-dot { animation: dr-pulse var(--pulse-duration) ease-in-out infinite; }
+.health-badge--connecting .health-dot { animation: sedna-pulse var(--pulse-duration) ease-in-out infinite; }
 
 /* `--healthy` is an alias for `--live`, kept for apps already using it. Prefer
    `--live` in new markup. */
@@ -56,7 +56,7 @@
 .health-badge--healthy .health-dot {
     background: var(--go-solid);
     box-shadow: 0 0 6px var(--go-ring);
-    animation: dr-pulse var(--pulse-duration) ease-in-out infinite;
+    animation: sedna-pulse var(--pulse-duration) ease-in-out infinite;
 }
 
 /* ── Freshness ──────────────────────────────────────────────────────────────

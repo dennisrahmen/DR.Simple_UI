@@ -175,7 +175,7 @@ internal static class Assets
     /// The <c>@layer</c> preludes — the ordering statement and each block's opener.
     /// </summary>
     /// <remarks>
-    /// The layer names are dotted, so a class-selector regex reads <c>dr.paint</c> as
+    /// The layer names are dotted, so a class-selector regex reads <c>sedna.paint</c> as
     /// <c>.paint</c>. Stripping the preludes removes six phantom classes without a
     /// hand-maintained list of them, which would drift the moment a layer is added.
     /// </remarks>

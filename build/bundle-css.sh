@@ -10,12 +10,12 @@
 # The prefix also decides the part's CASCADE LAYER, so the layer assignment cannot
 # drift away from the ordering convention and no part has to declare its own:
 #
-#     00-04  @layer dr.tokens      tokens and the theme remap blocks
-#     05-09  @layer dr.base        bare element styles
-#     10-29  @layer dr.frame       the tier-1 frame
-#     30-79  @layer dr.paint       tier-2 content classes, then RTL/forced-colors/print
-#     80-89  @layer dr.utilities   single-purpose classes
-#     90-99  @layer dr.overrides   density — last, it tightens what came before
+#     00-04  @layer sedna.tokens      tokens and the theme remap blocks
+#     05-09  @layer sedna.base        bare element styles
+#     10-29  @layer sedna.frame       the tier-1 frame
+#     30-79  @layer sedna.paint       tier-2 content classes, then RTL/forced-colors/print
+#     80-89  @layer sedna.utilities   single-purpose classes
+#     90-99  @layer sedna.overrides   density — last, it tightens what came before
 #
 # Each part is wrapped in its layer WITHOUT being re-indented, so its text still
 # appears verbatim in the bundle and the drift guard keeps working.
@@ -75,12 +75,12 @@ trap 'rm -f "$TMP"' EXIT
 layer_for() {
     local n=${1%%-*}
     n=$((10#$n))
-    if   (( n <= 4 ));  then echo "dr.tokens"
-    elif (( n <= 9 ));  then echo "dr.base"
-    elif (( n <= 29 )); then echo "dr.frame"
-    elif (( n <= 79 )); then echo "dr.paint"
-    elif (( n <= 89 )); then echo "dr.utilities"
-    else                     echo "dr.overrides"
+    if   (( n <= 4 ));  then echo "sedna.tokens"
+    elif (( n <= 9 ));  then echo "sedna.base"
+    elif (( n <= 29 )); then echo "sedna.frame"
+    elif (( n <= 79 )); then echo "sedna.paint"
+    elif (( n <= 89 )); then echo "sedna.utilities"
+    else                     echo "sedna.overrides"
     fi
 }
 
@@ -113,7 +113,7 @@ layer_for() {
     echo "     * Because your unlayered :root wins outright, a token you set at bare :root"
     echo "       now also beats this library's [data-theme=\"light\"] value for it. Set both"
     echo "       blocks, as the rebrand recipe in the catalogue shows. */"
-    echo "@layer dr.tokens, dr.base, dr.frame, dr.paint, dr.utilities, dr.overrides;"
+    echo "@layer sedna.tokens, sedna.base, sedna.frame, sedna.paint, sedna.utilities, sedna.overrides;"
     echo ""
 } >> "$TMP"
 

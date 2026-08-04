@@ -72,7 +72,7 @@
     border-top: 1px solid var(--reconnect-warn-border);
     color: var(--reconnect-warn-fg);
 }
-.reconnect-attempting i { animation: dr-pulse var(--pulse-duration) ease-in-out infinite; }
+.reconnect-attempting i { animation: sedna-pulse var(--pulse-duration) ease-in-out infinite; }
 
 /* Paused is not a lost connection: the server released the circuit and kept the state,
    and the next interaction resumes it. Same amber, no pulse — nothing is in progress. */

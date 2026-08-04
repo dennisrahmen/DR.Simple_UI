@@ -83,10 +83,10 @@
      * Because your unlayered :root wins outright, a token you set at bare :root
        now also beats this library's [data-theme="light"] value for it. Set both
        blocks, as the rebrand recipe in the catalogue shows. */
-@layer dr.tokens, dr.base, dr.frame, dr.paint, dr.utilities, dr.overrides;
+@layer sedna.tokens, sedna.base, sedna.frame, sedna.paint, sedna.utilities, sedna.overrides;
 
-/* ── 00-header.css → @layer dr.tokens ──────────────────────────────────────────────── */
-@layer dr.tokens {
+/* ── 00-header.css → @layer sedna.tokens ──────────────────────────────────────────────── */
+@layer sedna.tokens {
 /* ═══════════════════════════════════════════════════════════════════════════
    Sedna.UI — the shared stylesheet
    ───────────────────────────────────────────────────────────────────────────
@@ -123,8 +123,8 @@
 
 }
 
-/* ── 01-tokens.css → @layer dr.tokens ──────────────────────────────────────────────── */
-@layer dr.tokens {
+/* ── 01-tokens.css → @layer sedna.tokens ──────────────────────────────────────────────── */
+@layer sedna.tokens {
 /* ═══ Tokens — the contract ═════════════════════════════════════════════════
    Everything below this block references these and nothing else. */
 :root {
@@ -390,8 +390,8 @@
 
 }
 
-/* ── 02-theme-light.css → @layer dr.tokens ──────────────────────────────────────────────── */
-@layer dr.tokens {
+/* ── 02-theme-light.css → @layer sedna.tokens ──────────────────────────────────────────────── */
+@layer sedna.tokens {
 /* ═══ Light theme ═══════════════════════════════════════════════════════════
    Pure token remapping — no selector overrides. `data-theme` rides on <html>;
    apply it before first paint (see README) so no dark flash occurs. */
@@ -492,8 +492,8 @@
 
 }
 
-/* ── 03-theme-colour-blind.css → @layer dr.tokens ──────────────────────────────────────────────── */
-@layer dr.tokens {
+/* ── 03-theme-colour-blind.css → @layer sedna.tokens ──────────────────────────────────────────────── */
+@layer sedna.tokens {
 /* ═══ Colour-blind-safe palette ═════════════════════════════════════════════
    Independent toggle, composes with either theme. Only the go family moves. */
 :root[data-cvd="1"] {
@@ -514,8 +514,8 @@
 
 }
 
-/* ── 04-theme-contrast.css → @layer dr.tokens ──────────────────────────────────────────────── */
-@layer dr.tokens {
+/* ── 04-theme-contrast.css → @layer sedna.tokens ──────────────────────────────────────────────── */
+@layer sedna.tokens {
 /* ═══ High contrast ═════════════════════════════════════════════════════════
    A pure token remap, like every other theme block, so CSS load order stays
    irrelevant and an app's own light/dark blocks keep working underneath.
@@ -693,8 +693,8 @@
 }
 }
 
-/* ── 06-base-elements.css → @layer dr.base ──────────────────────────────────────────────── */
-@layer dr.base {
+/* ── 06-base-elements.css → @layer sedna.base ──────────────────────────────────────────────── */
+@layer sedna.base {
 /* ═══ Base elements ═════════════════════════════════════════════════════════ */
 * { box-sizing: border-box; }
 
@@ -755,17 +755,17 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    reload) does not — otherwise an auto-selected block shows a stray outline. */
 :focus:not(:focus-visible) { outline: none; }
 
-/* dr-spin is NOT here: it is declared beside its only consumer in
+/* sedna-spin is NOT here: it is declared beside its only consumer in
    39-spinner.css. Two identical @keyframes of the same name is a silent-drift
    hazard — the later one wins for the whole document, so editing the earlier
    changes nothing. */
-@keyframes dr-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes sedna-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
 
 }
 
-/* ── 10-frame-shell.css → @layer dr.frame ──────────────────────────────────────────────── */
-@layer dr.frame {
+/* ── 10-frame-shell.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
 /* ═══ TIER 1 — the frame ════════════════════════════════════════════════════
    Layout chrome that must be pixel-identical in every app. Do not restyle any
    of this per project; if it is wrong, it is wrong here. */
@@ -793,8 +793,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 11-frame-sidebar.css → @layer dr.frame ──────────────────────────────────────────────── */
-@layer dr.frame {
+/* ── 11-frame-sidebar.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
 /* ── Sidebar ────────────────────────────────────────────────────────────── */
 .sidebar {
     width: 220px;
@@ -932,8 +932,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 12-frame-collapsed-rail.css → @layer dr.frame ──────────────────────────────────────────────── */
-@layer dr.frame {
+/* ── 12-frame-collapsed-rail.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
 /* ── Collapsed sidebar rail ─────────────────────────────────────────────── */
 .sidebar.collapsed { width: 56px; }
 .sidebar.collapsed .brand { justify-content: center; padding: 0; gap: 0; }
@@ -990,11 +990,11 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    without `anchor-scope` the last one in tree order would win for all of them —
    every flyout would appear beside the bottom item. `anchor-scope` confines each
    name to its own element's subtree, which is where its ::after lives. */
-.sidebar.collapsed [data-tip] { anchor-name: --dr-rail-tip; anchor-scope: --dr-rail-tip; }
+.sidebar.collapsed [data-tip] { anchor-name: --sedna-rail-tip; anchor-scope: --sedna-rail-tip; }
 .sidebar.collapsed [data-tip]:hover::after {
     content: attr(data-tip);
     position: fixed;
-    position-anchor: --dr-rail-tip;
+    position-anchor: --sedna-rail-tip;
     position-area: inline-end;
     align-self: anchor-center;
     margin-inline-start: var(--space-5);
@@ -1006,8 +1006,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 13-frame-topbar.css → @layer dr.frame ──────────────────────────────────────────────── */
-@layer dr.frame {
+/* ── 13-frame-topbar.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
 /* ── Topbar ─────────────────────────────────────────────────────────────────
    z-index 60 keeps the header (and its own dropdowns) above page content,
    while staying far below the modal/spotlight/toast/tip chain documented at
@@ -1046,8 +1046,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 15-frame-user-widget.css → @layer dr.frame ──────────────────────────────────────────────── */
-@layer dr.frame {
+/* ── 15-frame-user-widget.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
 /* ── User widget ────────────────────────────────────────────────────────────
    Stretches to the full topbar height so the hover highlight covers the whole
    header area rather than a content strip inside it. */
@@ -1105,8 +1105,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 16-frame-page-scroll.css → @layer dr.frame ──────────────────────────────────────────────── */
-@layer dr.frame {
+/* ── 16-frame-page-scroll.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
 /* ── Page surface + scrolling ───────────────────────────────────────────────
    .page is the scroll container. Its width stays 100% and the horizontal
    padding grows instead of capping the width, so the scrollbar stays pinned to
@@ -1158,7 +1158,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    (attachment: scroll) are pinned to the box and only show when there IS more
    content that way. --scroll-bg MUST match the surface the scroller sits on, or
    the cover itself reads as a permanent dark band. */
-.page, .nav-scroll, .dr-scroll, .drawer-body, .palette-list {
+.page, .nav-scroll, .sedna-scroll, .drawer-body, .palette-list {
     --scroll-bg: var(--bg);
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
@@ -1171,7 +1171,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 /* Scrollers on an elevated surface match that surface, or the cover gradient reads as
    a permanent dark band across the top of the panel. */
-.modal .dr-scroll,
+.modal .sedna-scroll,
 .drawer-body,
 .palette-list { --scroll-bg: var(--bg-elevated); }
 /* The nav scroller sits on the sidebar, which is its own surface. */
@@ -1179,13 +1179,13 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 17-frame-hover-hints.css → @layer dr.frame ──────────────────────────────────────────────── */
-@layer dr.frame {
+/* ── 17-frame-hover-hints.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
 /* ── Hover hints ────────────────────────────────────────────────────────────
    One floating bubble, created and positioned by Sedna.UI.js (fixed and
    appended to <body>, so a card's or table's overflow never clips it).
    Put data-tip="plain-language what-it-does + consequence" on the control. */
-.dr-tip {
+.sedna-tip {
     position: fixed;
     /* rtl-ok: Sedna.UI.js writes `left` in pixels after measuring, so a
        logical property here would be overwritten by a physical one anyway. */
@@ -1206,13 +1206,13 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     transform: translateY(2px);
     transition: opacity var(--motion-fast) ease, transform var(--motion-fast) ease;
 }
-.dr-tip--visible { opacity: 1; transform: none; }
+.sedna-tip--visible { opacity: 1; transform: none; }
 .btn[data-tip] { cursor: pointer; }
 
 }
 
-/* ── 18-frame-reconnect-banner.css → @layer dr.frame ──────────────────────────────────────────────── */
-@layer dr.frame {
+/* ── 18-frame-reconnect-banner.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
 /* ── Blazor reconnect banner ──────────────────────────────────────────────────
    Two things, deliberately separated: `.reconnect-banner` is a strip that says the
    connection is in trouble, and `#components-reconnect-modal` is the state machine
@@ -1287,7 +1287,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     border-top: 1px solid var(--reconnect-warn-border);
     color: var(--reconnect-warn-fg);
 }
-.reconnect-attempting i { animation: dr-pulse var(--pulse-duration) ease-in-out infinite; }
+.reconnect-attempting i { animation: sedna-pulse var(--pulse-duration) ease-in-out infinite; }
 
 /* Paused is not a lost connection: the server released the circuit and kept the state,
    and the next interaction resumes it. Same amber, no pulse — nothing is in progress. */
@@ -1306,8 +1306,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 }
 
-/* ── 19-frame-responsive.css → @layer dr.frame ──────────────────────────────────────────────── */
-@layer dr.frame {
+/* ── 19-frame-responsive.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
 /* ── Responsive frame — OPT IN ───────────────────────────────────────────────
    Below 900px the sidebar becomes the icon rail, whether or not `.collapsed` is
    set. Add `.layout--responsive` to `.layout` to turn it on.
@@ -1376,11 +1376,11 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
        12-frame-collapsed-rail.css: the rail scrolls, and a scroll container
        clips both axes. Every value here is geometry; the surface comes from the
        tokens the expanded flyout already uses. */
-    .layout--responsive .sidebar [data-tip] { anchor-name: --dr-rail-tip; anchor-scope: --dr-rail-tip; }
+    .layout--responsive .sidebar [data-tip] { anchor-name: --sedna-rail-tip; anchor-scope: --sedna-rail-tip; }
     .layout--responsive .sidebar [data-tip]:hover::after {
         content: attr(data-tip);
         position: fixed;
-        position-anchor: --dr-rail-tip;
+        position-anchor: --sedna-rail-tip;
         position-area: inline-end;
         align-self: anchor-center;
         margin-inline-start: var(--space-5);
@@ -1412,8 +1412,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 }
 
-/* ── 20-frame-layouts.css → @layer dr.frame ──────────────────────────────────────────────── */
-@layer dr.frame {
+/* ── 20-frame-layouts.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
 /* ── Auth and full-bleed layouts ────────────────────────────────────────────
    Two more shells beside .layout and .bare-layout. Both are tier 1: they must look
    the same in every app.
@@ -1544,8 +1544,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 }
 
-/* ── 21-frame-search.css → @layer dr.frame ──────────────────────────────────────────────── */
-@layer dr.frame {
+/* ── 21-frame-search.css → @layer sedna.frame ──────────────────────────────────────────────── */
+@layer sedna.frame {
 /* ── Header search ──────────────────────────────────────────────────────────
    The free-text box that sits at the start of the topbar, and the result panel
    that drops out of it.
@@ -1720,8 +1720,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 }
 }
 
-/* ── 30-cards.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 30-cards.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ═══ TIER 2 — the paint ════════════════════════════════════════════════════
    Page content. Classes only, never components: pages write plain HTML and apply
    these, so the markup — and the spacing that emerges from it — stays visible in
@@ -1767,8 +1767,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 31-badges.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 31-badges.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Badges ─────────────────────────────────────────────────────────────────
    .badge is the neutral pill; the modifiers are the semantic families plus
    three categorical hues that carry no meaning of their own.
@@ -1808,8 +1808,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 32-tables.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 32-tables.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Tables ─────────────────────────────────────────────────────────────── */
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td {
@@ -1831,8 +1831,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 33-buttons.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 33-buttons.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Buttons ────────────────────────────────────────────────────────────────
    Colour language — a panel's primary CTA is always a FILLED button in its
    semantic colour:
@@ -1908,8 +1908,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 34-forms.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 34-forms.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Forms ──────────────────────────────────────────────────────────────── */
 .form-field { display: flex; flex-direction: column; gap: var(--space-3); }
 
@@ -2031,8 +2031,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 35-toolbar.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 35-toolbar.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Toolbar (the filter bar above a table or list) ─────────────────────── */
 .toolbar {
     display: flex;
@@ -2048,8 +2048,8 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 
 }
 
-/* ── 36-modal.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 36-modal.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Modal ──────────────────────────────────────────────────────────────── */
 .modal-backdrop {
     position: fixed;
@@ -2100,14 +2100,14 @@ dialog.modal {
     padding: 0;
     color: var(--fg);
     --dialog-backdrop: var(--backdrop);
-    animation: dr-modal-in var(--motion-fast) ease;
+    animation: sedna-modal-in var(--motion-fast) ease;
 }
 dialog.modal::backdrop {
     background: var(--dialog-backdrop);
     backdrop-filter: blur(2px);
 }
 
-@keyframes dr-modal-in {
+@keyframes sedna-modal-in {
     from { opacity: 0; transform: translateY(-10px) scale(0.97); }
     to   { opacity: 1; transform: none; }
 }
@@ -2152,8 +2152,8 @@ dialog.modal::backdrop {
 
 }
 
-/* ── 37-alerts.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 37-alerts.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Inline alert banner ────────────────────────────────────────────────── */
 .alert {
     display: flex;
@@ -2173,8 +2173,8 @@ dialog.modal::backdrop {
 
 }
 
-/* ── 38-toasts.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 38-toasts.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Toasts ─────────────────────────────────────────────────────────────────
    Transient confirmation of something that already happened. Anything the user
    must act on is an .alert, which stays until the state changes.
@@ -2242,8 +2242,8 @@ dialog.modal::backdrop {
 
 }
 
-/* ── 39-spinner.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 39-spinner.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Spinner ────────────────────────────────────────────────────────────────
    A ring with one coloured arc. Sized by font-size so it matches the text or
    the button it sits in without a second class. */
@@ -2254,18 +2254,18 @@ dialog.modal::backdrop {
     border: 2px solid var(--border);
     border-top-color: var(--brand-soft);
     border-radius: 50%;
-    animation: dr-spin var(--spin-duration) linear infinite;
+    animation: sedna-spin var(--spin-duration) linear infinite;
     /* Keeps the ring on the text baseline instead of riding above it. */
     vertical-align: -0.125em;
 }
 .spinner-lg { width: 24px; height: 24px; border-width: 3px; }
 
-@keyframes dr-spin { to { transform: rotate(360deg); } }
+@keyframes sedna-spin { to { transform: rotate(360deg); } }
 
 }
 
-/* ── 40-skeleton.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 40-skeleton.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Skeleton ───────────────────────────────────────────────────────────────
    A placeholder with the shape of the content that is coming, so the page does
    not reflow when it arrives. Give it the height of the real thing. */
@@ -2278,22 +2278,22 @@ dialog.modal::backdrop {
         var(--skeleton-bg) 100%);
     background-size: 200% 100%;
     border-radius: var(--radius-inner);
-    animation: dr-skeleton var(--skeleton-duration) ease-in-out infinite;
+    animation: sedna-skeleton var(--skeleton-duration) ease-in-out infinite;
 }
 /* A line of text. Two of these with different widths read as a paragraph. */
 .skeleton-text   { height: 12px; margin: var(--space-3) 0; }
 .skeleton-title  { height: 18px; margin: var(--space-4) 0; border-radius: var(--radius-control); }
 .skeleton-avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; }
 
-@keyframes dr-skeleton {
+@keyframes sedna-skeleton {
     from { background-position: 200% 0; }
     to   { background-position: -200% 0; }
 }
 
 }
 
-/* ── 41-progress.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 41-progress.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Progress ───────────────────────────────────────────────────────────────
    Determinate: set the inline width on .progress-bar, which is the one value
    only the app knows. Indeterminate: omit the width and add the modifier. */
@@ -2315,17 +2315,17 @@ dialog.modal::backdrop {
 
 .progress--indeterminate .progress-bar {
     width: 35%;
-    animation: dr-progress var(--progress-duration) ease-in-out infinite;
+    animation: sedna-progress var(--progress-duration) ease-in-out infinite;
 }
-@keyframes dr-progress {
+@keyframes sedna-progress {
     from { transform: translateX(-110%); }
     to   { transform: translateX(340%); }
 }
 
 }
 
-/* ── 42-empty-state.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 42-empty-state.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Empty state ────────────────────────────────────────────────────────────
    No data, no permission, or nothing found. Say which of those it is, and give
    the one action that resolves it. */
@@ -2373,8 +2373,8 @@ dialog.modal::backdrop {
 
 }
 
-/* ── 43-content-grids.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 43-content-grids.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Content grids ──────────────────────────────────────────────────────────
    Layout primitives. Page-specific grids belong in the app, not here.
 
@@ -2415,8 +2415,8 @@ dialog.modal::backdrop {
 
 }
 
-/* ── 44-markdown.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 44-markdown.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Markdown editor ────────────────────────────────────────────────────────
    Toolbar + textarea + rendered preview in one bordered box. The Write/Preview
    tabs flip [data-md-view] on the root (done by the JS). */
@@ -2516,8 +2516,8 @@ dialog.modal::backdrop {
 
 }
 
-/* ── 45-form-controls.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 45-form-controls.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Form controls — select, radio, switch ──────────────────────────────────
    The rest of the family is in 34-forms.css. These three are here because each
    one resets the browser's native control and redraws it, which is most of the
@@ -2655,8 +2655,8 @@ dialog.modal::backdrop {
 .switch-hint  { font-size: var(--text-3); color: var(--muted); }
 }
 
-/* ── 46-form-layout.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 46-form-layout.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Form layout and validation ──────────────────────────────────────────────
    How fields are grouped, affixed and closed off, and how a rejected value is
    shown. Numbered above 34 for the same reason as 45: these rules override
@@ -2838,8 +2838,8 @@ dialog.modal::backdrop {
 }
 }
 
-/* ── 47-form-file.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 47-form-file.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── File input, dropzone and file list ─────────────────────────────────────
    The native `<input type="file">` cannot be restyled: its button is a shadow-DOM
    part with only `::file-selector-button` exposed, and its "No file chosen" text is
@@ -2947,8 +2947,8 @@ dialog.modal::backdrop {
 .file-item--error > i { color: var(--danger-fg); }
 }
 
-/* ── 48-form-numeric.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 48-form-numeric.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Range, stepper and date/time controls ──────────────────────────────────
    The three native controls whose internals need naming per engine. Everything here
    is a restatement of the same design in different vendor pseudo-elements — the
@@ -3057,8 +3057,8 @@ dialog.modal::backdrop {
 .form-input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 }
 
-/* ── 50-tabs.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 50-tabs.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Tabs ───────────────────────────────────────────────────────────────────
    Switching which view of one thing is shown, where the tabs belong to the page.
    Not navigation: a tab that changes the URL is a link wearing a control's
@@ -3134,8 +3134,8 @@ dialog.modal::backdrop {
 .tab-panel { padding-top: var(--space-7); }
 }
 
-/* ── 51-segmented.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 51-segmented.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Segmented control ──────────────────────────────────────────────────────
    Two to four mutually exclusive options, all of them visible, applied the moment
    one is chosen. Prefer it over a <select> when the options are few and short
@@ -3206,8 +3206,8 @@ dialog.modal::backdrop {
 .segmented-option:has(input:disabled) { opacity: 0.45; cursor: not-allowed; }
 }
 
-/* ── 52-avatar.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 52-avatar.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Avatar ─────────────────────────────────────────────────────────────────
    A person or a system actor, in page content. The header's own avatar is
    `.user-avatar` and stays part of the frame; this is the one for tables, lists and
@@ -3304,8 +3304,8 @@ dialog.modal::backdrop {
 }
 }
 
-/* ── 53-chip.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 53-chip.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Chip ───────────────────────────────────────────────────────────────────
    A chip is a *thing*: an applied filter, a selected recipient, a label attached to
    a record. A .badge is a *state*: read-only, describing what something is.
@@ -3387,8 +3387,8 @@ dialog.modal::backdrop {
 .chip-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 }
 
-/* ── 54-stat.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 54-stat.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Stat tile ──────────────────────────────────────────────────────────────
    One number that matters, with what it is and — optionally — which way it moved.
 
@@ -3493,8 +3493,8 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
 .card-body > .stat-row > .stat:first-child { padding-inline-start: 0; border-inline-start: none; }
 }
 
-/* ── 55-page-structure.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 55-page-structure.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Page head ──────────────────────────────────────────────────────────────
    The title row a page opens with: heading, optional supporting line, and the
    actions that apply to the whole page.
@@ -3585,8 +3585,8 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
 .callout-go > i     { color: var(--go-fg); }
 }
 
-/* ── 56-code-block.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 56-code-block.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Code block ─────────────────────────────────────────────────────────────
    A block of code or output with a copy button. For a command, a payload, a stack
    trace — anything the reader is going to want verbatim.
@@ -3735,8 +3735,8 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-ring-sof
 .code-block-expand i { font-size: var(--text-4); }
 }
 
-/* ── 57-navigation-aids.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 57-navigation-aids.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Pagination ─────────────────────────────────────────────────────────────
    Page-by-page movement through a long result set.
 
@@ -3842,8 +3842,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .breadcrumb-item[aria-current="page"] { color: var(--fg); }
 }
 
-/* ── 58-menu.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 58-menu.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Menu / dropdown panel ──────────────────────────────────────────────────
    A short list of actions, opened from a control. This is the one dropdown panel
    in the library: the user widget's menu is this class, anchored differently (see
@@ -3990,8 +3990,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .menu-scrim { position: fixed; inset: 0; cursor: default; }
 }
 
-/* ── 59-table-extensions.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 59-table-extensions.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Table extensions ───────────────────────────────────────────────────────
    Everything beyond "one class on the table". Each is opt-in, because each costs
    something: a sticky header needs a scroll container, zebra stripes fight with row
@@ -4001,7 +4001,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 /* ── Sticky header ──────────────────────────────────────────────────────────
    The header stays put while the body scrolls. Two things this needs from the
    markup, and it silently does nothing without them:
-     1. A scroll container around the table — `.dr-scroll` with a max-height. The
+     1. A scroll container around the table — `.sedna-scroll` with a max-height. The
         header sticks to the nearest scrolling ancestor, and with none it sticks to
         the page, where the topbar is already.
      2. `border-collapse: separate` — a collapsed table's borders belong to the
@@ -4083,8 +4083,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 
    Scoped to `.table .col-num`, not bare `.col-num`. A single-purpose class is (0,1,0)
    and `.table th, .table td` is (0,1,1), so the bare form loses the text-align it
-   exists to set, silently. A class in `@layer dr.utilities` wins that collision on
-   layer order instead; this file is in dr.paint, so it needs the specificity. */
+   exists to set, silently. A class in `@layer sedna.utilities` wins that collision on
+   layer order instead; this file is in sedna.paint, so it needs the specificity. */
 .table .col-num { text-align: end; font-variant-numeric: tabular-nums; }
 
 /* ── Row selection ──────────────────────────────────────────────────────────
@@ -4161,8 +4161,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 }
 }
 
-/* ── 60-lists.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 60-lists.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── List ───────────────────────────────────────────────────────────────────
    Rows of records where a table would be wrong: when the fields differ per row, when
    there is one dominant field and the rest is supporting, or when each row is
@@ -4224,7 +4224,7 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
    The connector is the <li>'s own ::after, so the last step has none without a
    modifier. Colour alone does not say which steps are done: the done marker shows a
    tick, not just a fill. */
-.steps { list-style: none; margin: 0 0 var(--space-7); padding: 0; display: flex; counter-reset: dr-step; }
+.steps { list-style: none; margin: 0 0 var(--space-7); padding: 0; display: flex; counter-reset: sedna-step; }
 .steps > li {
     position: relative;
     flex: 1;
@@ -4236,10 +4236,10 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
     color: var(--muted);
     font-size: var(--text-3);
     text-align: center;
-    counter-increment: dr-step;
+    counter-increment: sedna-step;
 }
 .steps > li::before {
-    content: counter(dr-step);
+    content: counter(sedna-step);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4362,8 +4362,8 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 .accordion-body > :last-child { margin-bottom: 0; }
 }
 
-/* ── 61-buttons-extra.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 61-buttons-extra.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Button group and split button ──────────────────────────────────────────
    Adjacent buttons that act on the same thing. The group shares one border between
    neighbours rather than drawing two adjacent ones, which is what makes it read as
@@ -4457,8 +4457,8 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 .fab--icon { width: 48px; padding: 0; }
 }
 
-/* ── 62-media-and-prose.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 62-media-and-prose.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Media frame ────────────────────────────────────────────────────────────
    A bounded box for an image or an embed whose size you do not control — a
    screenshot, an attachment preview, a chart from elsewhere.
@@ -4564,8 +4564,8 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
 .redacted i { font-size: var(--text-4); }
 }
 
-/* ── 63-drawer.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 63-drawer.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Drawer / sheet ─────────────────────────────────────────────────────────
    A panel sliding in from an edge, for a secondary flow that should not lose the
    page behind it — a filter panel, a record's detail, a form on a phone.
@@ -4794,8 +4794,8 @@ dialog.drawer[open] { visibility: visible; transform: none; }
 .tree-count { margin-inline-start: auto; color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }
 }
 
-/* ── 64-palette-spotlight.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 64-palette-spotlight.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Command palette ────────────────────────────────────────────────────────
    The ⌘K / Ctrl-K box: type, see matching commands, run one.
 
@@ -4952,8 +4952,8 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 .spotlight-step { color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }
 }
 
-/* ── 65-popover.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 65-popover.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Popover ────────────────────────────────────────────────────────────────
    A small panel of *content* anchored to the control that opened it: why a row
    is pending, what a setting does, the detail behind a number.
@@ -5023,8 +5023,8 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 }
 }
 
-/* ── 66-status-indicator.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 66-status-indicator.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Status indicator ───────────────────────────────────────────────────────
    A dot and a word for the state of something the app is connected to: a device, a
    stream, a job runner, an API. Small enough for a topbar, a table cell, a card
@@ -5075,7 +5075,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
    across a page showing several connections at once. */
 .health-badge--live .health-dot,
 .health-badge--streaming .health-dot,
-.health-badge--connecting .health-dot { animation: dr-pulse var(--pulse-duration) ease-in-out infinite; }
+.health-badge--connecting .health-dot { animation: sedna-pulse var(--pulse-duration) ease-in-out infinite; }
 
 /* `--healthy` is an alias for `--live`, kept for apps already using it. Prefer
    `--live` in new markup. */
@@ -5083,7 +5083,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 .health-badge--healthy .health-dot {
     background: var(--go-solid);
     box-shadow: 0 0 6px var(--go-ring);
-    animation: dr-pulse var(--pulse-duration) ease-in-out infinite;
+    animation: sedna-pulse var(--pulse-duration) ease-in-out infinite;
 }
 
 /* ── Freshness ──────────────────────────────────────────────────────────────
@@ -5105,8 +5105,8 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 .stale--warn { color: var(--warn-fg); }
 }
 
-/* ── 67-output.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 67-output.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ── Output pane ────────────────────────────────────────────────────────────
    Lines of machine output the reader watches or scrolls back through: a build log, a
    command's stdout, an event stream, an audit trail.
@@ -5180,8 +5180,8 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 .output-line--note   { color: var(--muted); font-style: italic; }
 }
 
-/* ── 70-rtl.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 70-rtl.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ═══ Right-to-left ═════════════════════════════════════════════════════════
    Almost nothing is needed here, and that is the point: every directional property
    in this library is a logical one — `margin-inline-start`, `border-inline-end`,
@@ -5249,8 +5249,8 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
    `margin-inline-start`. */
 }
 
-/* ── 71-forced-colors.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 71-forced-colors.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ═══ Forced colours ════════════════════════════════════════════════════════
    Windows high-contrast mode. The browser replaces every colour with a small
    user-chosen palette, and it does so whatever this stylesheet says — so the job here
@@ -5372,8 +5372,8 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 }
 }
 
-/* ── 72-print.css → @layer dr.paint ──────────────────────────────────────────────── */
-@layer dr.paint {
+/* ── 72-print.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
 /* ═══ Print ═════════════════════════════════════════════════════════════════
    An app page printed or saved as PDF. Chrome is the enemy here: a sidebar, a header
    and a toast stack are navigation, and navigation on paper is a waste of the page.
@@ -5403,7 +5403,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     .topbar,
     .skip-link,
     .toast-stack,
-    .dr-tip,
+    .sedna-tip,
     .fab,
     .drawer,
     .drawer-scrim,
@@ -5432,7 +5432,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 
     /* Scroll containers have no scrollbar on paper, so their content must be allowed
        out rather than clipped to the box it had on screen. */
-    .dr-scroll,
+    .sedna-scroll,
     .drawer-body,
     .md-editor .md-preview,
     .palette-list { max-height: none; overflow: visible; }
@@ -5456,15 +5456,15 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 }
 }
 
-/* ── 80-utilities.css → @layer dr.utilities ──────────────────────────────────────────────── */
-@layer dr.utilities {
+/* ── 80-utilities.css → @layer sedna.utilities ──────────────────────────────────────────────── */
+@layer sedna.utilities {
 /* ═══ Utilities ═════════════════════════════════════════════════════════════
-   Single-purpose classes, in `@layer dr.utilities`.
+   Single-purpose classes, in `@layer sedna.utilities`.
 
    The layer is what makes them work at all. A utility is (0,1,0) and a component rule
    like `.table th, .table td` is (0,1,1), so on specificity alone a utility loses
-   every collision — `.text-end` on a table cell would do nothing. dr.utilities sits
-   after dr.paint, so it wins regardless of specificity and no cap convention has to be
+   every collision — `.text-end` on a table cell would do nothing. sedna.utilities sits
+   after sedna.paint, so it wins regardless of specificity and no cap convention has to be
    remembered.
 
    Deliberately short, and staying short. This is not a utility framework: the point
@@ -5549,68 +5549,68 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 /* ── Layout ─────────────────────────────────────────────────────────────────
    A row and a column with the library's own gap, for the arrangements that would
    otherwise be an inline `style="display:flex; gap:8px"` — which is most of them. */
-.dr-row { display: flex; align-items: center; gap: var(--space-4); }
-.dr-row-wrap { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); }
-.dr-col { display: flex; flex-direction: column; gap: var(--space-4); }
+.sedna-row { display: flex; align-items: center; gap: var(--space-4); }
+.sedna-row-wrap { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); }
+.sedna-col { display: flex; flex-direction: column; gap: var(--space-4); }
 /* Pushes everything after it to the far end of a flex container. */
-.dr-push { margin-inline-start: auto; }
+.sedna-push { margin-inline-start: auto; }
 
-/* Three gap steps and none. `.dr-row` and `.dr-col` set one gap; these are for the
+/* Three gap steps and none. `.sedna-row` and `.sedna-col` set one gap; these are for the
    rows that need a tighter or looser one, which was an inline `style="gap:12px"`. */
-.dr-gap-0 { gap: 0; }
-.dr-gap-1 { gap: var(--space-4); }
-.dr-gap-2 { gap: var(--space-6); }
-.dr-gap-3 { gap: var(--space-8); }
+.sedna-gap-0 { gap: 0; }
+.sedna-gap-1 { gap: var(--space-4); }
+.sedna-gap-2 { gap: var(--space-6); }
+.sedna-gap-3 { gap: var(--space-8); }
 
-/* Cross-axis alignment. `.dr-row` centres; a row of fields with labels wants
-   `.dr-start`, and a row of text of different sizes wants `.dr-baseline`. */
-.dr-wrap     { flex-wrap: wrap; }
-.dr-start    { align-items: flex-start; }
-.dr-center   { align-items: center; }
-.dr-end      { align-items: flex-end; }
-.dr-baseline { align-items: baseline; }
-.dr-between  { justify-content: space-between; }
+/* Cross-axis alignment. `.sedna-row` centres; a row of fields with labels wants
+   `.sedna-start`, and a row of text of different sizes wants `.sedna-baseline`. */
+.sedna-wrap     { flex-wrap: wrap; }
+.sedna-start    { align-items: flex-start; }
+.sedna-center   { align-items: center; }
+.sedna-end      { align-items: flex-end; }
+.sedna-baseline { align-items: baseline; }
+.sedna-between  { justify-content: space-between; }
 
 /* The flex child that takes the remaining room. `min-width: 0` comes with it, because
    without it the child refuses to shrink below its content and every ellipsis inside
    stops working — the commonest truncation bug there is. */
-.dr-fill { flex: 1; min-width: 0; }
-.dr-shrink-0 { flex-shrink: 0; }
-.dr-w-full { width: 100%; }
+.sedna-fill { flex: 1; min-width: 0; }
+.sedna-shrink-0 { flex-shrink: 0; }
+.sedna-w-full { width: 100%; }
 
 /* Block margins only, and only for removing or adding a step. There is no inline
    pair: horizontal placement belongs to the layout, not to a utility on the child. */
-.dr-mt-0 { margin-top: 0; }
-.dr-mt-1 { margin-top: var(--space-4); }
-.dr-mt-2 { margin-top: var(--space-6); }
-.dr-mt-3 { margin-top: var(--space-8); }
-.dr-mb-0 { margin-bottom: 0; }
-.dr-mb-1 { margin-bottom: var(--space-4); }
-.dr-mb-2 { margin-bottom: var(--space-6); }
-.dr-mb-3 { margin-bottom: var(--space-8); }
+.sedna-mt-0 { margin-top: 0; }
+.sedna-mt-1 { margin-top: var(--space-4); }
+.sedna-mt-2 { margin-top: var(--space-6); }
+.sedna-mt-3 { margin-top: var(--space-8); }
+.sedna-mb-0 { margin-bottom: 0; }
+.sedna-mb-1 { margin-bottom: var(--space-4); }
+.sedna-mb-2 { margin-bottom: var(--space-6); }
+.sedna-mb-3 { margin-bottom: var(--space-8); }
 
 /* A hairline between rows without an <hr> and without a wrapper. */
-.dr-divider-top    { border-top: 1px solid var(--divider); }
-.dr-divider-bottom { border-bottom: 1px solid var(--divider); }
+.sedna-divider-top    { border-top: 1px solid var(--divider); }
+.sedna-divider-bottom { border-bottom: 1px solid var(--divider); }
 
 /* A scroll container on the inline axis — a table too wide for its column, a row of
-   cards. `.dr-scroll` styles a scroller; this one creates it. */
-.dr-scroll-x { overflow-x: auto; }
+   cards. `.sedna-scroll` styles a scroller; this one creates it. */
+.sedna-scroll-x { overflow-x: auto; }
 
 /* ── State ──────────────────────────────────────────────────────────────────
    Not a `hidden` replacement: use the `hidden` ATTRIBUTE for that, because it also
    removes the element from the accessibility tree and the tab order. This is for
    hiding something that must stay in the layout's flow calculations. */
-.dr-invisible { visibility: hidden; }
+.sedna-invisible { visibility: hidden; }
 
 /* Marks a block as busy without removing it. Pair it with aria-busy="true", which is
    what is announced; this only stops the reader interacting with stale content. */
-.dr-busy { opacity: 0.55; pointer-events: none; cursor: progress; }
+.sedna-busy { opacity: 0.55; pointer-events: none; cursor: progress; }
 
 /* For something unavailable that is NOT a <button>, <input> or <a> — those have the
    `disabled` attribute, which is announced and removes them from the tab order, and
    this is no substitute for it. Add aria-disabled="true" alongside. */
-.dr-disabled {
+.sedna-disabled {
     color: var(--muted);
     pointer-events: none;
     cursor: not-allowed;
@@ -5621,16 +5621,16 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
    carry something the screen does not. 72-print.css handles the frame; these are for
    an app's own content. */
 @media print {
-    .dr-no-print { display: none; }
+    .sedna-no-print { display: none; }
 }
-.dr-print-only { display: none; }
+.sedna-print-only { display: none; }
 @media print {
-    .dr-print-only { display: revert; }
+    .sedna-print-only { display: revert; }
 }
 }
 
-/* ── 90-density.css → @layer dr.overrides ──────────────────────────────────────────────── */
-@layer dr.overrides {
+/* ── 90-density.css → @layer sedna.overrides ──────────────────────────────────────────────── */
+@layer sedna.overrides {
 /* ═══ Compact density ═══════════════════════════════════════════════════════
    [data-density="compact"] on <html>. A pure token remap, like every other theme
    block, so it composes with the themes and CSS load order stays irrelevant.
@@ -5649,8 +5649,8 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 }
 }
 
-/* ── 95-reduced-motion.css → @layer dr.overrides ──────────────────────────────────────────────── */
-@layer dr.overrides {
+/* ── 95-reduced-motion.css → @layer sedna.overrides ──────────────────────────────────────────────── */
+@layer sedna.overrides {
 /* ═══ Reduced motion ════════════════════════════════════════════════════════
    Every animation and transition in the library, switched off in one place. It is
    one block on purpose: scattered per-part media queries are how a new transition
@@ -5663,7 +5663,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
    consuming app's own motion, which is not this package's call to make.
 
    So each line below names the selector it is undoing, at the same specificity.
-   Numbered 95 rather than 85 so it lands in @layer dr.overrides, which is the last
+   Numbered 95 rather than 85 so it lands in @layer sedna.overrides, which is the last
    layer: motion has to be switched off whatever declared it, including a utility.
    When you add a transition or an animation anywhere in css-parts/, add its off
    switch here in the same edit.
@@ -5681,7 +5681,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     .user-signout     { transition: none; }   /* 15 */
     /* 17 — the hint appears at its final position instead of sliding in. Opacity
        is kept as a step, not a fade, by removing the transition entirely. */
-    .dr-tip           { transition: none; transform: none; }
+    .sedna-tip           { transition: none; transform: none; }
     .reconnect-attempting i { animation: none; }   /* 18 */
     .nav-group > summary::after { transition: none; }   /* 20 — the group caret */
     /* 20 — the skip link jumps into view rather than sliding down. It has to still

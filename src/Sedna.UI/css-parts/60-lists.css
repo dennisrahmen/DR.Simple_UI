@@ -59,7 +59,7 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
    The connector is the <li>'s own ::after, so the last step has none without a
    modifier. Colour alone does not say which steps are done: the done marker shows a
    tick, not just a fill. */
-.steps { list-style: none; margin: 0 0 var(--space-7); padding: 0; display: flex; counter-reset: dr-step; }
+.steps { list-style: none; margin: 0 0 var(--space-7); padding: 0; display: flex; counter-reset: sedna-step; }
 .steps > li {
     position: relative;
     flex: 1;
@@ -71,10 +71,10 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
     color: var(--muted);
     font-size: var(--text-3);
     text-align: center;
-    counter-increment: dr-step;
+    counter-increment: sedna-step;
 }
 .steps > li::before {
-    content: counter(dr-step);
+    content: counter(sedna-step);
     display: flex;
     align-items: center;
     justify-content: center;

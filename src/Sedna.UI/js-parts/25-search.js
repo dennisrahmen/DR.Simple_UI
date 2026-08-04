@@ -116,14 +116,14 @@
     }
 
     function build() {
-        // dr-scroll, because the panel scrolls past eight rows and the OS default
+        // sedna-scroll, because the panel scrolls past eight rows and the OS default
         // bar is the one thing on it that would not follow the theme.
-        panel = el('div', 'search-panel dr-scroll');
-        panel.id = 'dr-search-panel';
+        panel = el('div', 'search-panel sedna-scroll');
+        panel.id = 'sedna-search-panel';
         panel.hidden = true;
 
         list = el('div');
-        list.id = 'dr-search-list';
+        list.id = 'sedna-search-list';
         // A real listbox owned by the input as a combobox. The claim is made only
         // because the keyboard contract behind it is implemented in full below:
         // arrows, Home/End, Enter, and the highlight moving while focus stays in
@@ -156,7 +156,7 @@
         node.setAttribute('role', 'option');
         node.setAttribute('aria-selected', String(i === 0));
         node.setAttribute('tabindex', '-1');
-        node.id = 'dr-search-item-' + i;
+        node.id = 'sedna-search-item-' + i;
         if (i === 0) node.classList.add('search-item--sel');
 
         node.appendChild(el('span', 'search-item-title', item.title));
@@ -200,7 +200,7 @@
                 list.appendChild(el('div', 'search-status',
                     cut + (cut === 1 ? ' more match' : ' more matches') + '. Keep typing to narrow it down.'));
             }
-            input.setAttribute('aria-activedescendant', 'dr-search-item-0');
+            input.setAttribute('aria-activedescendant', 'sedna-search-item-0');
         }
 
         open();
@@ -244,7 +244,7 @@
         var item = shown[i];
         // Resolved before close(), which is what a keyboard Enter needs: it has no
         // event of its own to let through, so it clicks the row instead.
-        var node = (!e && item && item.href) ? list.querySelector('#dr-search-item-' + i) : null;
+        var node = (!e && item && item.href) ? list.querySelector('#sedna-search-item-' + i) : null;
         close();
         // The query is spent. Left in place it would survive a router navigation
         // and not a full page load, so the box would sometimes hold the last
@@ -315,7 +315,7 @@
         box = target.closest('.search') || target;
         if (!panel) build();
         input.setAttribute('role', 'combobox');
-        input.setAttribute('aria-controls', 'dr-search-list');
+        input.setAttribute('aria-controls', 'sedna-search-list');
         input.setAttribute('aria-autocomplete', 'list');
     }
 

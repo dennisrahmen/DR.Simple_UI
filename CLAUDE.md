@@ -232,7 +232,7 @@ in `assets/brand/` are bespoke rather than built from an icon.
 ## Naming
 
 - CSS classes: semantic, lowercase-kebab, no app or vendor prefix. Library-owned utilities that need a
-  namespace use `dr-` (`.dr-scroll`, `.dr-tip`); everything else is plain (`.card`, `.btn-go`).
+  namespace use `sedna-` (`.sedna-scroll`, `.sedna-tip`); everything else is plain (`.card`, `.btn-go`).
 - **A plain name is a claim on the shared namespace.** An app that already styles that class silently
   gets the library's rules merged with its own on upgrade — no error, just a changed appearance. Before
   adding a plain generic name (`.list`, `.menu`, `.row`, `.tag`, `.pager`), check it against the apps
@@ -291,8 +291,8 @@ and cannot be lifted above the modal backdrop by z-index alone. The top layer (`
 
 ## Cascade layers
 
-The shipped stylesheet is entirely inside `@layer dr.tokens, dr.base, dr.frame, dr.paint,
-dr.utilities, dr.overrides`. A part's layer is derived from its `NN-` prefix by the generator, so it
+The shipped stylesheet is entirely inside `@layer sedna.tokens, sedna.base, sedna.frame, sedna.paint,
+sedna.utilities, sedna.overrides`. A part's layer is derived from its `NN-` prefix by the generator, so it
 cannot drift from the source order and no part declares its own — the table is in
 `css-parts/CLAUDE.md`.
 

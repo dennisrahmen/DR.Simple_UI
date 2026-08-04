@@ -30,12 +30,12 @@ part declares its own.
 
 | Range | Layer | What lives there |
 |---|---|---|
-| `00`–`04` | `dr.tokens` | tokens and the theme remap blocks |
-| `05`–`09` | `dr.base` | bare element styles — `html`, `body`, `a`, `code`, headings |
-| `10`–`29` | `dr.frame` | the tier-1 frame — shell, sidebar, topbar, user widget, layouts |
-| `30`–`79` | `dr.paint` | tier-2 content classes, then RTL, forced colours and print |
-| `80`–`89` | `dr.utilities` | single-purpose classes |
-| `90`–`99` | `dr.overrides` | density and reduced motion — the last word |
+| `00`–`04` | `sedna.tokens` | tokens and the theme remap blocks |
+| `05`–`09` | `sedna.base` | bare element styles — `html`, `body`, `a`, `code`, headings |
+| `10`–`29` | `sedna.frame` | the tier-1 frame — shell, sidebar, topbar, user widget, layouts |
+| `30`–`79` | `sedna.paint` | tier-2 content classes, then RTL, forced colours and print |
+| `80`–`89` | `sedna.utilities` | single-purpose classes |
+| `90`–`99` | `sedna.overrides` | density and reduced motion — the last word |
 
 Pick a free number inside the right range. **Renumbering an existing part can change its layer as well
 as its order**, which is a behaviour change twice over — check the affected pages.
@@ -73,7 +73,7 @@ Two consequences to keep in mind while writing a rule:
 ## Naming
 
 Semantic, lowercase-kebab, no app or vendor prefix. Library-owned utilities that need a namespace use
-`dr-`; everything else is plain. **A plain name is a claim on the shared namespace** — before adding a
+`sedna-`; everything else is plain. **A plain name is a claim on the shared namespace** — before adding a
 generic one (`.list`, `.menu`, `.row`, `.tag`), check it against the apps known to consume this
 library, because an app that already styles that class silently gets both rule sets merged on upgrade.
 

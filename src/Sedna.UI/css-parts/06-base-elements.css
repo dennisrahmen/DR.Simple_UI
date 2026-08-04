@@ -58,10 +58,10 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
    reload) does not — otherwise an auto-selected block shows a stray outline. */
 :focus:not(:focus-visible) { outline: none; }
 
-/* dr-spin is NOT here: it is declared beside its only consumer in
+/* sedna-spin is NOT here: it is declared beside its only consumer in
    39-spinner.css. Two identical @keyframes of the same name is a silent-drift
    hazard — the later one wins for the whole document, so editing the earlier
    changes nothing. */
-@keyframes dr-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes sedna-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
 

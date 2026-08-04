@@ -8,7 +8,7 @@
    The stack is created on first use and reused, so an app renders nothing and
    positions nothing.
 
-   It is found by `data-dr-toasts`, not by `.toast-stack`, and that distinction is
+   It is found by `data-sedna-toasts`, not by `.toast-stack`, and that distinction is
    load-bearing: only a stack this code created is appended to, re-labelled or removed.
    Matching the class would adopt a stack the app wrote for its own reasons — a
    server-rendered one, an example of the markup on a documentation page — append into
@@ -28,7 +28,7 @@
         info: 'ri-information-line'
     };
 
-    var OWN = '[data-dr-toasts]';
+    var OWN = '[data-sedna-toasts]';
 
     function stack() {
         var el = document.querySelector(OWN);
@@ -37,7 +37,7 @@
             el.className = 'toast-stack';
             // The marker is what makes this OURS: only a stack the library created is
             // ever appended to, re-labelled, or removed.
-            el.setAttribute('data-dr-toasts', '');
+            el.setAttribute('data-sedna-toasts', '');
             // The region is a status log, not a landmark to navigate to.
             el.setAttribute('role', 'status');
             el.setAttribute('aria-live', 'polite');

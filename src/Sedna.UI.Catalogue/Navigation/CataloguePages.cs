@@ -150,7 +150,7 @@ internal static class CataloguePages
 
         new("/utility", Reference, "Utilities", "ri-scissors-cut-line",
             "The single-purpose classes: layout, gaps, text, state and print.",
-            "text-end truncate clamp visually-hidden sr-only dr-row dr-col dr-fill gap margin print"),
+            "text-end truncate clamp visually-hidden sr-only sedna-row sedna-col sedna-fill gap margin print"),
         new("/script", Reference, "The script", "ri-code-s-slash-line",
             "Toasts, confirmations, clipboard, hover hints, and the delegated behaviours.",
             "drSimpleUi toast confirm copy clipboard tips hover menu tabs dropzone follow interop javascript"),

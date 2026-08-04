@@ -1,10 +1,10 @@
 @inject IJSRuntime Js
 
-<div class="dr-col">
+<div class="sedna-col">
     <div @ref="_stage" style="position:relative; height:260px; overflow:hidden;
                               border:1px solid var(--border); border-radius:var(--radius-surface)">
-        <div class="dr-col" style="padding:16px">
-            <div class="dr-row dr-between">
+        <div class="sedna-col" style="padding:16px">
+            <div class="sedna-row sedna-between">
                 <button @ref="_targets[0]" class="btn btn-primary" type="button">Reconcile all</button>
                 <span @ref="_targets[1]" class="health-badge health-badge--live">
                     <span class="health-dot"></span> Live
@@ -28,7 +28,7 @@
             @Steps[_step].Body
             <div class="spotlight-tip-actions">
                 <span class="spotlight-step">@(_step + 1) of @Steps.Length</span>
-                <span class="dr-row dr-gap-1">
+                <span class="sedna-row sedna-gap-1">
                     <button class="btn btn-sm" type="button" disabled="@(_step == 0)"
                             @onclick="() => Go(-1)">Back</button>
                     <button class="btn btn-sm btn-primary" type="button"

@@ -66,11 +66,11 @@
        12-frame-collapsed-rail.css: the rail scrolls, and a scroll container
        clips both axes. Every value here is geometry; the surface comes from the
        tokens the expanded flyout already uses. */
-    .layout--responsive .sidebar [data-tip] { anchor-name: --dr-rail-tip; anchor-scope: --dr-rail-tip; }
+    .layout--responsive .sidebar [data-tip] { anchor-name: --sedna-rail-tip; anchor-scope: --sedna-rail-tip; }
     .layout--responsive .sidebar [data-tip]:hover::after {
         content: attr(data-tip);
         position: fixed;
-        position-anchor: --dr-rail-tip;
+        position-anchor: --sedna-rail-tip;
         position-area: inline-end;
         align-self: anchor-center;
         margin-inline-start: var(--space-5);

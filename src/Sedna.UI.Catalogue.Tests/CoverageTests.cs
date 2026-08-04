@@ -27,7 +27,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// A stricter version of this, asserting every class is <i>rendered or printed</i>
 /// by a page rather than merely mentioned in a file, currently reports eleven
 /// classes that exist only while JavaScript is mid-interaction —
-/// <c>.dr-tip--visible</c>, <c>.drawer-scrim--open</c>, <c>.dropzone--over</c>,
+/// <c>.sedna-tip--visible</c>, <c>.drawer-scrim--open</c>, <c>.dropzone--over</c>,
 /// <c>.tab--active</c> and the rest. They are real documentation gaps rather than
 /// test noise, and closing them is editorial work on several pages.
 /// </para>

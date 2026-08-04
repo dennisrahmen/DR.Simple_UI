@@ -7,7 +7,7 @@
 /* ── Sticky header ──────────────────────────────────────────────────────────
    The header stays put while the body scrolls. Two things this needs from the
    markup, and it silently does nothing without them:
-     1. A scroll container around the table — `.dr-scroll` with a max-height. The
+     1. A scroll container around the table — `.sedna-scroll` with a max-height. The
         header sticks to the nearest scrolling ancestor, and with none it sticks to
         the page, where the topbar is already.
      2. `border-collapse: separate` — a collapsed table's borders belong to the
@@ -89,8 +89,8 @@
 
    Scoped to `.table .col-num`, not bare `.col-num`. A single-purpose class is (0,1,0)
    and `.table th, .table td` is (0,1,1), so the bare form loses the text-align it
-   exists to set, silently. A class in `@layer dr.utilities` wins that collision on
-   layer order instead; this file is in dr.paint, so it needs the specificity. */
+   exists to set, silently. A class in `@layer sedna.utilities` wins that collision on
+   layer order instead; this file is in sedna.paint, so it needs the specificity. */
 .table .col-num { text-align: end; font-variant-numeric: tabular-nums; }
 
 /* ── Row selection ──────────────────────────────────────────────────────────

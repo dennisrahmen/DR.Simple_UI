@@ -57,7 +57,7 @@ window.drSimpleUiCatalogue = (function () {
        a single implementation agreed with itself.
 
        One class of bug cannot occur on this side: @layer names live on
-       CSSLayerBlockRule.name and never appear in selectorText, so the "dr.paint
+       CSSLayerBlockRule.name and never appear in selectorText, so the "sedna.paint
        reads as .paint" phantom is structurally impossible here. */
     function readInventory() {
         var tokens = {}, classes = {}, icons = {};

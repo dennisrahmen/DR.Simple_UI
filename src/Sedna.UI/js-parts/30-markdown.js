@@ -52,7 +52,7 @@
             // roots exist.
             var views = root.querySelectorAll('input[data-md-tab]');
             if (views.length) {
-                var group = 'dr-md-view-' + (++ui.md._seq);
+                var group = 'sedna-md-view-' + (++ui.md._seq);
                 views.forEach(function (r) { r.name = group; });
             }
 
