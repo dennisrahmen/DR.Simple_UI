@@ -19,13 +19,13 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>Sedna.UI</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
 
     <Title>Sedna.UI</Title>
     <Authors>Dennis Rahmen</Authors>
     <Company>Dennis Rahmen</Company>
     <Copyright>Copyright (c) Dennis Rahmen</Copyright>
-    <Description>Shared Blazor UI layer: one design-token contract plus semantic CSS classes for page content, and a small set of layout frame components. Rebrand a whole app by redefining a handful of CSS variables.</Description>
+    <Description>Shared Blazor UI layer: one design-token contract plus semantic CSS classes for page content. Rebrand a whole app by redefining a handful of CSS variables.</Description>
     <PackageTags>blazor;razor;css;design-system;design-tokens;ui;aspnetcore</PackageTags>
     <!-- Apache-2.0 over MIT for its explicit patent grant (§3): every
          contributor licenses their patents to every user, and that binds

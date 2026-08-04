@@ -57,7 +57,10 @@ See [docs/development.md](docs/development.md) for what each guard covers.
 
 ## Adding a class
 
-1. Add it to `src/Sedna.UI/wwwroot/css/Sedna.UI.css`, referencing tokens for every colour.
+1. Add the rule to the owning part under `src/Sedna.UI/css-parts/` (or a new `NN`-prefixed part, per
+   that directory's own `CLAUDE.md`), referencing tokens for every colour, then re-run
+   `build/bundle-css.sh`. Never edit `src/Sedna.UI/wwwroot/css/Sedna.UI.css` directly — it is
+   generated, and a guard test rejects a hand-edit.
 2. Add or extend a catalogue page under `src/Sedna.UI.Catalogue/Components/Pages/`, with its
    example markup as a file under `Examples/`, and register the page in `CataloguePages`.
 3. `dotnet test`.

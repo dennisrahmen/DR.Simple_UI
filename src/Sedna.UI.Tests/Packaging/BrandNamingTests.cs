@@ -15,6 +15,12 @@ namespace Sedna.UI.Tests;
 ///
 /// Deliberately not repository-wide: docs/migrating-from-dr-simple-ui.md exists in
 /// order to name the old brand.
+///
+/// The two test projects — <c>Sedna.UI.Tests</c> and <c>Sedna.UI.Catalogue.Tests</c> —
+/// are themselves outside both guards' scope, and that is deliberate too: this very
+/// file's own doc comments and its <see cref="OldBrand"/> regex literal have to name
+/// the old brand to describe and detect it, so scanning the test projects would make
+/// the guard trip on its own documentation.
 /// </remarks>
 public class BrandNamingTests
 {
@@ -88,9 +94,9 @@ public class BrandNamingTests
     /// <c>src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css</c> as the path the
     /// stylesheet lived at before the rename (see that file's own header comment) —
     /// permanently, because an old git tag needs its old path to keep resolving.
-    /// This is a permanent exception, unlike the catalogue side's
-    /// <c>PendingRenameFiles</c>, which Task 8 deletes once it lands: nothing ever
-    /// retires this one. Do not remove it when Task 8 or Task 10 land.
+    /// This exception never retires: unlike a scan that catches a leftover and gets
+    /// cleaned up once the rename is complete, this file's job is to keep naming the
+    /// old brand forever, for every future git tag older than the rename.
     /// </summary>
     private const string PermanentlyExemptBuildScript = "css-path.sh";
 

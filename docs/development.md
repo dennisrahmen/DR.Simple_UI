@@ -29,6 +29,7 @@ src/
 assets/brand/                         icon, logo, favicon, social preview
 build/verify-package.sh               unpacks the .nupkg and asserts its contents
 build/release-inventory.sh            lists the classes and tokens a release adds
+build/css-path.sh                     where the stylesheet lived at a given git ref
 docs/
 ```
 
@@ -98,6 +99,8 @@ The guards, and what each is for:
 | Shipped asset paths are pinned | Apps hard-code these paths |
 | No changelog file | Release notes live on the Releases page |
 | Brand assets exist; hero URL is absolute | The nuget.org listing renders |
+| No pre-rebrand brand markers in the shipped assets, the library's `.cs` sources or `build/*.sh` | `src/Sedna.UI.Tests/Packaging/BrandNamingTests.cs`; `build/css-path.sh` is permanently exempt — it has to keep the old path resolving against old git tags |
+| No pre-rebrand brand markers in the catalogue's content files, `Mcp/`, `Program.cs` or `catalogue.js` | `src/Sedna.UI.Catalogue.Tests/BrandNamingTests.cs` |
 
 New guards should be made to fail once before being relied on.
 
@@ -150,6 +153,10 @@ build/release-inventory.sh v0.1.0 --notes
 ```
 
 Both extractions in `css-inventory.sh` are subtle — read its header before writing a third one.
+
+`build/css-path.sh` is the single implementation of "where did the stylesheet live at this git ref".
+`build/class-history.sh` and `build/release-inventory.sh` both call it rather than hard-coding the path
+themselves, so a future rename of the shipped path only has to change one place.
 
 `axe-core` runs over the same pages for the WCAG rules that only exist in the accessibility tree. The
 catalogue's examples are the library's own markup, so a violation there is one every app inherits by

@@ -5,7 +5,7 @@ in that app follows the library's rules instead of inventing its own UI.
 
 Replace:
 
-- `<VERSION>` — the pinned package version, e.g. `0.1.0`
+- `<VERSION>` — the pinned package version, e.g. `0.2.0`
 - `<APP-PREFIX>` — a short CSS prefix for this app, e.g. `myapp`
 
 ---

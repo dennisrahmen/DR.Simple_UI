@@ -15,6 +15,10 @@ dotnet add package Sedna.UI
 
 Pin the version. Do not use a floating version range.
 
+A `since: "0.1.0"` on a class, token or example — as reported by the catalogue or the MCP server —
+refers to the release published under the old package ID, `DR.Simple_UI`. `Sedna.UI`'s own first
+release is `0.2.0`.
+
 ## 2. The host page
 
 Every `_content/…` path is keyed by assembly name, so it moves with the package. Replace the old five
@@ -48,6 +52,13 @@ with the new five:
 
 `css/brand.css` is your own file and its path does not change.
 
+If your app hard-codes the tokens JSON path — for a Figma import or a report generator, say — that
+moves too:
+
+```
+_content/DR.Simple_UI/tokens/DR.Simple_UI.tokens.json → _content/Sedna.UI/tokens/Sedna.UI.tokens.json
+```
+
 ## 3. Identifiers
 
 | Old (`DR.Simple_UI`) | New (`Sedna.UI`) |
@@ -58,6 +69,7 @@ with the new five:
 | Options | `DrSimpleUiOptions` → `SednaUiOptions` |
 | Settings record | `DrSimpleUiSettings` → `SednaUiSettings` |
 | DI registration | `AddDrSimpleUi()` → `AddSednaUi()` |
+| Service collection extensions class | `DrSimpleUiServiceCollectionExtensions` → `SednaUiServiceCollectionExtensions` |
 | JavaScript global | `window.drSimpleUi` → `window.sednaUi` |
 | Cascade layers | `dr.tokens, dr.base, dr.frame, dr.paint, dr.utilities, dr.overrides` → `sedna.tokens, sedna.base, sedna.frame, sedna.paint, sedna.utilities, sedna.overrides` |
 
@@ -91,6 +103,10 @@ Only the library's own namespaced utilities move. Semantic class names — `.car
 Grep your own stylesheets and markup for `dr-scroll`, `dr-tip` and `dr-tip--visible` before
 upgrading — an app that already defines one of those names sees no error, only a changed rule once
 the library's version wins the cascade.
+
+This table covers what shipped in the published `0.1.0`. The catalogue site is built from `main` and
+can be ahead of any release, so if you copied markup from it you may hold further `dr-*` utility
+classes than these three — all of them moved to `sedna-` by the same mechanical rule.
 
 ## 5. Stored settings are lost — read this
 
@@ -128,3 +144,15 @@ only the layer names themselves change, from the `dr.*` family to the `sedna.*` 
 
 An app that does not name a layer explicitly needs no change here — the layer boundaries and their
 ordering are exactly what they were.
+
+## 7. The MCP server
+
+If you registered the catalogue's MCP server, three things about it moved along with everything else:
+
+| Old | New |
+|---|---|
+| Server name | `dr-simple-ui` → `sedna-ui` |
+| Resource URI scheme | `drsimpleui://` → `sednaui://` |
+| Endpoint | `https://simpleui.dennisrahmen.dev/mcp` → `https://www.sedna-ui.com/mcp` |
+
+Update your MCP client configuration to the new endpoint; there is no redirect from the old one.

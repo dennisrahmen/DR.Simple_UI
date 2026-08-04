@@ -11,9 +11,10 @@ Release notes come from the annotated tag message. There is no `CHANGELOG.md` â€
 ## Cutting a release
 
 1. Decide the version using the rules below.
-2. Write the notes to a file outside the repo. List every CSS class the release adds: a consuming app
-   that already styles one of those names sees its appearance change on upgrade with no error, so the
-   list is what lets it grep first.
+2. Write the notes to a file outside the repo. List every CSS class the release adds, and every one it
+   removes: a consuming app that already styles an added name sees its appearance change on upgrade with
+   no error, so the list is what lets it grep first â€” and a removal is the breaking part of the release,
+   which `build/release-inventory.sh` prints first for that reason.
 3. Tag and push:
 
    ```bash

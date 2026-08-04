@@ -41,7 +41,9 @@ internal sealed class CatalogueResources(CatalogueIndex index, VersionEnvelope v
 
     [McpServerResource(UriTemplate = "sednaui://docs/{name}", Name = "docs",
         MimeType = "text/markdown")]
-    [Description("A documentation file: getting-started, architecture, CLAUDE.consuming-app, releasing.")]
+    [Description("A documentation file: getting-started, architecture, CLAUDE.consuming-app, releasing, " +
+        "plus a guide for migrating off the library's former package name — see getting-started for " +
+        "that guide's exact file name.")]
     public string Doc(string name) =>
         Docs.Read(name.EndsWith(".md", StringComparison.Ordinal) ? name : name + ".md");
 }

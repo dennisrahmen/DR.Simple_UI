@@ -8,6 +8,9 @@ dotnet add package Sedna.UI
 
 Pin the version. Do not use a floating version range.
 
+Upgrading from `DR.Simple_UI`? See [Migrating from DR.Simple_UI](migrating-from-dr-simple-ui.md) instead
+of this page.
+
 ## Host page
 
 Add three stylesheets and two scripts to `App.razor` (or `_Host.cshtml`). Your override file must come

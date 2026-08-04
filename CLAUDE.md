@@ -214,6 +214,17 @@ Three are wired into things that fail quietly if renamed, and a test pins them:
   copies. They no longer travel inside the package, but the drift hazard is identical: update the icon
   in `assets/brand/` and the site keeps serving the old one.
 
+**Outstanding: the brand rename.** The rename to `sedna-ui-*` names is pending artwork — a ≥1024px
+square transparent icon, a white-wordmark lockup, and a true vector `sedna-ui-icon.svg`. Until that
+artwork lands, these files intentionally keep their `dr-simple-ui-*` names. Renaming the files alone
+breaks three other things, which must move **in the same commit** as the files: `Sedna.UI.csproj`'s
+`PackageIcon` `None Include`, `README.md`'s hero image URL, and `BrandAssetTests`.
+
+The Sedna brand palette — Sedna Red `#FF6B4A`, Orbit Blue `#59C3FF`, Deep Space `#0F172A`, Navy Slate
+`#1E293B`, Ice White `#F8FAFC`, Dust Gray `#94A3B8` — is recorded here only. The library's default
+token values above are deliberately unchanged, so the default theme renders exactly as it did before
+the rename. `README.md`'s badges already use `#FF6B4A`, but that is brand chrome, not a token.
+
 ## Icons
 
 Remix Icon is bundled at `wwwroot/lib/remixicon/` and is the only icon set. Add or update it with
@@ -349,9 +360,11 @@ version first.
 3. Classify against the rules below, taking the highest applicable level.
 4. State the proposed version, its level, and the reason, then wait for confirmation — e.g.
    "0.2.0 (minor): adds `--brand-glow` and `.badge-teal`, nothing renamed or removed."
-5. Draft the release notes. **List every CSS class the release adds**, so a consuming app can grep its
-   own stylesheets for a collision before bumping — a class the app already styles changes its
-   appearance silently otherwise. Confirm the notes too, then tag:
+5. Draft the release notes. **List every CSS class the release adds, and every one it removes.** The
+   additions let a consuming app grep its own stylesheets for a collision before bumping — a class the
+   app already styles changes its appearance silently otherwise. The removals are the breaking part of
+   the release, and `build/release-inventory.sh` prints them first for that reason; list them just as
+   plainly. Confirm the notes too, then tag:
 
    ```bash
    git tag -a v0.2.0 -F notes.md

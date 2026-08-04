@@ -12,6 +12,12 @@ namespace Sedna.UI.Catalogue.Tests;
 /// no error anywhere. CoverageTests catches the same mistake from the other
 /// direction — a sedna-* class no example mentions fails as undocumented — but only
 /// while no other example happens to use it.
+///
+/// The two test projects — <c>Sedna.UI.Tests</c> and <c>Sedna.UI.Catalogue.Tests</c> —
+/// are themselves outside both guards' scope, and that is deliberate: this file's own
+/// doc comments and its <see cref="OldBrand"/> regex literal have to name the old
+/// brand to describe and detect it, so scanning the test projects would make the
+/// guard trip on its own documentation.
 /// </remarks>
 public class BrandNamingTests
 {
