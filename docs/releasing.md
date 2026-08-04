@@ -107,16 +107,22 @@ long-lived API key is stored in the repository.
   happens in that window. Public repositories are unaffected.
 - If **Trusted Publishing** is not in your nuget.org account menu, it is not yet enabled for your account.
 
-## GitHub Pages
+## The hosted catalogue
 
-`pages.yml` publishes the catalogue to <https://github.dennisrahmen.de/> on pushes to `main` that touch
-`wwwroot/`.
+The catalogue is an application, not a static site: `src/DR.Simple_UI.Catalogue`, containerised from
+`src/DR.Simple_UI.Catalogue/Dockerfile` and deployed to Railway at
+<https://simpleui.dennisrahmen.dev/>. `railway.json` at the repository root holds the build and deploy
+configuration, so it is reviewable in a pull request rather than living only in a dashboard.
 
-The custom domain requires a DNS record:
+**The site deploys from every push to `main`; the package ships from a `v*` tag.** That split is
+deliberate. The hosted catalogue's whole contract is that it shows `main` — a class that exists on
+`main` being visible is the most useful answer the MCP server can give, because it tells an agent that
+the thing it wants exists and needs an upgrade. Holding the deploy back would not make it safer, only
+silently wrong in the other direction. What makes it safe is the `since` field on every item.
 
-| Type | Name | Target |
-|---|---|---|
-| `CNAME` | `github` | `dennisrahmen.github.io` |
+Railway builds the image itself from the GitHub source, gated by its **Wait for CI** switch, so no
+Railway credential exists in this repository and there is no deploy workflow to maintain. CI builds the
+image too, but never pushes it — a broken Dockerfile should fail the pull request that broke it.
 
-The domain is set both in the repository's Pages settings and as a `CNAME` file in the deployed artifact.
-Both are required — without the file, a deploy clears the custom domain.
+The custom domain needs **both** a CNAME and the TXT record Railway shows. A missing TXT record makes
+the domain 404 even once the CNAME resolves, which reads as a broken deploy.

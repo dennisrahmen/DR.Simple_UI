@@ -1,9 +1,8 @@
 /* ═══ TIER 2 — the paint ════════════════════════════════════════════════════
-   Page content. Classes only, never components: pages write plain open HTML
-   and apply these, so the markup — and therefore the spacing that emerges —
-   stays visible and reasonable-about in the .razor file. Copy-pasteable
-   examples for every class below live in the catalogue/ folder of this
-   package. */
+   Page content. Classes only, never components: pages write plain HTML and apply
+   these, so the markup — and the spacing that emerges from it — stays visible in
+   the .razor file. Copy-pasteable examples for every class below are on the
+   catalogue at https://simpleui.dennisrahmen.dev/. */
 
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .card {

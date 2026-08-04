@@ -27,7 +27,7 @@
    editor. `.page` is the frame's scroll container and pads its content; this
    replaces it, taking the padding off and handing scrolling to the child.
 
-   Used INSTEAD of .page, as AppShell's PageClass cannot remove .page's own padding. */
+   Used INSTEAD of .page, never alongside it. */
 .full-layout {
     flex: 1;
     min-height: 0;
@@ -75,9 +75,8 @@
 }
 .nav-group[open] > summary::after { transform: rotate(-180deg); }
 /* Sub-items indent to sit under the parent's label rather than its icon. */
-/* The indent is derived, not chosen: the parent's own padding plus the width of its
-   icon and the gap after it. Written as that sum so it stays aligned when the scale
-   is rescaled, instead of being a number that silently stops lining up. */
+/* The indent is the parent's own padding plus the width of its icon and the gap after
+   it. Written as that sum so it stays aligned when the spacing scale is redefined. */
 .nav-group .nav-link {
     padding-inline-start: calc(var(--space-7) + var(--text-7) + var(--space-4));
     font-size: var(--text-3);
@@ -96,8 +95,7 @@
 
 /* ── Skip link ──────────────────────────────────────────────────────────────
    The first focusable thing on the page, jumping past the navigation to the content.
-   Without it a keyboard user tabs through every nav item on every page — which is the
-   single most common reason a shell like this is exhausting to use without a mouse.
+   Without it a keyboard user tabs through every nav item on every page.
 
    Hidden until focused, and then it must be visible ABOVE the header, hence the
    reconnect/tip rung at 1000: it is the one thing that has to be readable whatever

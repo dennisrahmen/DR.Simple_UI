@@ -8,7 +8,7 @@
 # 311, and two structure listings claimed ~30 and ~35 CSS parts against an actual 57.
 # Anything that needs a number now derives it from here.
 #
-# Two callers: build/catalogue-figures.sh writes the landing page's figures, and
+# Two callers: build/class-history.sh derives which release first shipped each name, and
 # build/release-inventory.sh diffs two revisions for the release notes. Both use this
 # one implementation, because the extraction is where the mistakes live:
 #

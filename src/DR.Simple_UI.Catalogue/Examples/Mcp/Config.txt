@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "dr-simple-ui": {
+      "type": "http",
+      "url": "https://simpleui.dennisrahmen.dev/mcp"
+    }
+  }
+}

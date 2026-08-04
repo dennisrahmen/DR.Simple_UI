@@ -31,6 +31,18 @@ Add three stylesheets and two scripts to `App.razor` (or `_Host.cshtml`). Your o
 
 `DR.Simple_UI.boot.js` applies the stored theme before first paint. Load it in `<head>`.
 
+### The reconnect banner
+
+Blazor Server injects its own reconnect UI — unstyled, with inline styles — unless the host page
+supplies one. Add the block from the catalogue's
+[Shell and nav](https://simpleui.dennisrahmen.dev/frame) page inside `<body>`, before the component that
+carries the render mode.
+
+Supply `.reconnect-attempting`, `.reconnect-failed` and `.reconnect-rejected`; `.reconnect-paused` is
+optional and falls back to the attempting row. Blazor puts the state classes on
+`#components-reconnect-modal` itself and the stylesheet shows one row at a time — omit a required row
+and that state renders as an empty bar.
+
 No configuration is required. `drSimpleUi.configure()` is only needed for the options below.
 
 ### `configure()` options
@@ -43,8 +55,13 @@ No configuration is required. `drSimpleUi.configure()` is only needed for the op
 
 ### Storage keys
 
-Settings are stored under `drui.theme`, `drui.cvd`, `drui.density` and `drui.lang`. `localStorage` is
-scoped per origin, so apps on different domains never share state and the default prefix is fine.
+Settings are stored under `drui.theme`, `drui.cvd`, `drui.density`, `drui.dir` and `drui.lang`.
+`localStorage` is scoped per origin, so apps on different domains never share state and the default
+prefix is fine.
+
+`drui.dir` and `drui.lang` are the two that are only applied **once stored**. Both are attributes the
+host page declares about itself, so with nothing stored `<html dir>` and `<html lang>` are left exactly
+as written — the library never infers a document's direction or language from the browser's.
 
 Override it only when **two apps share one origin** — for example `example.com/app-a` and
 `example.com/app-b` behind one reverse proxy, which is a single origin and therefore one `localStorage`.
@@ -91,7 +108,7 @@ If a value is missing, [request it](../CONTRIBUTING.md). Until it ships, use an 
 (`--myapp-…`) in your own stylesheet rather than a bare name in the shared namespace. Do not override
 library classes to work around it. See [architecture](architecture.md#the-token-contract).
 
-The full token list is on the [Tokens](https://github.dennisrahmen.de/catalogue/tokens.html) catalogue
+The full token list is on the [Tokens](https://simpleui.dennisrahmen.dev/tokens) catalogue
 page.
 
 ## Icons
@@ -119,69 +136,86 @@ that you may not redistribute them as a standalone icon pack, or use one as a lo
 
 ## The frame
 
-Add the namespace once, in your app's `_Imports.razor`:
+The shell, sidebar, header and user widget are CSS classes, like everything else. There is no
+`<AppShell>` and there will not be one — copy the markup from the catalogue's
+[Shell and nav](https://simpleui.dennisrahmen.dev/frame) page.
+
+One thing markup cannot express is which navigation link is the current page. The package supplies it:
 
 ```razor
-@using DR.Simple_UI.Components
+@using DR.Simple_UI
+
+<a class="@Nav.CssClass("queue")" aria-current="@Nav.AriaCurrent("queue")" href="queue">
+    <i class="ri-inbox-line"></i><span>Queue</span>
+</a>
 ```
 
-Then the shell is five components:
+`CssClass` appends `active`; `AriaCurrent` returns `"page"` or null, which Blazor omits — the class
+colours the item, `aria-current` is what is announced. Matching drops the query string and the fragment,
+ignores a trailing slash, and requires a prefix match to end on a path segment, so `/queue` does not
+light up on `/queue-archive`. **The link to the app root needs `NavLinkMatch.All`**, or it is active
+everywhere.
 
-```razor
-<AppShell>
-    <Navigation>
-        <Sidebar Title="Approval Console" Subtitle="Netpoint" LogoSrc="/logo.png" BrandHref="/">
-            <ChildContent>
-                <NavItem Href="" Match="NavLinkMatch.All" Icon="ri-home-4-line" Label="Overview" />
-                <NavItem Href="queue" Icon="ri-inbox-line" Label="Queue" Count="@pending" />
-            </ChildContent>
-            <Tools>
-                <NavItem Href="https://docs.example.com" Icon="ri-book-2-line"
-                         Label="Documentation" Tool External />
-            </Tools>
-        </Sidebar>
-    </Navigation>
-    <Header>
-        <AppHeader>
-            <UserWidget Name="@user.Name" Secondary="@user.Email" SignOutHref="/signout" />
-        </AppHeader>
-    </Header>
-    <ChildContent>
-        @Body
-    </ChildContent>
-</AppShell>
+These are pure functions and do not subscribe to `LocationChanged`. A page re-rendered by navigation
+picks up the new state for free. A sidebar that survives navigation has to subscribe and call
+`StateHasChanged`.
+
+**Subscribe in the component that renders the links, not in the layout around it.** When a parent
+re-renders, Blazor only hands new parameters to a child component whose parameters actually differ — so
+a sidebar whose parameters are unchanged is skipped and goes on rendering the previous address. A
+subscription one level too high looks right and does nothing: the active link then updates on the next
+unrelated click rather than on navigation.
+
+```csharp
+// CatalogueSidebar.razor.cs — the component that reads the address subscribes to it.
+protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
+public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => StateHasChanged();
 ```
 
-**`<ChildContent>` is not optional here.** As soon as a component has one named
-`RenderFragment` parameter, Razor stops accepting loose child content and fails the build with
-`RZ9996`. `AppShell` has `Navigation` and `Header`, `Sidebar` has `Tools`, `AppHeader` has `Start` —
-so all three need it spelled out. `AppHeader` above does not, because nothing named is used on it.
+## The C# surface
 
-For the same family of reason, bind text that contains `@` to a field: an e-mail address written
-straight into an attribute is parsed as a C# expression and fails with `RZ9986`.
+```csharp
+// Program.cs
+builder.Services.AddDrSimpleUi();
+```
 
-- `Href=""` is the app root, and it needs `Match="NavLinkMatch.All"` — with the default `Prefix` it is
-  active on every page.
-- `<AppShell Bare>` drops the sidebar, for sign-in, access-denied and error pages.
-- `<Sidebar Collapsed="true">` shows the 56px icon rail. Give each `NavItem` a `Tip`, which becomes the
-  rail's flyout label.
-- Add `Class="layout--responsive"` to `AppShell` to collapse to the rail automatically below 900px.
+That registers `IDrSimpleUi`, a typed wrapper over the browser API — `ToastAsync`, `ConfirmAsync`,
+`CopyTextAsync`, `SaveSettingAsync`, the command palette, and the rest of `drSimpleUi`.
 
-Everything the components emit can also be written by hand — the *Shell & nav* catalogue page shows the
-markup, and a test keeps the two identical. Do that only where a component does not cover what you need,
-and do not add local overrides for the frame: report frame problems against the library.
+Every member is a JavaScript call, so **none of them can run during prerendering**. Call them from an
+event handler, or from `OnAfterRenderAsync(firstRender: true)`. They deliberately do not swallow the
+exception prerendering raises: a call that silently did nothing would be far harder to find.
+
+Two parts of the JavaScript surface have no C# equivalent, because neither can cross the boundary.
+`toast()` returns a function that removes that toast early, and `tips.gate` is a predicate you assign to
+suppress hover hints. Both stay JavaScript.
 
 ## Writing pages
 
-Copy markup from the catalogue rather than writing it from scratch:
+Copy markup from the catalogue at <https://simpleui.dennisrahmen.dev/> rather than writing it from
+scratch. Every page carries copy-pasteable HTML for its class family.
 
-- In a running app: `_content/DR.Simple_UI/catalogue/index.html`
-- On disk: `%USERPROFILE%\.nuget\packages\dr.simple_ui\<version>\staticwebassets\catalogue\index.html`
-  (Linux/macOS: `~/.nuget/packages/dr.simple_ui/<version>/staticwebassets/catalogue/index.html`)
-- Online: <https://github.dennisrahmen.de/>
-
-The in-package copy matches the version you have installed. The online copy shows `main`.
+The site is built from `main` and can be ahead of the version you have installed. Each class, token and
+example says which release first shipped it, so check that before copying something new.
 
 ## AI agents
 
-Copy the block in [`CLAUDE.consuming-app.md`](CLAUDE.consuming-app.md) into your app's `CLAUDE.md`.
+The catalogue has an MCP server. Add one URL:
+
+```json
+{ "type": "http", "url": "https://simpleui.dennisrahmen.dev/mcp" }
+```
+
+| Tool | What it answers |
+|---|---|
+| `search` | "What is there for a sortable table with status badges?" Returns references, never markup. |
+| `get_example` | The exact markup for an example, byte-for-byte what the site renders. |
+| `describe_class` | What a class does: its rules from the shipped stylesheet, its layer, its modifiers. |
+| `get_page` | Everything on one page, or the list of pages. |
+| `get_tokens` | The design tokens, for writing `brand.css`. |
+| `get_integration_guide` | This document, the branding recipe, the JavaScript surface, or the rules. |
+
+Pass `installedVersion` and the response names anything your version does not have.
+
+Then copy the block in [`CLAUDE.consuming-app.md`](CLAUDE.consuming-app.md) into your app's `CLAUDE.md`.

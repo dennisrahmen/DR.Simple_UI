@@ -16,7 +16,6 @@
     width: 100%;
     max-width: 480px;
     box-shadow: var(--shadow-modal);
-    animation: dr-modal-in var(--motion-fast) ease;
 }
 /* Width only. A confirmation needs less room than a form, and a diff or a table
    needs more; nothing else about the panel changes. */
@@ -32,16 +31,24 @@
    No .modal-backdrop is involved: ::backdrop is the platform's own, so the
    dimming comes from the pseudo-element rather than from an element in the page.
 
-   --dialog-backdrop is a deliberate indirection. ::backdrop only recently began
-   inheriting from its originating element, so referencing var(--backdrop) directly
-   resolved to nothing — and an unresolved background is a transparent one, which
-   silently removes the dimming rather than failing visibly. Declaring the value on
-   the dialog itself puts it one inheritance step away instead of at the document
-   root. */
+   --dialog-backdrop is declared on the dialog itself rather than referencing
+   var(--backdrop) from ::backdrop directly. ::backdrop inherits from its originating
+   element, so the token has to be one inheritance step away rather than at the
+   document root; an unresolved background is a transparent one, which removes the
+   dimming without failing visibly. */
+/* The entrance animation belongs on `dialog.modal` and never on `.modal`: only a
+   dialog has an opening, going from display:none to shown, which is what starts the
+   animation. A `.modal` panel sitting in the page has nothing to animate from.
+
+   A resting appearance must never depend on an animation having run. An animation with
+   no fill-mode still applies its 0% keyframe while it is PAUSED, and a document is
+   paused whenever its tab is in the background — so the same animation on `.modal`
+   leaves a panel in a background tab at `scale(0.97) translateY(-10px)` for good. */
 dialog.modal {
     padding: 0;
     color: var(--fg);
     --dialog-backdrop: var(--backdrop);
+    animation: dr-modal-in var(--motion-fast) ease;
 }
 dialog.modal::backdrop {
     background: var(--dialog-backdrop);

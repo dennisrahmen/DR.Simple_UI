@@ -5,12 +5,10 @@
    Anything that should tighten with the tables uses var(--cell-pad-y) /
    var(--cell-pad-x) and gets it for free — an app's own dense card, for instance.
 
-   There is deliberately no selector override alongside this. An earlier version
-   carried one at (0,3,1) so it would outrank apps still holding a copied
-   `.table th, .table td { padding: … }` from before the extraction. That was
-   propping up the thing the extraction exists to remove: with cascade layers an
-   app's unlayered rule wins whatever this file does, so the override only worked by
-   accident and only until the layers landed. Delete the copied rule in the app.
+   There is deliberately no selector override alongside this. An app's own stylesheet is
+   unlayered and wins whatever this file declares, so an app holding its own
+   `.table th, .table td { padding: … }` does not go compact until that rule is deleted.
+   No specificity here can substitute for deleting it.
    ─────────────────────────────────────────────────────────────────────────── */
 :root[data-density="compact"] {
     --cell-pad-y: var(--space-2);

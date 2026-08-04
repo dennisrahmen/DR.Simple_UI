@@ -31,7 +31,14 @@ public class ResponsiveTests
         "position", "top", "right", "bottom", "left",
         "inset", "inset-block", "inset-inline", "inset-block-start", "inset-block-end",
         "inset-inline-start", "inset-inline-end",
-        "transform", "overflow", "overflow-x", "overflow-y", "z-index",
+        "transform", "translate", "rotate", "scale",
+        // Anchor positioning. Every one of these answers "where does this box
+        // go", which is the same question `top` and `inset` answer — the value
+        // being a --dashed-ident rather than a length does not make it a
+        // decision about appearance.
+        "anchor-name", "anchor-scope", "position-anchor", "position-area",
+        "position-try-fallbacks", "position-visibility",
+        "overflow", "overflow-x", "overflow-y", "z-index",
         "border-radius", "border-width", "border-style",
         "font-size", "font-weight", "line-height", "letter-spacing",
         "text-align", "text-transform", "white-space", "text-overflow",

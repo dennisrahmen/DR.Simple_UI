@@ -38,6 +38,16 @@ a.list-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--bran
    width instead of floating with a gap at each end. */
 .card > .list > li > .list-row { padding-inline: var(--space-7); }
 
+/* ── The row as a lockup ────────────────────────────────────────────────────
+   `.list-row` + `.list-main` + `.list-title` + `.list-sub` + `.list-meta` is a leading
+   visual, two stacked lines and a trailing slot. Put an `.avatar` first and it is a
+   person; put an icon there and it is a device, a file or a queue. Nothing in it names
+   what the thing is, which is why it serves for all of them.
+
+   `--flush` drops the row's own padding, for the places where the surrounding cell
+   already provides it: a table cell, a card header, a form row. */
+.list-row--flush { padding: 0; gap: var(--space-5); }
+
 /* ── Steps ──────────────────────────────────────────────────────────────────
    Progress through a sequence that has an order — a wizard, an approval chain.
 

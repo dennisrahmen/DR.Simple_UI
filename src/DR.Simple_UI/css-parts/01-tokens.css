@@ -49,13 +49,12 @@
     --brand-text:       #93c5fd;         /* readable brand text on the theme bg */
     /* Mixed from --brand rather than restated as literals, so redefining --brand
        alone carries the tint and every focus ring with it. An app may still pin any
-       of them. Measured: each mix paints the same pixel the literal did.
-       One observable difference — getComputedStyle now reports
-       `color(srgb 0.145098 0.388235 0.921569 / 0.14)` where it reported
-       `rgba(37, 99, 235, 0.14)`. The rendering is identical; only the serialisation
-       moved, and it moves for any derived colour (relative `rgb(from …)` serialises
-       the same way). A computed-style differ comparing strings will therefore flag
-       every brand-tinted surface as changed when it has not. */
+       of them.
+
+       A derived colour serialises as `color(srgb 0.145098 0.388235 0.921569 / 0.14)`
+       rather than `rgba(37, 99, 235, 0.14)` — the painted pixel is the same, only the
+       string differs. A computed-style differ that compares strings therefore reports
+       every brand-tinted surface as changed. */
     --brand-tint:       color-mix(in srgb, var(--brand) 14%, transparent);
     --brand-ring:       color-mix(in srgb, var(--brand) 50%, transparent);  /* filled primary focus ring */
     --brand-ring-soft:  color-mix(in srgb, var(--brand) 40%, transparent);  /* neutral button / card focus */
@@ -76,12 +75,11 @@
        "info", "secret" — informational and sensitive-value surfaces
        [data-cvd="1"] swaps ONLY the go family to blue, so go-vs-danger reads as
        blue-vs-red for deuteranopia/protanopia. Amber and brand keep their roles. */
-    /* The three filled families are one ramp step darker than they look like they
-       should be, and the reason is measured: --on-solid is white, and white on
-       #16a34a is 3.30:1 while white on #d97706 is 3.19:1 — both below AA for the
-       13px/500 label a .btn actually renders. #15803d and #b45309 reach 5.02:1.
-       Do not lighten these back without re-running the contrast audit in
-       docs/accessibility.md. */
+    /* The three filled families are one ramp step darker than the palette's own mid
+       tone, because --on-solid is white: white on #16a34a is 3.30:1 and on #d97706 is
+       3.19:1, both below AA for the 13px/500 label a .btn renders, while #15803d and
+       #b45309 reach 5.02:1. Do not lighten them without re-running the contrast audit
+       in docs/accessibility.md. */
     --go-solid:   #15803d;
     --go-hover:   #166534;
     --go-active:  #14532d;
@@ -101,8 +99,8 @@
     --warn-ring:       rgba(245, 158, 11, 0.4);
     --warn-ring-solid: rgba(245, 158, 11, 0.5);
 
-    /* #dc2626, not #ef4444: white on #ef4444 is 3.76:1. The light theme already
-       used #dc2626, so the two themes now agree. */
+    /* #dc2626, not #ef4444: white on #ef4444 is 3.76:1, below AA. Both themes use
+       the same value. */
     --danger-solid:         #dc2626;
     --danger-bg:            rgba(127, 29, 29, 0.15);
     --danger-bg-hover:      rgba(185, 28, 28, 0.25);
@@ -115,6 +113,8 @@
     --info-bg:      rgba(96, 165, 250, 0.12);
     --info-border:  #1e40af;
     --info-fg:      #93c5fd;
+    --info-solid:   #1d4ed8;                     /* a filled info dot or bar */
+    --info-ring:    rgba(96, 165, 250, 0.5);     /* its glow */
 
     --secret-bg:     rgba(124, 58, 237, 0.12);
     --secret-border: #5b21b6;
@@ -191,6 +191,24 @@
     --space-9:  24px;
     --space-10: 32px;
     --space-11: 40px;
+
+    /* ── Control height ─────────────────────────────────────────────────────
+       Three heights, shared by everything that can sit in a row with another
+       control: the button, the icon button, the text input, the select, the
+       read-only value, the search box, the input group and the stepper. A control's
+       own padding and line box stay UNDER its tier, so the tier is what decides the
+       height rather than a floor the content walks past.
+
+       The chip takes the small and normal tiers because it is interactive. A badge
+       does not: it is a label, so it has its own scale in 31-badges.css that lines
+       up with text instead of with a target. */
+    --control-height-sm: 28px;
+    --control-height:    36px;
+    --control-height-lg: 44px;   /* the WCAG AAA target size */
+
+    /* How tall a clamped code block is before it scrolls. Raise it for docs, lower it
+       for a dense admin page. */
+    --code-clamp: 360px;
 
     /* ── Type scale ─────────────────────────────────────────────────────────
        Ten steps. 13px is the body size for content, 14px for the page. The three

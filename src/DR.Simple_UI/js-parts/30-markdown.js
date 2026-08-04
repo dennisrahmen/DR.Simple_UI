@@ -4,7 +4,11 @@
    edits mutate the textarea and dispatch a bubbling 'input' event so the binding
    picks them up — this code never calls back into .NET.
 
-   init() is idempotent per root, since Blazor re-renders its host.
+   init() is idempotent per editor, since Blazor re-renders its host. Call it with no
+   argument to wire every .md-editor in the document, with a container to wire the ones
+   inside it, or with an editor to wire exactly that one — an app renders editors and
+   then calls init(), and does not have to know how many there are or hold a reference
+   to each. From C#: IDrSimpleUi.InitMarkdownAsync().
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -13,6 +17,20 @@
         _seq: 0,
 
         init: function (root) {
+            root = root || document;
+            // An editor initialises itself; anything else initialises the editors
+            // inside it. Each one is wired against its OWN root, so two editors on a
+            // page get separate radio groups and separate listeners — which they would
+            // not if a shared container were treated as the root.
+            var editors = root.matches && root.matches('.md-editor')
+                ? [root]
+                : root.querySelectorAll('.md-editor');
+
+            for (var i = 0; i < editors.length; i++) this._initOne(editors[i]);
+        },
+
+        /* One editor. Private: init() is the entry point. */
+        _initOne: function (root) {
             if (!root || root.dataset.mdReady === '1') return;
             root.dataset.mdReady = '1';
             var self = this;

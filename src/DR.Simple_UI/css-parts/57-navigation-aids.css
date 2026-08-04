@@ -90,7 +90,10 @@
     text-decoration: none;
 }
 .breadcrumb-item i { font-size: var(--text-5); }
-a.breadcrumb-item:hover { color: var(--fg); text-decoration: underline; }
+/* Colour, not an underline. `text-decoration` propagates to every descendant and
+   cannot be cancelled by one, so an underline here also underlines the item's icon and
+   the `/` separator after it. */
+a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .breadcrumb-item + .breadcrumb-item::before {
     content: '/';
     color: var(--border-strong);

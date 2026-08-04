@@ -35,7 +35,7 @@
    opening the full item, never a bare div with a click handler. */
 .gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr));
     gap: var(--space-5);
 }
 .gallery > * { position: relative; display: block; text-decoration: none; }

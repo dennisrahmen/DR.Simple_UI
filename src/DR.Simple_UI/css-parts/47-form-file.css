@@ -25,6 +25,12 @@
    input the reader cannot see. */
 .form-file:has(input:focus-visible) .btn { box-shadow: 0 0 0 2px var(--brand-ring-soft); }
 
+/* Almost no block padding. A file input's content is the UA's own button, which is
+   taller than a line of text, so `.form-input`'s padding on top of it pushes a bare
+   file input past every other control in the row. The button supplies the height, and
+   --control-height binds as it does everywhere else. */
+.form-input[type="file"] { padding-block: var(--space-1); }
+
 .form-input::file-selector-button {
     margin-inline-end: var(--space-5);
     padding: var(--space-2) var(--space-5);
@@ -43,8 +49,11 @@
    keyboard and awkward on touch, so the zone wraps a real file input and the drag
    handling is an enhancement on top.
 
-   .dropzone--over is added by the app on dragenter and removed on dragleave/drop:
-   there is no CSS pseudo-class for "something is being dragged over me". */
+   .dropzone--over says "something is being dragged over me", for which there is no
+   CSS pseudo-class. Add `data-dropzone` and DR.Simple_UI.js maintains it, and hands
+   a dropped file to the zone's own <input type="file"> as a `change` event; an app
+   that would rather own the drag handling leaves the attribute off and sets the
+   class itself. */
 .dropzone {
     display: flex;
     flex-direction: column;

@@ -6,14 +6,19 @@
    away, it is a chip. If it reflects data, it is a badge. Getting this the wrong way
    round produces a page of pills where nobody can tell which ones are clickable.
 
-   `.chip` rather than `.tag`: several apps around this library already use `.tag`
-   for something else, and a plain name is a claim on a shared namespace.
+   `.chip` rather than `.tag`: a plain name is a claim on a shared namespace, and
+   `.tag` is commonly already taken in a consuming app.
    ─────────────────────────────────────────────────────────────────────────── */
+/* A chip is interactive, so it takes the control heights rather than a type scale.
+   The default is the SMALL tier: a chip's home is a filter bar beside a `.btn-sm`,
+   and that is the pairing it has to line up with. `.chip-lg` is the normal tier, for
+   a chip beside a full-size button. */
 .chip {
     display: inline-flex;
     align-items: center;
     gap: var(--space-3);
     max-width: 100%;
+    min-height: var(--control-height-sm);
     padding: var(--space-1) var(--space-2) var(--space-1) var(--space-5);
     background: var(--surface-strong);
     border: 1px solid var(--border);
@@ -22,6 +27,8 @@
     font-size: var(--text-3);
     line-height: 1.6;
 }
+.chip-lg { min-height: var(--control-height); font-size: var(--text-4); padding-inline-start: var(--space-6); }
+.chip-lg .chip-dismiss { width: 22px; height: 22px; }
 /* A chip with no dismiss button does not need the trailing room for one. */
 .chip:not(:has(.chip-dismiss)) { padding-inline-end: var(--space-5); }
 .chip i { font-size: var(--text-5); color: var(--muted); }

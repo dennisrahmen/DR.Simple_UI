@@ -39,15 +39,22 @@ public class OverrideTests
         // header above its own rows), which is not part of the overlay scale.
         int[] documented = [0, 1, 60, 200, 400, 480, 490, 500, 510, 550, 600, 1000];
 
-        // catalogue.css is included: it is the only other stylesheet that ships, and
-        // it draws on the same scale. Its drawer once sat on the spotlight rung with
-        // its scrim on the modal-backdrop rung, which would have interleaved a drawer
-        // with a real modal — precisely the mistake a shared scale exists to prevent.
+        // The catalogue app's own stylesheet is included: it draws on the same scale,
+        // and its drawer once sat on the spotlight rung with its scrim on the
+        // modal-backdrop rung, which would have interleaved a drawer with a real
+        // modal — precisely the mistake a shared scale exists to prevent.
+        //
+        // It is no longer a stylesheet that ships. It is still held to the scale,
+        // because the site is an application built with this library and a bad rung
+        // there is a bad rung anywhere.
+        var catalogueCss = Path.Combine(
+            Assets.RepoRoot, "src", "DR.Simple_UI.Catalogue", "wwwroot", "catalogue.css");
+
         var sheets = new[]
         {
             (Name: "DR.Simple_UI.css", Css: Assets.StripComments(Assets.Css)),
-            (Name: "catalogue/catalogue.css",
-             Css: Assets.StripComments(File.ReadAllText(Path.Combine(Assets.CatalogueDir, "catalogue.css")))),
+            (Name: "DR.Simple_UI.Catalogue/catalogue.css",
+             Css: Assets.StripComments(File.ReadAllText(catalogueCss))),
         };
 
         var offenders = sheets

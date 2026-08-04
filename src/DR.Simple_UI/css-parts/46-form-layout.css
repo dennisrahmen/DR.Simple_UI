@@ -48,15 +48,33 @@
    button stays clickable and a unit stays selectable. The ring moves out to the
    group with :focus-within and the inner control gives up its own border and
    ring — otherwise the group draws two of each, nested. */
+/* The GROUP owns the height, and its children give theirs up. The group draws the
+   border, so a child still holding min-height: var(--control-height) makes the group
+   that height PLUS its own two border pixels. */
 .input-group {
     display: flex;
     align-items: stretch;
     width: 100%;
+    min-height: var(--control-height);
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
+/* The group carries the tier, because it is the group that draws the border. Its
+   children have already given up their own height.
+
+   A min-height is a floor, not a cap, so the small tier also has to bring its
+   children's block padding and text down — otherwise the field's own 6px + 18.2px line
+   box + the group's two borders comes to 32px and the 28px tier never binds. */
+.input-group--sm { min-height: var(--control-height-sm); }
+.input-group--sm .form-input,
+.input-group--sm .btn,
+.input-group--sm .input-affix { padding-block: var(--space-1); font-size: var(--text-3); }
+.input-group--lg { min-height: var(--control-height-lg); }
+.input-group--lg .form-input,
+.input-group--lg .btn,
+.input-group--lg .input-affix { font-size: var(--text-5); }
 .input-group:focus-within {
     border-color: var(--brand-soft);
     box-shadow: 0 0 0 2px var(--brand-glow);
@@ -64,6 +82,7 @@
 .input-group .form-input {
     flex: 1;
     min-width: 0;              /* or a long value pushes the affixes out */
+    min-height: 0;             /* the group holds the height — see above */
     border: none;
     border-radius: 0;
     background: none;
@@ -94,6 +113,7 @@
 /* A .btn inside the group gives up its outer edge and keeps its ring inside, so
    focus on the button is still distinguishable from focus in the field. */
 .input-group .btn {
+    min-height: 0;             /* the group holds the height — see above */
     border: none;
     border-radius: 0;
     background: var(--surface-strong);

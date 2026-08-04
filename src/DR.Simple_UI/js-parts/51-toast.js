@@ -1,5 +1,5 @@
 /* ── Toasts ──────────────────────────────────────────────────────────────────
-   drSimpleUi.toast('Approved INC0031209', { kind: 'go' })
+   drSimpleUi.toast('Dispatched ORD-4182', { kind: 'go' })
 
    For confirming something that already happened. Anything the user must act on is
    an .alert, which stays until the state changes — a toast that carries a required
@@ -7,6 +7,12 @@
 
    The stack is created on first use and reused, so an app renders nothing and
    positions nothing.
+
+   It is found by `data-dr-toasts`, not by `.toast-stack`, and that distinction is
+   load-bearing: only a stack this code created is appended to, re-labelled or removed.
+   Matching the class would adopt a stack the app wrote for its own reasons — a
+   server-rendered one, an example of the markup on a documentation page — append into
+   it wherever it sits, overwrite its aria-live, and remove it with the last toast.
 
    Announced through aria-live on the stack rather than by moving focus: stealing
    focus to say "saved" interrupts whatever the user is typing. `polite` for the
@@ -22,11 +28,16 @@
         info: 'ri-information-line'
     };
 
+    var OWN = '[data-dr-toasts]';
+
     function stack() {
-        var el = document.querySelector('.toast-stack');
+        var el = document.querySelector(OWN);
         if (!el) {
             el = document.createElement('div');
             el.className = 'toast-stack';
+            // The marker is what makes this OURS: only a stack the library created is
+            // ever appended to, re-labelled, or removed.
+            el.setAttribute('data-dr-toasts', '');
             // The region is a status log, not a landmark to navigate to.
             el.setAttribute('role', 'status');
             el.setAttribute('aria-live', 'polite');

@@ -40,6 +40,21 @@
         return window.innerWidth || document.documentElement.clientWidth || 0;
     };
 
+    /* Scrolls the frame's page column back to the top.
+
+       `.page` is the only scroll container in the frame, so the window's own scroll
+       position is always 0 and nothing the router does moves it. Navigating therefore
+       leaves the new page at the previous page's offset — halfway down, on a route the
+       reader has just arrived at. Call this from a LocationChanged handler.
+
+       Falls back to the window for a page that is not inside the frame, such as a
+       bare-layout sign-in screen. */
+    ui.scrollPageTop = function () {
+        var page = document.querySelector('.page');
+        if (page) { page.scrollTop = 0; return; }
+        try { window.scrollTo(0, 0); } catch (e) { /* ignore */ }
+    };
+
     ui.getItem = function (k) { return readRaw(k); };
 
     ui.setItem = function (k, value) {

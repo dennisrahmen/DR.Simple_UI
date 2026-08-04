@@ -14,8 +14,13 @@
      22-menu.js
      23-tabs.js
      24-palette.js
+     25-search.js
+     26-dropzone.js
+     27-output.js
+     28-code-block.js
      30-markdown.js
      40-interop.js
+     41-spotlight.js
      50-notify.js
      51-toast.js
      52-confirm.js
@@ -61,11 +66,58 @@ window.drSimpleUi = window.drSimpleUi || {};
         try { return localStorage.getItem(k); } catch (e) { return null; }
     }
 
+    /* How well `needle` matches `haystack`. Returns a score — higher is better —
+       or -1 for no match. `penalty` demotes a hit in a secondary field, so a
+       command found by its keywords never outranks one found by its name.
+
+       A hand-rolled subsequence matcher, about thirty lines. No fuse.js: this
+       package loads nothing at runtime, and a fuzzy matcher good enough for a
+       short label is smaller than the argument for taking a dependency.
+
+       Ranking, in the order it matters:
+         1. a prefix match            — you typed the start of the name
+         2. a word-start match        — "ai" finds "Approve Item"
+         3. a contiguous run inside the string
+         4. any subsequence, penalised by how spread out it is
+
+       Lives here because the palette and the header search must rank the same
+       way. Two matchers would drift, and the second one would be discovered by
+       someone finding the same query ordered differently in two places. */
+    function score(needle, haystack, penalty) {
+        if (!needle) return 1;
+        if (!haystack) return -1;
+
+        var n = needle.toLowerCase();
+        var h = haystack.toLowerCase();
+
+        var idx = h.indexOf(n);
+        if (idx === 0) return 1000 - penalty;                       // prefix
+        if (idx > 0) {
+            // A run that starts a word beats one buried inside it.
+            var wordStart = /[\s\-_/.]/.test(h[idx - 1]);
+            return (wordStart ? 800 : 600) - idx - penalty;
+        }
+
+        // Subsequence. Track the span it occupies: a match spread across the whole
+        // string is a worse match than a tight one, which is what stops "ae"
+        // ranking "Approve … escalate" above "Archive entry".
+        var first = -1, last = -1, hi = 0;
+        for (var ni = 0; ni < n.length; ni++) {
+            var found = h.indexOf(n[ni], hi);
+            if (found < 0) return -1;
+            if (first < 0) first = found;
+            last = found;
+            hi = found + 1;
+        }
+        var span = last - first + 1;
+        return 400 - (span - n.length) - first - penalty;
+    }
+
     // Shared internals for the other parts. The underscore means exactly one
     // thing: NOT part of the public contract. Nothing outside js-parts/ may read
     // it, and it may change in a patch release. Everything an app is allowed to
     // touch is a named member on `ui` itself.
-    ui._ = { config: config, key: key, readRaw: readRaw };
+    ui._ = { config: config, key: key, readRaw: readRaw, score: score };
 
     ui.configure = function (opts) {
         if (!opts) return;
@@ -82,8 +134,8 @@ window.drSimpleUi = window.drSimpleUi || {};
 /* ── 10-settings.js ──────────────────────────────────────────────── */
 /* ── Theme / accessibility settings ──────────────────────────────────────────
    localStorage is the source of truth; the data-theme / data-cvd / data-density
-   attributes on <html> drive the CSS token layer. The boot script applies them
-   before first paint; save() keeps them applied.
+   attributes and the dir attribute on <html> drive the CSS. The boot script applies
+   them before first paint; save() keeps them applied.
 
    data-theme is ALWAYS written, `light` or `dark`, never absent — consuming apps
    brand the light palette with `:root[data-theme="light"]`, so that selector has
@@ -101,10 +153,20 @@ window.drSimpleUi = window.drSimpleUi || {};
         load: function () {
             var g = function (k) { return readRaw(key(k)); };
             return {
-                lang:    g('lang') || (navigator.language || 'en').slice(0, 2).toLowerCase(),
+                // The document's own language before the browser's: boot.js leaves
+                // <html lang> alone unless a choice was stored, so reporting
+                // navigator.language here would tell an app's language picker
+                // something different from what the page is actually marked as.
+                lang:    g('lang') || document.documentElement.lang
+                             || (navigator.language || 'en').slice(0, 2).toLowerCase(),
                 theme:   g('theme') === 'light' ? 'light' : 'dark',
                 cvd:     g('cvd') === '1',
-                compact: g('density') === 'compact'
+                compact: g('density') === 'compact',
+                // The document's own direction when nothing is stored, for the same
+                // reason as lang above: the host page is the authority until the
+                // reader chooses otherwise.
+                dir:     g('dir') === 'rtl' ? 'rtl' : (g('dir') === 'ltr' ? 'ltr'
+                             : (document.documentElement.dir || 'ltr'))
             };
         },
         save: function (k, value) {
@@ -127,6 +189,12 @@ window.drSimpleUi = window.drSimpleUi || {};
             else root.removeAttribute('data-cvd');
             if (g('density') === 'compact') root.setAttribute('data-density', 'compact');
             else root.removeAttribute('data-density');
+            // Only a stored choice writes dir, and "ltr" is stored explicitly rather
+            // than treated as absent — otherwise switching back would delete a dir
+            // the host page set for itself. An app whose document is RTL by default
+            // says so in its own markup and this leaves it alone.
+            var dir = g('dir');
+            if (dir === 'rtl' || dir === 'ltr') root.dir = dir;
         }
     };
 
@@ -326,8 +394,8 @@ window.drSimpleUi = window.drSimpleUi || {};
    `display:none` class also achieves but an `opacity:0` one does not.
 
    Delegated from document, so a menu rendered by a later Blazor render works with
-   nothing re-bound. <UserWidget> does NOT use this — it holds its own state in C#,
-   because the frame has to work with scripting blocked.
+   nothing re-bound. The frame's own user menu does NOT use this: it holds its state
+   in C#, because the frame has to work with scripting blocked.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -483,22 +551,17 @@ window.drSimpleUi = window.drSimpleUi || {};
    drSimpleUi.palette.register([{ label, icon, group, note, run, keywords }])
    drSimpleUi.palette.open()      — or Ctrl/Cmd-K, which is wired for you
 
-   The scorer is a hand-rolled subsequence matcher, about thirty lines. No fuse.js:
-   this package loads nothing at runtime, and a fuzzy matcher good enough for a
-   command list is smaller than the argument for taking a dependency.
+   The scorer is ui._.score in 00-core.js, shared with the header search so the
+   two cannot rank the same query differently. Matches in `keywords` score below
+   the same match in the label, so a command is never outranked by one that
+   merely mentions the word.
 
-   Ranking, in the order it matters:
-     1. a prefix match on the label            — you typed the start of the name
-     2. a word-start match                     — "ai" finds "Approve Item"
-     3. a contiguous run inside the label
-     4. any subsequence, penalised by how spread out it is
-   Matches in `keywords` score below the same match in the label, so a command is
-   never outranked by one that merely mentions the word.
-
-   Everything is built from real elements the catalogue documents, so a palette
-   opened by this looks like the one on the Overlays page.
+   Everything is built from the classes in css-parts/64-palette-spotlight.css, so a
+   palette opened by this looks exactly like the one the catalogue documents.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
+
+    var score = ui._.score;
 
     var commands = [];
     var dialog = null;
@@ -506,36 +569,6 @@ window.drSimpleUi = window.drSimpleUi || {};
     var list = null;
     var shown = [];      // the currently visible commands, in ranked order
     var at = 0;          // index into shown
-
-    /* Returns a score, or -1 for no match. Higher is better. */
-    function score(needle, haystack, penalty) {
-        if (!needle) return 1;
-
-        var n = needle.toLowerCase();
-        var h = haystack.toLowerCase();
-
-        var idx = h.indexOf(n);
-        if (idx === 0) return 1000 - penalty;                       // prefix
-        if (idx > 0) {
-            // A run that starts a word beats one buried inside it.
-            var wordStart = idx === 0 || /[\s\-_/]/.test(h[idx - 1]);
-            return (wordStart ? 800 : 600) - idx - penalty;
-        }
-
-        // Subsequence. Track the span it occupies: a match spread across the whole
-        // string is a worse match than a tight one, which is what stops "ae"
-        // ranking "Approve … escalate" above "Archive entry".
-        var first = -1, last = -1, hi = 0;
-        for (var ni = 0; ni < n.length; ni++) {
-            var found = h.indexOf(n[ni], hi);
-            if (found < 0) return -1;
-            if (first < 0) first = found;
-            last = found;
-            hi = found + 1;
-        }
-        var span = last - first + 1;
-        return 400 - (span - n.length) - first - penalty;
-    }
 
     function rank(query) {
         var out = [];
@@ -645,7 +678,14 @@ window.drSimpleUi = window.drSimpleUi || {};
         close();
         // After close(), so a command that opens a modal is not fighting a dialog
         // that is still shutting.
-        if (c && typeof c.run === 'function') c.run();
+        if (!c) return;
+        // `run` first: a command that has both is doing something more than
+        // navigating, and `href` is then only there for a middle-click.
+        if (typeof c.run === 'function') c.run();
+        // `href` is what a command registered from C# uses. A callback cannot cross
+        // that boundary — the library never calls back into .NET — so navigation is
+        // the one action a serialisable command can carry.
+        else if (c.href) window.location.assign(c.href);
     }
 
     function build() {
@@ -738,6 +778,667 @@ window.drSimpleUi = window.drSimpleUi || {};
 
 })(window.drSimpleUi);
 
+/* ── 25-search.js ──────────────────────────────────────────────── */
+/* ── Header search, delegated ────────────────────────────────────────────────
+   The topbar's free-text box. Register what is searchable once, write the box in
+   markup, and the dropdown, the ranking, the keyboard and the clear button come
+   from here:
+
+     drSimpleUi.search.register([
+       { title, meta, code, tag, tone, href, keywords }, …
+     ]);
+
+     <div class="search">
+       <i class="ri-search-line search-icon"></i>
+       <input class="search-input" type="search" data-search placeholder="Search…">
+       <button class="search-clear" type="button" aria-label="Clear"><i class="ri-close-line"></i></button>
+     </div>
+
+   Only `title` is required. `href` is where choosing the result goes; an item
+   without one is inert unless it carries a `run` callback, which only a source
+   registered from JavaScript can have — the library never calls back into .NET.
+
+   THE INDEX IS CLIENT-SIDE, and that is the whole design. A per-keystroke round trip
+   is an app's decision to make, not a shared library's: it needs a debounce whose
+   length depends on the backend, a cancellation story for superseded keystrokes, and a
+   busy state. An app searching a database renders its own results with these classes
+   and leaves data-search off the input.
+
+   What this file writes to the DOM is one panel, appended to <body>. Nothing is
+   inserted into the box itself, so a framework that owns that subtree — Blazor
+   does — cannot revert it. The clear button is app markup shown by CSS on
+   :placeholder-shown, so it works with this script blocked.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    var score = ui._.score;
+
+    // Eight rows is what fits the panel's 360px before it scrolls. A ninth result
+    // nobody scrolls to is not a result; the count of what was cut is shown
+    // instead, because a silently truncated list reads as "that is everything".
+    var MAX = 8;
+
+    var items = [];
+    var panel = null;      // the dropdown, in <body>
+    var list = null;
+    var box = null;        // the .search the panel is currently anchored to
+    var input = null;
+    var shown = [];
+    var at = 0;
+    var total = 0;         // matches before the cut, for the "+N more" line
+
+    /* Every field, worst penalty last. A hit in the title always beats the same
+       hit in a secondary field, which is why the demotions are this coarse: they
+       are far apart, so no combination of a long field and a short one crosses
+       them.
+
+       THE SUBSEQUENCE MATCHER ONLY RUNS ON THE TITLE. A secondary field is long —
+       an example's keywords are every class it writes — and a subsequence over a
+       kilobyte of text matches nearly everything, at scores that mean nothing.
+       Requiring a real substring there is what stops an unrelated card example
+       outranking the page the reader asked for. */
+    function best(item, term) {
+        var s = score(term, item.title, 0);
+
+        var fields = [[item.code, 150], [item.keywords, 250], [item.meta, 350]];
+        for (var i = 0; i < fields.length; i++) {
+            var text = fields[i][0];
+            if (!text || text.toLowerCase().indexOf(term) < 0) continue;
+            var other = score(term, text, fields[i][1]);
+            if (other > s) s = other;
+        }
+        return s;
+    }
+
+    /* Multi-word queries are AND over the terms, scored as their mean — so a
+       two-word query and a five-word one are comparable, and an item matching
+       only half the words is not a result at all. The whole query is scored as
+       one string first: an item whose title contains the literal phrase must
+       beat one that merely holds both words somewhere. */
+    function rank(query) {
+        var q = (query || '').trim().toLowerCase();
+        if (!q) return [];
+
+        var terms = q.split(/\s+/);
+        var out = [];
+
+        for (var i = 0; i < items.length; i++) {
+            var s = best(items[i], q);
+
+            if (terms.length > 1) {
+                var sum = 0, all = true;
+                for (var t = 0; t < terms.length; t++) {
+                    var each = best(items[i], terms[t]);
+                    if (each < 0) { all = false; break; }
+                    sum += each;
+                }
+                // 50 below the phrase, so scattered words never tie with the
+                // phrase itself.
+                if (all) {
+                    var mean = sum / terms.length - 50;
+                    if (mean > s) s = mean;
+                }
+            }
+
+            if (s >= 0) out.push({ item: items[i], s: s, i: i });
+        }
+
+        // Stable: equal scores keep registration order, so the list does not
+        // reshuffle between keystrokes that do not change the ranking.
+        out.sort(function (a, b) { return b.s - a.s || a.i - b.i; });
+        return out.map(function (r) { return r.item; });
+    }
+
+    function el(tag, className, text) {
+        var node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined && text !== null) node.textContent = text;
+        return node;
+    }
+
+    function build() {
+        // dr-scroll, because the panel scrolls past eight rows and the OS default
+        // bar is the one thing on it that would not follow the theme.
+        panel = el('div', 'search-panel dr-scroll');
+        panel.id = 'dr-search-panel';
+        panel.hidden = true;
+
+        list = el('div');
+        list.id = 'dr-search-list';
+        // A real listbox owned by the input as a combobox. The claim is made only
+        // because the keyboard contract behind it is implemented in full below:
+        // arrows, Home/End, Enter, and the highlight moving while focus stays in
+        // the input.
+        list.setAttribute('role', 'listbox');
+        panel.appendChild(list);
+
+        document.body.appendChild(panel);
+
+        // mousedown, not click: the default would blur the input before the click
+        // lands, and the focusout handler would close the panel out from under the
+        // pointer. Preventing it keeps focus where the combobox pattern wants it.
+        panel.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    }
+
+    function place() {
+        if (!box || !panel || panel.hidden) return;
+        var r = box.getBoundingClientRect();
+        panel.style.top = (r.bottom + 6) + 'px';
+        panel.style.left = r.left + 'px';
+        panel.style.width = r.width + 'px';
+    }
+
+    function row(item, i) {
+        // An <a> when the result navigates, so the browser's own affordances come
+        // with it — middle-click, "open in new tab", and a framework router that
+        // intercepts internal links to navigate without a reload.
+        var node = el(item.href ? 'a' : 'div', 'search-item');
+        if (item.href) node.href = item.href;
+        node.setAttribute('role', 'option');
+        node.setAttribute('aria-selected', String(i === 0));
+        node.setAttribute('tabindex', '-1');
+        node.id = 'dr-search-item-' + i;
+        if (i === 0) node.classList.add('search-item--sel');
+
+        node.appendChild(el('span', 'search-item-title', item.title));
+
+        if (item.code || item.meta || item.tag) {
+            var meta = el('span', 'search-item-meta');
+            if (item.code) meta.appendChild(el('span', 'text-mono', item.code));
+            if (item.meta) meta.appendChild(el('span', null, item.meta));
+            if (item.tag) {
+                meta.appendChild(el(
+                    'span',
+                    'search-tag' + (item.tone === 'warn' ? ' search-tag--warn' : ''),
+                    item.tag));
+            }
+            node.appendChild(meta);
+        }
+
+        node.addEventListener('click', function (e) { pick(i, e); });
+        node.addEventListener('mouseenter', function () { highlight(i); });
+        return node;
+    }
+
+    function render(query) {
+        if (!panel) build();
+
+        var all = rank(query);
+        total = all.length;
+        shown = all.slice(0, MAX);
+        at = 0;
+        list.textContent = '';
+
+        if (!shown.length) {
+            // Says what was searched rather than just "no results": the reader
+            // needs to see the query was what they thought it was.
+            list.appendChild(el('div', 'search-status', 'Nothing matches “' + query + '”.'));
+            input.removeAttribute('aria-activedescendant');
+        } else {
+            for (var i = 0; i < shown.length; i++) list.appendChild(row(shown[i], i));
+            var cut = total - shown.length;
+            if (cut > 0) {
+                list.appendChild(el('div', 'search-status',
+                    cut + (cut === 1 ? ' more match' : ' more matches') + '. Keep typing to narrow it down.'));
+            }
+            input.setAttribute('aria-activedescendant', 'dr-search-item-0');
+        }
+
+        open();
+    }
+
+    function open() {
+        if (!panel || !panel.hidden) { place(); return; }
+        panel.hidden = false;
+        input.setAttribute('aria-expanded', 'true');
+        place();
+    }
+
+    function close() {
+        if (!panel || panel.hidden) return;
+        panel.hidden = true;
+        if (input) {
+            input.setAttribute('aria-expanded', 'false');
+            input.removeAttribute('aria-activedescendant');
+        }
+    }
+
+    function rows() { return list ? list.querySelectorAll('.search-item') : []; }
+
+    function highlight(next) {
+        var all = rows();
+        if (!all.length) return;
+
+        at = (next + all.length) % all.length;
+        for (var i = 0; i < all.length; i++) {
+            all[i].setAttribute('aria-selected', String(i === at));
+            all[i].classList.toggle('search-item--sel', i === at);
+        }
+        input.setAttribute('aria-activedescendant', all[at].id);
+        // Keeps the highlight in view without moving focus, which stays in the
+        // input so typing continues to work — the reason for aria-activedescendant
+        // rather than walking focus down the list.
+        all[at].scrollIntoView({ block: 'nearest' });
+    }
+
+    function pick(i, e) {
+        var item = shown[i];
+        // Resolved before close(), which is what a keyboard Enter needs: it has no
+        // event of its own to let through, so it clicks the row instead.
+        var node = (!e && item && item.href) ? list.querySelector('#dr-search-item-' + i) : null;
+        close();
+        // The query is spent. Left in place it would survive a router navigation
+        // and not a full page load, so the box would sometimes hold the last
+        // search and sometimes not — and re-focusing it would reopen results for
+        // the page the reader has just left. Focus is NOT taken back: it belongs
+        // to wherever the result went.
+        reset(input);
+        if (!item) return;
+
+        // `run` first: an item that has both is doing something more than
+        // navigating, and `href` is then only there for a middle-click.
+        if (typeof item.run === 'function') {
+            if (e) e.preventDefault();
+            item.run();
+            return;
+        }
+        // A real click on the <a> already navigates, and letting it through is what
+        // gives a router the chance to intercept it and skip the page load.
+        if (node && node.click) node.click();
+    }
+
+    /* Empties the box the way a user would, so a framework binding sees it.
+       Assigning .value alone is invisible to Blazor's @bind and to any other
+       listener — the event is the part that matters. */
+    function reset(target) {
+        if (!target || !target.value) return;
+        target.value = '';
+        target.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    /* The clear button and Escape: the box empties and the reader carries on
+       typing in it, so focus goes back. */
+    function clear(target) {
+        reset(target);
+        target.focus();
+        close();
+    }
+
+    function inside(node) {
+        if (!(node instanceof Element)) return false;
+        return !!(node.closest('.search') || node.closest('.search-panel'));
+    }
+
+    ui.search = {
+        /* Replaces the whole searchable list. An app calls this once, or whenever
+           what is searchable changes. */
+        register: function (list_) {
+            items = Array.isArray(list_) ? list_.slice() : [];
+            // A list that shrank while a panel was open would leave results on
+            // screen that no longer exist.
+            close();
+        },
+
+        /* Exposed for tests, and for an app that wants this ranking in its own UI.
+           Returns every match, best first — the panel's own cut is not applied. */
+        rank: rank,
+
+        close: close
+    };
+
+    /* Adopts a box as the active one and claims the combobox role on it. The role
+       is set here rather than asked of the markup because it is a promise about
+       behaviour — arrows, Enter, aria-activedescendant — and only this file can
+       keep it. An app whose box is never reached by this code keeps a plain
+       input, which is the honest markup for one. */
+    function adopt(target) {
+        input = target;
+        box = target.closest('.search') || target;
+        if (!panel) build();
+        input.setAttribute('role', 'combobox');
+        input.setAttribute('aria-controls', 'dr-search-list');
+        input.setAttribute('aria-autocomplete', 'list');
+    }
+
+    document.addEventListener('input', function (e) {
+        var target = e.target;
+        if (!(target instanceof Element) || !target.matches('[data-search]')) return;
+        // Nothing registered: the box is somebody else's, rendering its own results
+        // with these classes. Saying "nothing matches" over them would be a lie.
+        if (!items.length) return;
+
+        adopt(target);
+        if (!target.value.trim()) { close(); return; }
+        render(target.value);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        var target = e.target;
+        if (!(target instanceof Element) || !target.matches('[data-search]')) return;
+
+        if (e.key === 'Escape') {
+            // Escape on an open panel closes it; on a closed one it clears the box,
+            // so the same key always undoes the last thing that happened.
+            //
+            // preventDefault in BOTH branches, because a type="search" input has a
+            // native Escape that empties it. Without this the first Escape would
+            // close the panel and throw the query away in the same keystroke — the
+            // browser's default runs after this handler, not instead of it.
+            e.preventDefault();
+            if (panel && !panel.hidden) close();
+            else if (target.value) clear(target);
+            return;
+        }
+
+        if (!panel || panel.hidden || !rows().length) return;
+
+        if (e.key === 'ArrowDown') { e.preventDefault(); highlight(at + 1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); highlight(at - 1); }
+        else if (e.key === 'Home') { e.preventDefault(); highlight(0); }
+        else if (e.key === 'End') { e.preventDefault(); highlight(rows().length - 1); }
+        else if (e.key === 'Enter') { e.preventDefault(); pick(at, null); }
+    });
+
+    document.addEventListener('click', function (e) {
+        var target = e.target;
+        if (!(target instanceof Element)) return;
+
+        var button = target.closest('.search-clear');
+        if (!button) return;
+        var field = button.closest('.search');
+        var control = field && field.querySelector('.search-input, [data-search]');
+        if (control) { e.preventDefault(); clear(control); }
+    });
+
+    // Re-opening a box that still holds a query shows what it found last time,
+    // rather than an empty panel the reader has to retype into.
+    document.addEventListener('focusin', function (e) {
+        var target = e.target;
+        if (target instanceof Element && target.matches('[data-search]')) {
+            if (!items.length || !target.value.trim()) return;
+            adopt(target);
+            render(target.value);
+            return;
+        }
+        if (!inside(target)) close();
+    });
+
+    document.addEventListener('pointerdown', function (e) {
+        if (!inside(e.target)) close();
+    });
+
+    // The panel is fixed to a box that can move under it: a window resize, or a
+    // .search placed somewhere that scrolls. Capture, because the scroll happens
+    // on an ancestor and does not bubble.
+    window.addEventListener('resize', place);
+    document.addEventListener('scroll', place, true);
+
+})(window.drSimpleUi);
+
+/* ── 26-dropzone.js ──────────────────────────────────────────────── */
+/* ── Dropzone, delegated ─────────────────────────────────────────────────────
+   Opt-in wiring for .dropzone, because there is no CSS pseudo-class for "something
+   is being dragged over me" and it is the same fifteen lines in every app:
+
+     <label class="dropzone" data-dropzone>
+       <i class="ri-upload-cloud-2-line"></i>
+       <span>Drop files here, or click to choose</span>
+       <input type="file" multiple hidden />
+     </label>
+
+   Two things here are easy to get wrong, so they are done once.
+
+   First, `dragleave` fires when the pointer moves onto a CHILD of the zone, so an
+   "add on enter, remove on leave" pair flickers and then sticks in the wrong state as
+   soon as the zone has an icon and a label inside it. The fix is a depth counter, held
+   on the element so two zones on a page cannot confuse each other.
+
+   Second, `dragover` MUST have its default prevented or the browser refuses the
+   drop and then navigates to the dropped file — losing the page, which is a
+   spectacular failure for a form.
+
+   On drop the files are put into the zone's own <input type="file"> and a bubbling
+   `change` event is dispatched, so the app's existing handler — including Blazor's
+   InputFile — sees a dropped file exactly as it sees a chosen one, and there is
+   nothing extra to bind. Nothing here calls into .NET.
+
+   Delegated from document, so a zone rendered by a later render works unwired.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    var DEPTH = '_drDropDepth';
+    var OVER = 'dropzone--over';
+
+    function zoneOf(target) {
+        return target instanceof Element ? target.closest('.dropzone[data-dropzone]') : null;
+    }
+
+    function setOver(zone, on) {
+        zone.classList.toggle(OVER, on);
+        if (!on) zone[DEPTH] = 0;
+    }
+
+    ui.dropzone = {
+        // Clears the highlight on every zone. An app calls this if it tears a zone
+        // down mid-drag, when no dragleave or drop will ever arrive.
+        reset: function () {
+            var zones = document.querySelectorAll('.dropzone.' + OVER);
+            for (var i = 0; i < zones.length; i++) setOver(zones[i], false);
+        }
+    };
+
+    document.addEventListener('dragenter', function (e) {
+        var zone = zoneOf(e.target);
+        if (!zone) return;
+        e.preventDefault();
+        zone[DEPTH] = (zone[DEPTH] || 0) + 1;
+        zone.classList.add(OVER);
+    });
+
+    document.addEventListener('dragover', function (e) {
+        var zone = zoneOf(e.target);
+        if (!zone) return;
+        // Without this the drop is refused and the browser opens the file, replacing
+        // the page.
+        e.preventDefault();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+    });
+
+    document.addEventListener('dragleave', function (e) {
+        var zone = zoneOf(e.target);
+        if (!zone) return;
+        zone[DEPTH] = (zone[DEPTH] || 1) - 1;
+        if (zone[DEPTH] <= 0) setOver(zone, false);
+    });
+
+    document.addEventListener('drop', function (e) {
+        var zone = zoneOf(e.target);
+        if (!zone) return;
+        e.preventDefault();
+        setOver(zone, false);
+
+        var input = zone.querySelector('input[type="file"]');
+        if (!input || !e.dataTransfer || !e.dataTransfer.files.length) return;
+
+        try {
+            // Assigning a FileList is only possible through DataTransfer, and only
+            // this way round: input.files = e.dataTransfer.files works in Chromium
+            // and is not universally settable, so the list is rebuilt.
+            var transfer = new DataTransfer();
+            var files = e.dataTransfer.files;
+            var many = input.multiple ? files.length : Math.min(1, files.length);
+            for (var i = 0; i < many; i++) transfer.items.add(files[i]);
+            input.files = transfer.files;
+        } catch (err) {
+            return;    // no DataTransfer constructor: the drop simply does nothing
+        }
+
+        // Bubbling, so a delegated handler and Blazor's InputFile both see it. The
+        // app's change handler is the one place that knows what a file means here.
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+})(window.drSimpleUi);
+
+/* ── 27-output.js ──────────────────────────────────────────────── */
+/* ── Output pane, follow-tail ─────────────────────────────────────────────────
+   Opt-in wiring for .output, so a pane that is being appended to stays on the newest
+   line:
+
+     <ul class="output" data-follow>…</ul>
+
+   Following is a mode, not an action. The pane sticks to the bottom while the reader
+   is at the bottom, releases the moment they scroll up to read something, and
+   re-attaches when they scroll back down. Without the release, reading anything in a
+   live stream is impossible; without the re-attach, it never resumes and the reader
+   has to reload.
+
+   "At the bottom" is measured with a tolerance, because scrollHeight, clientHeight and
+   scrollTop are fractional on a scaled display and an exact comparison is false as
+   often as it is true.
+
+   A MutationObserver rather than a call the app makes after each append: the app is
+   Blazor, and the lines arrive from a render rather than from code that could call
+   anything. One observer per pane, created the first time the pane is seen.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    var BOUND = '_drFollowBound';
+    var TOLERANCE = 4;
+
+    function atBottom(pane) {
+        return pane.scrollHeight - pane.clientHeight - pane.scrollTop <= TOLERANCE;
+    }
+
+    function toBottom(pane) {
+        pane.scrollTop = pane.scrollHeight;
+    }
+
+    function bind(pane) {
+        if (pane[BOUND]) return;
+        pane[BOUND] = true;
+
+        // Starts attached, so a pane rendered with history already in it opens on the
+        // newest line rather than the oldest.
+        var following = true;
+        toBottom(pane);
+
+        pane.addEventListener('scroll', function () { following = atBottom(pane); });
+
+        var observer = new MutationObserver(function () {
+            if (following) toBottom(pane);
+        });
+        observer.observe(pane, { childList: true, subtree: true, characterData: true });
+    }
+
+    ui.output = {
+        /* Scrolls a pane to its newest line and re-attaches following. For a "jump to
+           latest" button, and for an app that appends outside the DOM the observer
+           watches. */
+        follow: function (pane) {
+            if (!pane) return;
+            bind(pane);
+            toBottom(pane);
+        },
+
+        /* Whether the reader is on the newest line — for showing that button only when
+           it would do something. */
+        isFollowing: function (pane) { return !!pane && atBottom(pane); }
+    };
+
+    function bindAll(root) {
+        var panes = (root || document).querySelectorAll('.output[data-follow]');
+        for (var i = 0; i < panes.length; i++) bind(panes[i]);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { bindAll(document); });
+    } else {
+        bindAll(document);
+    }
+
+    // A pane rendered later — by a Blazor render, by a modal opening — is picked up
+    // here. Watching the document for added panes is the same delegation the rest of
+    // this script uses, expressed the only way a scroll container allows.
+    new MutationObserver(function (records) {
+        for (var i = 0; i < records.length; i++) {
+            var added = records[i].addedNodes;
+            for (var j = 0; j < added.length; j++) {
+                if (added[j].nodeType !== 1) continue;
+                if (added[j].matches && added[j].matches('.output[data-follow]')) bind(added[j]);
+                bindAll(added[j]);
+            }
+        }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+
+})(window.drSimpleUi);
+
+/* ── 28-code-block.js ──────────────────────────────────────────────── */
+/* ── Code block, expand a clamped one ────────────────────────────────────────
+   A `.code-block--clamped` is bounded to --code-clamp and scrolls. This is the
+   control that opens it in full:
+
+     <div class="code-block code-block--clamped">
+       <pre tabindex="0"><code>…</code></pre>
+       <div class="code-block-lip">
+         <button class="code-block-expand" data-code-expand aria-expanded="false">
+           <i class="ri-arrow-down-s-line"></i> Show all 42 lines
+         </button>
+       </div>
+     </div>
+
+   The clamp is CSS, so the block is bounded and scrollable with scripting blocked;
+   this only removes the bound. `aria-expanded` moves with it, and the label swaps to
+   the collapse wording from `data-code-collapse` if one is given.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    var CLAMPED = 'code-block--clamped';
+
+    function labelFor(button, expanded) {
+        var other = expanded ? button.getAttribute('data-code-collapse')
+                             : button.getAttribute('data-code-expand-label');
+        if (!other) return;
+        var text = button.querySelector('span');
+        if (text) text.textContent = other;
+    }
+
+    ui.codeBlock = {
+        /* Expands or collapses a block. Exposed so a "collapse all" control, or an app
+           that renders its own lip, does not have to reproduce the class name. */
+        toggle: function (block, expanded) {
+            if (!block) return;
+            var open = expanded === undefined ? block.classList.contains(CLAMPED) : expanded;
+            block.classList.toggle(CLAMPED, !open);
+
+            var button = block.querySelector('[data-code-expand]');
+            if (button) {
+                button.setAttribute('aria-expanded', String(open));
+                labelFor(button, open);
+            }
+        }
+    };
+
+    document.addEventListener('click', function (e) {
+        var button = e.target.closest('[data-code-expand]');
+        if (!button) return;
+
+        var block = button.closest('.code-block');
+        if (!block) return;
+
+        e.preventDefault();
+        ui.codeBlock.toggle(block);
+
+        // A collapse leaves the reader looking at the middle of the block. Put them
+        // back at its top, which is where the collapsed view starts.
+        if (block.classList.contains(CLAMPED)) {
+            var pre = block.querySelector('pre');
+            if (pre) pre.scrollTop = 0;
+        }
+    });
+
+})(window.drSimpleUi);
+
 /* ── 30-markdown.js ──────────────────────────────────────────────── */
 /* ── Markdown editor ─────────────────────────────────────────────────────────
    Toolbar + textarea + live preview inside one .md-editor root. Blazor owns the
@@ -745,7 +1446,11 @@ window.drSimpleUi = window.drSimpleUi || {};
    edits mutate the textarea and dispatch a bubbling 'input' event so the binding
    picks them up — this code never calls back into .NET.
 
-   init() is idempotent per root, since Blazor re-renders its host.
+   init() is idempotent per editor, since Blazor re-renders its host. Call it with no
+   argument to wire every .md-editor in the document, with a container to wire the ones
+   inside it, or with an editor to wire exactly that one — an app renders editors and
+   then calls init(), and does not have to know how many there are or hold a reference
+   to each. From C#: IDrSimpleUi.InitMarkdownAsync().
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -754,6 +1459,20 @@ window.drSimpleUi = window.drSimpleUi || {};
         _seq: 0,
 
         init: function (root) {
+            root = root || document;
+            // An editor initialises itself; anything else initialises the editors
+            // inside it. Each one is wired against its OWN root, so two editors on a
+            // page get separate radio groups and separate listeners — which they would
+            // not if a shared container were treated as the root.
+            var editors = root.matches && root.matches('.md-editor')
+                ? [root]
+                : root.querySelectorAll('.md-editor');
+
+            for (var i = 0; i < editors.length; i++) this._initOne(editors[i]);
+        },
+
+        /* One editor. Private: init() is the entry point. */
+        _initOne: function (root) {
             if (!root || root.dataset.mdReady === '1') return;
             root.dataset.mdReady = '1';
             var self = this;
@@ -951,10 +1670,96 @@ window.drSimpleUi = window.drSimpleUi || {};
         return window.innerWidth || document.documentElement.clientWidth || 0;
     };
 
+    /* Scrolls the frame's page column back to the top.
+
+       `.page` is the only scroll container in the frame, so the window's own scroll
+       position is always 0 and nothing the router does moves it. Navigating therefore
+       leaves the new page at the previous page's offset — halfway down, on a route the
+       reader has just arrived at. Call this from a LocationChanged handler.
+
+       Falls back to the window for a page that is not inside the frame, such as a
+       bare-layout sign-in screen. */
+    ui.scrollPageTop = function () {
+        var page = document.querySelector('.page');
+        if (page) { page.scrollTop = 0; return; }
+        try { window.scrollTo(0, 0); } catch (e) { /* ignore */ }
+    };
+
     ui.getItem = function (k) { return readRaw(k); };
 
     ui.setItem = function (k, value) {
         try { localStorage.setItem(k, value); } catch (e) { /* ignore */ }
+    };
+
+})(window.drSimpleUi);
+
+/* ── 41-spotlight.js ──────────────────────────────────────────────── */
+/* ── Spotlight positioning ───────────────────────────────────────────────────
+   `.spotlight-hole` dims the page except one box. The box is what only the browser
+   knows, so this measures a target and writes the four values onto the hole:
+
+     drSimpleUi.spotlight.at(hole, target)
+     drSimpleUi.spotlight.at(hole, target, { pad: 6 })
+
+   The steps, the copy and the order are the app's. This is deliberately not a tour:
+   a tour is a sequence with its own state, and a library that owned it would also own
+   what "next" means, whether a step can be skipped, and where the bubble goes — all
+   of which differ per app.
+
+   The hole is positioned against its offset parent, which has to be positioned. Pass
+   the tip too and it is placed under the hole, flipped above when there is no room.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    function offsetParentRect(el) {
+        var parent = el.offsetParent || document.body;
+        return parent.getBoundingClientRect();
+    }
+
+    ui.spotlight = {
+        /* Puts `hole` over `target`. `pad` grows the hole beyond the target so the
+           ring does not sit on its edge; it defaults to 4px. Returns the rectangle
+           used, in the hole's own coordinate space, so an app can place a bubble
+           without measuring twice. */
+        at: function (hole, target, options) {
+            if (!hole || !target) return null;
+
+            var pad = (options && typeof options.pad === 'number') ? options.pad : 4;
+            var box = target.getBoundingClientRect();
+            var origin = offsetParentRect(hole);
+
+            var rect = {
+                top: box.top - origin.top - pad,
+                left: box.left - origin.left - pad,
+                width: box.width + pad * 2,
+                height: box.height + pad * 2
+            };
+
+            hole.style.top = rect.top + 'px';
+            hole.style.left = rect.left + 'px';
+            hole.style.width = rect.width + 'px';
+            hole.style.height = rect.height + 'px';
+            // The ring follows the target's own rounding, so a pill-shaped button is
+            // not highlighted with a rectangle.
+            hole.style.borderRadius = getComputedStyle(target).borderRadius;
+
+            return rect;
+        },
+
+        /* Places `tip` under the rectangle `at()` returned, or above it when the
+           viewport has no room below. */
+        tipAt: function (tip, rect, gap) {
+            if (!tip || !rect) return;
+
+            var space = gap === undefined ? 12 : gap;
+            tip.style.left = rect.left + 'px';
+            tip.style.top = (rect.top + rect.height + space) + 'px';
+
+            var below = tip.getBoundingClientRect();
+            if (below.bottom > window.innerHeight) {
+                tip.style.top = (rect.top - below.height - space) + 'px';
+            }
+        }
     };
 
 })(window.drSimpleUi);
@@ -1012,7 +1817,7 @@ window.drSimpleUi = window.drSimpleUi || {};
 
 /* ── 51-toast.js ──────────────────────────────────────────────── */
 /* ── Toasts ──────────────────────────────────────────────────────────────────
-   drSimpleUi.toast('Approved INC0031209', { kind: 'go' })
+   drSimpleUi.toast('Dispatched ORD-4182', { kind: 'go' })
 
    For confirming something that already happened. Anything the user must act on is
    an .alert, which stays until the state changes — a toast that carries a required
@@ -1020,6 +1825,12 @@ window.drSimpleUi = window.drSimpleUi || {};
 
    The stack is created on first use and reused, so an app renders nothing and
    positions nothing.
+
+   It is found by `data-dr-toasts`, not by `.toast-stack`, and that distinction is
+   load-bearing: only a stack this code created is appended to, re-labelled or removed.
+   Matching the class would adopt a stack the app wrote for its own reasons — a
+   server-rendered one, an example of the markup on a documentation page — append into
+   it wherever it sits, overwrite its aria-live, and remove it with the last toast.
 
    Announced through aria-live on the stack rather than by moving focus: stealing
    focus to say "saved" interrupts whatever the user is typing. `polite` for the
@@ -1035,11 +1846,16 @@ window.drSimpleUi = window.drSimpleUi || {};
         info: 'ri-information-line'
     };
 
+    var OWN = '[data-dr-toasts]';
+
     function stack() {
-        var el = document.querySelector('.toast-stack');
+        var el = document.querySelector(OWN);
         if (!el) {
             el = document.createElement('div');
             el.className = 'toast-stack';
+            // The marker is what makes this OURS: only a stack the library created is
+            // ever appended to, re-labelled, or removed.
+            el.setAttribute('data-dr-toasts', '');
             // The region is a status log, not a landmark to navigate to.
             el.setAttribute('role', 'status');
             el.setAttribute('aria-live', 'polite');
@@ -1123,10 +1939,9 @@ window.drSimpleUi = window.drSimpleUi || {};
    Replaces window.confirm(), which blocks the thread, cannot be styled, and in
    Blazor Server blocks the circuit while it is open.
 
-   No fallback for a browser without <dialog>. The supported floor is Firefox ESR 140
-   and current Chrome, Edge and Safari, all of which have had it for years — a
-   fallback path would be untested code that only ever runs where the library is not
-   supported anyway.
+   No fallback for a browser without <dialog>. The supported floor is Chromium —
+   current Chrome and Edge — which has had it for years; a fallback path would be
+   untested code that only ever runs where the library is not supported anyway.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 

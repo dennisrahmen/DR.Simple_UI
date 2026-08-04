@@ -3,47 +3,53 @@
 ## Two tiers
 
 **Tier 1 — the frame.** Shell, sidebar and nav, header, user widget. Layout chrome that is
-pixel-identical in every app and is not restyled per project. Shipped as CSS classes and, from `0.2.0`,
-as Razor components that emit exactly those classes.
+pixel-identical in every app and is not restyled per project. Shipped as CSS classes.
 
 **Tier 2 — the paint.** Tables, forms, cards, badges, buttons, alerts. Shipped as semantic CSS classes.
 Pages write plain HTML and apply the classes.
 
 Content UI is always a class, never a component. There is no `<DataTable>` and there will not be one.
 
-Which tier a thing belongs in: if anyone needs to adjust the inside of it, it is a class. If not, it is a
-component.
+Both tiers are CSS classes. The package ships no components at all.
 
-## The frame components
+## The frame
 
-| Component | Emits | Notes |
-|---|---|---|
-| `AppShell` | `.layout > .content > .page`, or `.bare-layout > .page` with `Bare` | `.page` is the only scroll container; do not wrap it in another |
-| `Sidebar` | `aside.sidebar`, `.brand`, `nav.nav > .nav-scroll`, `.nav-tools` | `Collapsed` adds `.collapsed` and nothing else — the rail is pure CSS |
-| `NavItem` | `a.nav-link`, `.nav-link-tool`, `.nav-count`, `.nav-link-ext` | Tracks the address and sets `aria-current="page"` as well as `active` |
-| `AppHeader` | `header.topbar` with `.topbar-spacer` between `Start` and the child content | The spacer is always emitted, so it cannot be forgotten |
-| `UserWidget` | `.user-widget`, `.user-trigger`, `.user-avatar`, `.user-info`, `.user-signout`, `.user-menu` | Trigger is a `<button>` only when there is a `Menu` to open |
+The frame is CSS classes: `.layout > .content > .page`, `aside.sidebar` with `.brand`, `nav.nav >
+.nav-scroll` and `.nav-tools`, `header.topbar` with its `.topbar-spacer`, `.user-widget`. The markup is
+on the catalogue's *Shell and nav* page, and the catalogue application writes exactly that markup by hand
+— so a regression in the frame shows up on the documentation site first, and `FrameMarkupTests` fails
+if the app names a class the stylesheet does not define or one the page does not show.
 
-The components and the hand-written markup on the catalogue's *Shell & nav* page are interchangeable,
-and `Components/ClassContractTests` fails if they diverge or if a component names a class the stylesheet
-does not define.
+`.page` is the only scroll container; do not wrap it in another. `.collapsed` on `.sidebar` gives the
+56px rail and changes nothing else, because the rail is pure CSS.
 
-Three things that decide how these are written:
+### The C# surface
 
-- **`NavItem`, never `NavLink`.** `Microsoft.AspNetCore.Components.Routing.NavLink` is in scope in
-  every Blazor app. A component called `NavLink` here would become an ambiguous reference the moment an
-  app added `@using DR.Simple_UI.Components`, breaking every existing `<NavLink>` in it.
-- **Every component declares a `Class` parameter.** Blazor matches parameters case-insensitively, so
-  `Class` also captures a plain `class="…"` written at the call site and appends it. Without it,
-  `<Sidebar class="x">` would land in `AdditionalAttributes` and replace `.sidebar`, breaking the
-  layout with no error.
-- **No component requires JavaScript.** The user widget's dropdown is opened by Blazor state and
-  dismissed by a scrim element and an `@onkeydown`, not by `DR.Simple_UI.js`.
+Three things the package ships that markup cannot express:
 
-The only package dependency is `Microsoft.AspNetCore.Components.Web`, which is where `ComponentBase`
-and `NavigationManager` live. It is a `PackageReference` rather than a `FrameworkReference` because the
-shared framework is not available to a Blazor WebAssembly consumer. A test fails on any third-party
-package reference.
+| Member | Purpose |
+|---|---|
+| `ActiveLink.IsActive` / `CssClass` / `AriaCurrent` | Which navigation link is the current page |
+| `IDrSimpleUi` | Typed access to `drSimpleUi` — toasts, confirmations, clipboard, settings, palette, search, the Markdown editor |
+| `AddDrSimpleUi()` | Registers the above, scoped to the circuit |
+
+`ActiveLink` drops the query string and the fragment, treats a trailing slash as insignificant, and
+requires a prefix match to end on a path segment, so `/queue` does not light up on `/queue-archive`. The
+link to the app root needs `NavLinkMatch.All`. The helpers are pure and do not subscribe to
+`LocationChanged`: a page re-rendered by navigation picks up the new state for free, and navigation
+markup that survives navigation subscribes itself — **in the component that renders the links**, not in
+the layout around it. Blazor only hands new parameters to a child whose parameters differ, so a
+subscription one level too high re-renders the layout and leaves the links reading the previous address.
+
+`IDrSimpleUi` is `IJSRuntime` calls, so none of it can run during prerendering. Two members of the
+JavaScript surface have no wrapper because neither can cross the boundary: `toast()` returns a remover
+function, and `tips.gate` is a predicate an app assigns.
+
+The only package dependency is `Microsoft.AspNetCore.Components.Web`, which is where
+`NavigationManager`, `NavLinkMatch` and `IJSRuntime` live. It is a `PackageReference` rather than a
+`FrameworkReference` because the shared framework is not available to a Blazor WebAssembly consumer. A
+test fails on any third-party package reference, and `build/verify-package.sh` asserts the packed
+dependency list is exactly that one name.
 
 ## Responsive frame
 
@@ -73,7 +79,7 @@ The shipped stylesheet is entirely inside cascade layers, declared up front:
 ```
 
 **Your stylesheet is unlayered, so it beats all of them, whatever the specificity.** That is the point:
-overriding the library no longer needs a longer selector than the library's, and there is nothing to
+overriding the library never needs a longer selector than the library's, and there is nothing to
 out-specify.
 
 | Layer | Parts | Holds |
@@ -90,21 +96,19 @@ tests hold the model up: one fails if any rule escapes a layer — an unlayered 
 outrank the whole library *and* be unreachable from your stylesheet — and one fails if a layer is used
 without being in the ordering statement, since an undeclared layer sorts after every declared one.
 
-### Three consequences worth knowing before upgrading
+### Three things it means for your own stylesheet
 
-**A token you set at bare `:root` now also beats the library's `[data-theme="light"]` value for it.**
-Before layers, the library's light block won on specificity. Set both blocks, as the rebrand recipe
-shows — the recipe has always shown both, so a rebrand that follows it is unaffected.
+**A token you set at bare `:root` beats the library's `[data-theme="light"]` value for it.** Set both
+blocks, as the rebrand recipe shows.
 
-**An unconditional rule of yours now beats a library rule that used to outrank it.** The clearest case
-is compact density: an app still carrying its own `.table th, .table td { padding: 8px 12px }` from
-before the extraction used to lose to `:root[data-density="compact"] .table td` at (0,3,1). It now
-wins, and compact density stops tightening its tables. The fix is to delete the copied rule, which was
-the intention anyway.
+**An unconditional rule of yours beats a library rule at any specificity.** The case to check is
+compact density: an app carrying its own `.table th, .table td { padding: 8px 12px }` wins over
+`:root[data-density="compact"] .table td`, so compact density stops tightening its tables. Delete the
+copied rule.
 
-**`!important` is now actively harmful, not merely unnecessary.** Layer order *inverts* for important
-declarations, so an `!important` inside `dr.paint` becomes harder for you to override than an ordinary
-declaration would be. The library uses none, and a test enforces it.
+**`!important` is actively harmful here, not merely unnecessary.** Layer order *inverts* for important
+declarations, so an `!important` inside `dr.paint` is harder for you to override than an ordinary
+declaration. The library uses none, and a test enforces it.
 
 ## The token contract
 
@@ -126,7 +130,7 @@ declaration would be. The library uses none, and a test enforces it.
 Theme differences are expressed only as token values, so the light and colour-blind blocks contain no
 selector overrides and CSS load order does not affect them.
 
-The full token list is on the [Tokens](https://github.dennisrahmen.de/catalogue/tokens.html) catalogue
+The full token list is on the [Tokens](https://simpleui.dennisrahmen.dev/tokens) catalogue
 page, which reads its values from the live stylesheet.
 
 Every token also ships as JSON, for a design tool that needs the values without parsing CSS:
@@ -135,7 +139,7 @@ Every token also ships as JSON, for a design tool that needs the values without 
 |---|---|
 | In a running app | `_content/DR.Simple_UI/tokens/DR.Simple_UI.tokens.json` |
 | In the repo, and in the restored package | `wwwroot/tokens/DR.Simple_UI.tokens.json` |
-| Hosted | <https://github.dennisrahmen.de/tokens/DR.Simple_UI.tokens.json> |
+| Hosted | <https://simpleui.dennisrahmen.dev/_content/DR.Simple_UI/tokens/DR.Simple_UI.tokens.json> |
 
 `blocks` is an **ordered** array of `{ media, selector, tokens }` — merge them in order, applying a block
 when its media condition matches and its selector matches the document root. It is not a map keyed by
@@ -145,12 +149,36 @@ silently lose two of them, and the media condition is part of the contract.
 Generated by `build/export-tokens.sh` from the same parts as the stylesheet;
 `The_token_export_matches_the_stylesheet` fails on drift, and `verify-package.sh` asserts the path ships.
 
+### One control height
+
+`--control-height-sm`, `--control-height` and `--control-height-lg` (28, 36 and 44px) are the height of
+everything that can sit in a row with another control: `.btn`, `.btn-icon` (which is also its width),
+`.form-input`, `.form-select`, `.form-value-display`, `.input-group`, `.stepper`, `.search-input` and
+`.chip`. Each has an `-sm` and an `-lg` variant taking the matching token. A badge does not: it is a
+label rather than a target, so it has its own type scale in `31-badges.css`.
+
+One token per tier, not a number per control. `ControlRowTests` measures the whole set in a browser at
+all three tiers, because whether a `min-height` *binds* is a question about padding and line boxes that
+no source scan can answer.
+
+Two consequences for a rule that sets a control's height:
+
+- Keep the control's own natural height **under** the token, or the token stops deciding anything and
+  the control silently grows past it.
+- If a wrapper draws the border — `.input-group` does — the wrapper takes the height and the children
+  give theirs up, or the wrapper ends up two border-pixels taller than a bare control.
+
 ## Theming
 
-`data-theme="light"`, `data-cvd="1"` and `data-density="compact"` are set on `<html>`.
+`data-theme="light"`, `data-cvd="1"`, `data-density="compact"` and `dir` are set on `<html>`.
 
 - `DR.Simple_UI.boot.js` applies them from `localStorage` before first paint.
 - `drSimpleUi.settings.save('theme', 'light')` updates them at runtime.
+
+`dir` and `lang` are the two that are written **only from a stored choice**. Both are attributes the host
+page declares about itself, so with nothing stored they are left exactly as the document wrote them — the
+library never infers a document's direction or language from the browser's. Never derive `lang` from
+`navigator.language`: it relabels an English page as German for anybody visiting with a German browser.
 
 `data-theme` is **always** present, set to `light` or `dark`, never absent. Consuming apps select on
 `:root[data-theme="light"]` to brand the light palette, so that selector has to match whenever the light
@@ -181,19 +209,19 @@ A panel's primary action is a filled button in its semantic colour.
 
 ## Z-order
 
-| Layer | z-index | In the stylesheet |
+| Layer | z-index | What sits there |
 |---|---|---|
-| Local stacking inside a component | 0, 1 | not the overlay scale — a sticky table header above its own rows |
-| Topbar | 60 | yes |
-| User widget | 200 | yes |
-| Collapsed-rail flyout | 400 | yes |
-| Drawer scrim | 480 | the catalogue's own drawer |
-| Drawer panel | 490 | the catalogue's own drawer |
-| Modal backdrop | 500 | yes |
-| Spotlight | 510 | yes — `.spotlight-hole`, `.spotlight-tip` |
-| Popover, dropdown menu | 550 | yes — `.menu`, and the user widget's own panel. `.popover` is not shipped |
-| Toast | 600 | yes — `.toast-stack` |
-| Hover hints, reconnect banner | 1000 | yes |
+| Local stacking inside a component | 0, 1 | **not the overlay scale** — a sticky table header above its own rows |
+| Topbar | 60 | `.topbar`, `.fab` |
+| User widget | 200 | `.user-widget` |
+| Collapsed-rail flyout | 400 | `.sidebar.collapsed [data-tip]:hover::after` |
+| Drawer scrim | 480 | `.drawer-scrim` |
+| Drawer panel | 490 | `.drawer` |
+| Modal backdrop | 500 | `.modal-backdrop` |
+| Spotlight | 510 | `.spotlight-hole`, `.spotlight-tip` |
+| Popover, dropdown menu | 550 | `.menu`, `.search-panel`, `.popover`, the user widget's own panel |
+| Toast | 600 | `.toast-stack` |
+| Hover hints, reconnect banner | 1000 | `.dr-tip`, `#components-reconnect-modal`, `.skip-link` |
 
 A new overlay uses one of these values. `Every_z_index_comes_from_the_documented_scale` fails on any
 other, so adding a layer means adding it to this table first.
@@ -206,7 +234,10 @@ Two things the flat list does not say:
 - **The top layer ignores z-index entirely.** An element promoted by `popover` or `dialog.showModal()`
   paints above every non-top-layer element regardless of this scale, and among top-layer elements the
   order is promotion order, not z-index. Once a family moves to the top layer, its row here describes
-  the fallback path only.
+  the fallback path only. `.popover` and the command palette are both already there.
+- **The collapsed rail's flyout is `position: fixed`**, not absolute, because `.nav-scroll` scrolls and
+  would otherwise clip it. It is still on rung 400: fixed positioning escapes an ancestor's `overflow`,
+  not the z-order.
 
 ## JavaScript
 
@@ -215,24 +246,38 @@ Two things the flat list does not say:
 | Member | Purpose |
 |---|---|
 | `configure(options)` | Storage prefix, notification icon, language cookie |
-| `settings` | `load()`, `save(key, value)`, `apply()` |
+| `settings` | `load()`, `save(key, value)`, `apply()`. Keys: `theme`, `cvd`, `density`, `dir`, `lang` |
 | `tips` | Hover-hint engine. Set `tips.gate = el => bool` to suppress hints conditionally |
-| `toast(message, options)` | Creates and reuses `.toast-stack`. Returns its own remover; `timeout: 0` stays until dismissed |
+| `toast(message, options)` | Creates and reuses its own `.toast-stack[data-dr-toasts]`, and leaves any stack the app wrote alone. Returns its own remover; `timeout: 0` stays until dismissed |
 | `confirm(options)` | A `<dialog>.showModal()` confirmation. Returns a promise; `danger: true` reddens confirm and focuses cancel |
 | `menu` | Delegated dropdowns. `closeAll()`, for after a navigation |
 | `tabs` | Delegated tabs with the arrow/Home/End keyboard contract. `select(tabOrPanelId)` |
 | `palette` | Command palette, opened by Ctrl/⌘-K once commands exist: `register(list)`, `open()`, `close()`, `rank(query)` |
-| `md` | Markdown editor: `init(root)`, `apply(textarea, cmd)`, `render(src)` |
-| `copyText`, `openTab`, `viewportWidth` | Interop helpers |
+| `search` | Header search behind a `data-search` input: `register(items)`, `rank(query)`, `close()` |
+| `dropzone` | Delegated drag-and-drop for a `data-dropzone` zone: maintains `.dropzone--over`, hands a dropped file to the zone's own `input[type=file]` as a `change` event. `reset()` clears the highlight |
+| `output` | Follow-tail for a `data-follow` output pane: sticks to the newest line, releases when the reader scrolls up, re-attaches when they scroll back down. `follow(pane)`, `isFollowing(pane)` |
+| `codeBlock` | `toggle(block, expanded?)` — expands or collapses a `.code-block--clamped`. Delegated from `[data-code-expand]` |
+| `spotlight` | `at(hole, target, { pad })` positions `.spotlight-hole` over an element and returns the rectangle; `tipAt(tip, rect, gap)` places the bubble, flipping above when there is no room below. The steps stay the app's |
+| `md` | Markdown editor: `init(root?)` wires every `.md-editor` in `root` (the document by default) and is idempotent per editor; `apply(textarea, cmd)`, `render(src)` |
+| `copyText`, `openTab`, `viewportWidth`, `scrollPageTop` | Interop helpers. `scrollPageTop` resets `.page`, which is the only scroll container the frame has and therefore the one navigation leaves where it was |
 | `getItem`, `setItem` | `localStorage` access |
 | `requestNotify`, `notify`, `ping` | Desktop notifications and an audio ping |
 
 `ui._` also exists and is **private** — shared closure state the parts need. It may change in a patch.
 
-Four behaviours are delegated from `document`, so content rendered after load is covered without
-re-wiring: hover hints, `data-menu-toggle`, `data-tabs`, and `data-copy` / `data-copy-target`. The last
-has no member on the global — the attribute is the whole API.
-Elements inside `.sidebar` are skipped — the collapsed rail has a CSS flyout instead.
+Five behaviours are delegated from `document`, so content rendered after load is covered without
+re-wiring: hover hints, `data-menu-toggle`, `data-tabs`, `data-search`, and `data-copy` /
+`data-copy-target`. The last has no member on the global — the attribute is the whole API.
+Elements inside `.sidebar` are skipped by the hover hints — the collapsed rail has a CSS flyout instead.
+
+`palette` and `search` rank with the same matcher, `ui._.score`. Two copies would drift, and the drift
+would be found by someone seeing one query ordered two ways on one page.
+
+`search`'s index lives in the browser, which is what makes it suitable for a fixed, known set — an
+app's pages, reports and settings screens — and unsuitable for a database. An app that needs a query
+per keystroke owns that itself: the debounce length, cancelling a superseded keystroke and the busy
+state are all decisions about *its* backend. It renders `.search-panel` with the same classes and
+leaves `data-search` off, and this file stays out of the way.
 
 `drSimpleUi.md.render()` escapes HTML before re-introducing a fixed set of Markdown constructs, and
 restricts link hrefs to `http:`, `https:`, `mailto:` and root-relative paths. Sanitise untrusted input
@@ -263,14 +308,22 @@ stylesheet nobody can read in DevTools or in the restored package. Not worth 2%.
 one here: baselines rendered on Windows do not match the Linux CI runner (font rasterisation and
 scrollbar metrics differ), so the suite either fails constantly or gets a tolerance wide enough to
 miss real changes. The regressions this library actually suffers are **cascade** regressions — a class
-that loses a property to a more specific rule and silently does nothing. Three of those were found
-during 0.3.0, and all three were found by reading `getComputedStyle`, not by looking. So the browser
-tests assert computed values.
+that loses a property to a more specific rule and silently does nothing. Those are found by reading
+`getComputedStyle`, never by looking, which is why the browser tests assert computed values.
 
-**No CSS anchor positioning.** Firefox ESR 140 has none of it, and it is the floor this library
-supports. An anchored popover would work in Chrome and float in the middle of the viewport in Firefox
-ESR — worse than not shipping it. `.menu-anchor` covers the anchored case with `position: relative`,
-which needs nothing measured.
+**CSS anchor positioning, deliberately.** The floor is Chromium — current Chrome and Edge — so
+`anchor-name`, `anchor-scope`, `position-area` and `align-self: anchor-center` are all available and
+two things depend on them: the collapsed rail's hover flyout and `.popover`.
+
+The rail is the one that could not be done any other way. It scrolls, and **a scroll container clips
+both axes** — there is no combination of `overflow` values that scrolls vertically and lets a child out
+sideways, so a flyout inside `.nav-scroll` is either clipped or the rail cannot scroll. `position: fixed`
+takes the viewport as its containing block and escapes the clip; anchor positioning is then what tells
+it where to go without measuring anything in JavaScript.
+
+`.menu` is **not** anchored this way and should stay that way: `.menu-anchor` uses `position: relative`,
+needs no measurement, and works in any engine. Use anchor positioning where the alternative is a
+measurement, not as a default.
 
 **Scroll-driven animations are avoided** for a sharper reason: they fail *incorrectly*. A browser that
 drops `animation-timeline` leaves the rest of the `animation` shorthand running, so the animation plays

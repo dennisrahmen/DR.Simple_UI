@@ -13,11 +13,8 @@ public class ShippedPathTests
     [InlineData("wwwroot/css/DR.Simple_UI.css")]
     [InlineData("wwwroot/js/DR.Simple_UI.js")]
     [InlineData("wwwroot/js/DR.Simple_UI.boot.js")]
-    [InlineData("wwwroot/catalogue/index.html")]
-    [InlineData("wwwroot/catalogue/catalogue.css")]
-    [InlineData("wwwroot/catalogue/catalogue.js")]
-    [InlineData("wwwroot/catalogue/favicon.ico")]
-    [InlineData("wwwroot/catalogue/logo.png")]
+    // build/verify-package.sh has always required this; nothing here pinned it.
+    [InlineData("wwwroot/tokens/DR.Simple_UI.tokens.json")]
     [InlineData("wwwroot/lib/remixicon/remixicon.css")]
     [InlineData("wwwroot/lib/remixicon/remixicon.woff2")]
     [InlineData("wwwroot/lib/remixicon/LICENSE")]
@@ -28,5 +25,19 @@ public class ShippedPathTests
         // 404 there, so the names are part of the public contract.
         var full = Path.Combine(Assets.ProjectDir, relativePath.Replace('/', Path.DirectorySeparatorChar));
         Assert.True(File.Exists(full), $"Missing shipped asset: {relativePath}");
+    }
+
+    [Fact]
+    public void The_package_carries_no_catalogue()
+    {
+        // The catalogue is an application now, not a package asset. A
+        // wwwroot/catalogue/ reappearing means the split has been undone by
+        // accident — most plausibly by someone restoring a deleted file.
+        // build/verify-package.sh asserts the same thing against a real .nupkg.
+        var catalogue = Path.Combine(Assets.ProjectDir, "wwwroot", "catalogue");
+
+        Assert.False(Directory.Exists(catalogue),
+            "The catalogue is src/DR.Simple_UI.Catalogue, a hosted app. Nothing under "
+            + "wwwroot/catalogue/ ships in the package.");
     }
 }

@@ -17,8 +17,8 @@
      · Borders go to full strength and dividers become real lines. Most of what makes
        this library low-contrast is not the text — it is the 3%-alpha surfaces and the
        6%-alpha dividers, which disappear entirely for anybody who needs this mode.
-     · Muted text stops being muted. --muted at 4.39:1 was the worst measured pair in
-       the light theme even after the audit; here it goes to the body colour.
+     · Muted text stops being muted. --muted is the lowest-contrast pair the light
+       theme ships, at 4.39:1; here it goes to the body colour.
      · Translucent tints become opaque. A 12% tint over an unknown surface has an
        unknown contrast, which is the one thing this mode cannot have.
      · Shadows are NOT removed. They are the only depth cue left once every surface
@@ -66,6 +66,7 @@
     --info-bg:     #172554;
     --info-border: #93c5fd;
     --info-fg:     #bfdbfe;
+    --info-solid:  #93c5fd;
     --secret-bg:     #2e1065;
     --secret-border: #c4b5fd;
     --secret-fg:     #ddd6fe;
@@ -126,6 +127,7 @@
     --info-bg:     #dbeafe;
     --info-border: #1e40af;
     --info-fg:     #1e3a8a;
+    --info-solid:  #1e3a8a;
     --secret-bg:     #ede9fe;
     --secret-border: #5b21b6;
     --secret-fg:     #4c1d95;

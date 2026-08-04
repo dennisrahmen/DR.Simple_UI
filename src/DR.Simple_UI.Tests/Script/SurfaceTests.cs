@@ -22,7 +22,7 @@ public class SurfaceTests : ScriptTestBase
         var missing = await page.EvaluateAsync<string[]>("""
             () => [
                 'configure', 'settings', 'tips', 'toast', 'confirm', 'menu', 'tabs',
-                'palette', 'md', 'copyText', 'openTab', 'viewportWidth',
+                'palette', 'search', 'md', 'copyText', 'openTab', 'viewportWidth',
                 'getItem', 'setItem', 'requestNotify', 'notify', 'ping'
             ].filter(k => window.drSimpleUi[k] === undefined)
             """);
@@ -40,6 +40,7 @@ public class SurfaceTests : ScriptTestBase
                     menu: ['closeAll'],
                     tabs: ['select'],
                     palette: ['register', 'open', 'close', 'rank'],
+                    search: ['register', 'rank', 'close'],
                     md: ['init', 'apply', 'render'],
                 };
                 for (const k in need)

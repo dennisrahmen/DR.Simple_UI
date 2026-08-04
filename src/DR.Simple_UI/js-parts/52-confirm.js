@@ -10,10 +10,9 @@
    Replaces window.confirm(), which blocks the thread, cannot be styled, and in
    Blazor Server blocks the circuit while it is open.
 
-   No fallback for a browser without <dialog>. The supported floor is Firefox ESR 140
-   and current Chrome, Edge and Safari, all of which have had it for years — a
-   fallback path would be untested code that only ever runs where the library is not
-   supported anyway.
+   No fallback for a browser without <dialog>. The supported floor is Chromium —
+   current Chrome and Edge — which has had it for years; a fallback path would be
+   untested code that only ever runs where the library is not supported anyway.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 

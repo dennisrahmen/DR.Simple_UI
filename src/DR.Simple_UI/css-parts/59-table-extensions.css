@@ -87,11 +87,10 @@
    Right-aligned and tabular, so digits line up by place value down the column and
    two numbers can be compared by their shape. Put it on the th AND the td.
 
-   Scoped to `.table .col-num`, not bare `.col-num`. A single-purpose class is
-   (0,1,0) and `.table th, .table td` is (0,1,1), so the bare form loses the
-   text-align it exists to set — and loses it silently, which reads as the class
-   being broken. This is the same trap that stops a general utility layer landing
-   before tier 2 has a specificity cap. */
+   Scoped to `.table .col-num`, not bare `.col-num`. A single-purpose class is (0,1,0)
+   and `.table th, .table td` is (0,1,1), so the bare form loses the text-align it
+   exists to set, silently. A class in `@layer dr.utilities` wins that collision on
+   layer order instead; this file is in dr.paint, so it needs the specificity. */
 .table .col-num { text-align: end; font-variant-numeric: tabular-nums; }
 
 /* ── Row selection ──────────────────────────────────────────────────────────

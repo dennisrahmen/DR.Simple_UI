@@ -1,7 +1,7 @@
 ![DR.Simple_UI — one design-token contract. Semantic CSS. Consistent Blazor apps.](https://raw.githubusercontent.com/dennisrahmen/DR.Simple_UI/main/assets/brand/dr-simple-ui-social-preview.png)
 
 [![CI](https://img.shields.io/github/actions/workflow/status/dennisrahmen/DR.Simple_UI/ci.yml?branch=main&logo=github&style=flat-square&label=ci)](https://github.com/dennisrahmen/DR.Simple_UI/actions/workflows/ci.yml)
-[![Catalogue](https://img.shields.io/badge/catalogue-browse-2563eb?style=flat-square&logo=github)](https://github.dennisrahmen.de/)
+[![Catalogue](https://img.shields.io/badge/catalogue-browse-2563eb?style=flat-square&logo=github)](https://simpleui.dennisrahmen.dev/)
 [![NuGet version](https://img.shields.io/nuget/v/DR.Simple_UI?color=2563eb&label=nuget&logo=nuget&style=flat-square)](https://www.nuget.org/packages/DR.Simple_UI/)
 [![NuGet downloads](https://img.shields.io/nuget/dt/DR.Simple_UI?color=2563eb&label=downloads&logo=nuget&style=flat-square)](https://www.nuget.org/packages/DR.Simple_UI/)
 [![.NET](https://img.shields.io/badge/.NET-10.0-2563eb?style=flat-square&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
@@ -21,13 +21,14 @@ dotnet add package DR.Simple_UI
 ## Two tiers
 
 **The frame** — shell, sidebar, header, user widget — is chrome that must be pixel-identical in every app
-and that nobody should restyle per project. It ships as `AppShell`, `Sidebar`, `NavItem`, `AppHeader` and
-`UserWidget`, plus the CSS classes they emit, so the markup can also be written by hand.
+and that nobody should restyle per project.
 
-**The paint** — tables, forms, cards, badges, buttons, alerts — is shipped as **semantic CSS classes
-only**. Pages write plain, open HTML and apply them.
+**The paint** — tables, forms, cards, badges, buttons, alerts — is what a page puts inside it.
 
-**So there is no `<DataTable>`, and there will not be one.** By volume this library is mostly CSS, not components.
+**Both are semantic CSS classes.** Pages write plain, open HTML and apply them, so there is no
+`<DataTable>`, no `<AppShell>`, and there will not be either. The package is the stylesheet, the script,
+the icons and a small C# surface for what markup cannot express — which link is the current page, and
+typed access to the browser API.
 
 → [Architecture and the token contract](https://github.com/dennisrahmen/DR.Simple_UI/blob/main/docs/architecture.md)
 
@@ -41,21 +42,21 @@ only**. Pages write plain, open HTML and apply them.
 | [Development](https://github.com/dennisrahmen/DR.Simple_UI/blob/main/docs/development.md) | Build, test, the guard tests, package verification |
 | [Consuming-app `CLAUDE.md`](https://github.com/dennisrahmen/DR.Simple_UI/blob/main/docs/CLAUDE.consuming-app.md) | Drop-in rules for an app that uses this |
 
-**The catalogue** — every class with a page of copy-pasteable HTML.
+**The catalogue** — every class with a page of copy-pasteable HTML, at
+**[simpleui.dennisrahmen.dev](https://simpleui.dennisrahmen.dev/)**. It is a Blazor app built with this
+library, so an example that renders correctly there renders correctly in yours.
 
-- **[Browse it online](https://github.dennisrahmen.de/)** — and always shows
-  `main`.
-- **It also ships inside the package**, at `_content/DR.Simple_UI/catalogue/index.html` in your running
-  app. That copy is styled by the exact stylesheet installed beside it, so its examples and the CSS are
-  the same version *by definition*.
+**An MCP server for AI agents** — `https://simpleui.dennisrahmen.dev/mcp`. One URL, and an agent can
+search the catalogue, read what a class does and copy the exact markup. Every result names the release
+that introduced it, so an agent can check before copying something the installed version does not have.
 
 ## Versioning
 
 SemVer, driven by the git tag.
 
-- **Major** — renaming or removing a token or class, breaking a frame component's markup, changing an
-  existing rule enough to move layout or colour, or making an existing app override stop working.
-- **Minor** — adding a token, class, variant or component.
+- **Major** — renaming or removing a token, class or shipped asset path, changing an existing rule
+  enough to move layout or colour, or making an existing app override stop working.
+- **Minor** — adding a token, class or variant.
 - **Patch** — a fix that changes no contract.
 
 Judged by what a consuming app sees, not by the size of the diff. When it is arguable, the higher level

@@ -12,16 +12,22 @@
    arrows, Home/End, Enter, and the highlight moving while focus stays in the input.
    aria-selected on a plain button is invalid and axe rejects it.
 
-   No fuzzy-match library. A subsequence scorer is about twenty lines and this package
-   loads nothing at runtime; see js-parts/ when the behaviour lands.
+   No fuzzy-match library. The scorer is `ui._.score` in js-parts/00-core.js, shared
+   with the header search — this package loads nothing at runtime.
    ─────────────────────────────────────────────────────────────────────────── */
+/* Any class that gives a <dialog> a display has to gate it on [open], or it overrides
+   the UA's `display: none` for a closed dialog. The palette is built once and reused,
+   so without the gate it stays in the page as a 560px panel below the content from the
+   first Ctrl-K onwards. */
+dialog.palette[open] {
+    display: flex;
+    flex-direction: column;
+}
 dialog.palette {
     width: min(560px, calc(100vw - 32px));
     max-height: 60vh;
     margin: 12vh auto auto;
     padding: 0;
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
     background: var(--bg-elevated);
     border: 1px solid var(--border);

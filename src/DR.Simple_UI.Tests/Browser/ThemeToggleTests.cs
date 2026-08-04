@@ -1,19 +1,18 @@
 using DR.Simple_UI.Tests.TestSupport;
-using Microsoft.Playwright;
 
 namespace DR.Simple_UI.Tests;
 
 /// <summary>
 /// A theme, colour-blind or density toggle changes token values only, never geometry.
 /// </summary>
-public class ThemeToggleTests : CatalogueBrowserTestBase
+public class ThemeToggleTests : ScriptTestBase
 {
     [Fact]
     public async Task The_theme_and_density_toggles_only_change_token_values()
     {
         if (NoBrowser) return;
 
-        var (page, errors) = await Open("index.html");
+        var (page, errors) = await OpenStyled("<p>fixture</p>");
         Assert.Empty(errors);
 
         // The whole override model rests on this: if flipping the theme changed a

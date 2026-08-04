@@ -85,6 +85,20 @@ public abstract class ScriptTestBase : BrowserTestBase
                         Body = await File.ReadAllTextAsync(Assets.BootJsPath),
                     });
                     return;
+                case "/css/DR.Simple_UI.css":
+                    await route.FulfillAsync(new()
+                    {
+                        ContentType = "text/css",
+                        Body = await File.ReadAllTextAsync(Assets.CssPath),
+                    });
+                    return;
+                case "/lib/remixicon/remixicon.css":
+                    await route.FulfillAsync(new()
+                    {
+                        ContentType = "text/css",
+                        Body = await File.ReadAllTextAsync(Assets.IconCssPath),
+                    });
+                    return;
                 default:
                     await route.FulfillAsync(new()
                     {
@@ -110,6 +124,39 @@ public abstract class ScriptTestBase : BrowserTestBase
 
     /// <summary>The <c>boot.js</c> tag with no options, i.e. every default.</summary>
     protected const string BootTag = """<script src="/js/DR.Simple_UI.boot.js"></script>""";
+
+    /// <summary>
+    /// The shipped stylesheet and the icon font, for a fixture that tests CSS rather
+    /// than script.
+    /// </summary>
+    /// <remarks>
+    /// The CSS guards used to load a catalogue page and use it as "a page with the
+    /// stylesheet on it". They build their own markup anyway, so the page was
+    /// incidental — and taking it away removes the catalogue from the library's CSS
+    /// guarantees entirely, which is the point of the split.
+    /// </remarks>
+    protected const string StylesheetTag =
+        """
+        <link rel="stylesheet" href="/lib/remixicon/remixicon.css">
+        <link rel="stylesheet" href="/css/DR.Simple_UI.css">
+        """;
+
+    /// <summary>
+    /// Opens a fixture carrying the shipped stylesheet, and collects console errors.
+    /// </summary>
+    protected async Task<(IPage Page, List<string> Errors)> OpenStyled(
+        string body, string extraHead = "")
+    {
+        var errors = new List<string>();
+        var page = await Open(body, head: StylesheetTag + extraHead);
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error") errors.Add(message.Text);
+        };
+        page.PageError += (_, error) => errors.Add(error);
+
+        return (page, errors);
+    }
 
     /// <summary>
     /// Loads a boot.js-only fixture and reports the theme it stamped on

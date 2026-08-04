@@ -2,22 +2,17 @@
    drSimpleUi.palette.register([{ label, icon, group, note, run, keywords }])
    drSimpleUi.palette.open()      — or Ctrl/Cmd-K, which is wired for you
 
-   The scorer is a hand-rolled subsequence matcher, about thirty lines. No fuse.js:
-   this package loads nothing at runtime, and a fuzzy matcher good enough for a
-   command list is smaller than the argument for taking a dependency.
+   The scorer is ui._.score in 00-core.js, shared with the header search so the
+   two cannot rank the same query differently. Matches in `keywords` score below
+   the same match in the label, so a command is never outranked by one that
+   merely mentions the word.
 
-   Ranking, in the order it matters:
-     1. a prefix match on the label            — you typed the start of the name
-     2. a word-start match                     — "ai" finds "Approve Item"
-     3. a contiguous run inside the label
-     4. any subsequence, penalised by how spread out it is
-   Matches in `keywords` score below the same match in the label, so a command is
-   never outranked by one that merely mentions the word.
-
-   Everything is built from real elements the catalogue documents, so a palette
-   opened by this looks like the one on the Overlays page.
+   Everything is built from the classes in css-parts/64-palette-spotlight.css, so a
+   palette opened by this looks exactly like the one the catalogue documents.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
+
+    var score = ui._.score;
 
     var commands = [];
     var dialog = null;
@@ -25,36 +20,6 @@
     var list = null;
     var shown = [];      // the currently visible commands, in ranked order
     var at = 0;          // index into shown
-
-    /* Returns a score, or -1 for no match. Higher is better. */
-    function score(needle, haystack, penalty) {
-        if (!needle) return 1;
-
-        var n = needle.toLowerCase();
-        var h = haystack.toLowerCase();
-
-        var idx = h.indexOf(n);
-        if (idx === 0) return 1000 - penalty;                       // prefix
-        if (idx > 0) {
-            // A run that starts a word beats one buried inside it.
-            var wordStart = idx === 0 || /[\s\-_/]/.test(h[idx - 1]);
-            return (wordStart ? 800 : 600) - idx - penalty;
-        }
-
-        // Subsequence. Track the span it occupies: a match spread across the whole
-        // string is a worse match than a tight one, which is what stops "ae"
-        // ranking "Approve … escalate" above "Archive entry".
-        var first = -1, last = -1, hi = 0;
-        for (var ni = 0; ni < n.length; ni++) {
-            var found = h.indexOf(n[ni], hi);
-            if (found < 0) return -1;
-            if (first < 0) first = found;
-            last = found;
-            hi = found + 1;
-        }
-        var span = last - first + 1;
-        return 400 - (span - n.length) - first - penalty;
-    }
 
     function rank(query) {
         var out = [];
@@ -164,7 +129,14 @@
         close();
         // After close(), so a command that opens a modal is not fighting a dialog
         // that is still shutting.
-        if (c && typeof c.run === 'function') c.run();
+        if (!c) return;
+        // `run` first: a command that has both is doing something more than
+        // navigating, and `href` is then only there for a middle-click.
+        if (typeof c.run === 'function') c.run();
+        // `href` is what a command registered from C# uses. A callback cannot cross
+        // that boundary — the library never calls back into .NET — so navigation is
+        // the one action a serialisable command can carry.
+        else if (c.href) window.location.assign(c.href);
     }
 
     function build() {

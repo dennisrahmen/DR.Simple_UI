@@ -12,8 +12,8 @@
    `display:none` class also achieves but an `opacity:0` one does not.
 
    Delegated from document, so a menu rendered by a later Blazor render works with
-   nothing re-bound. <UserWidget> does NOT use this — it holds its own state in C#,
-   because the frame has to work with scripting blocked.
+   nothing re-bound. The frame's own user menu does NOT use this: it holds its state
+   in C#, because the frame has to work with scripting blocked.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
