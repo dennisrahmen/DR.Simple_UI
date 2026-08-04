@@ -41,7 +41,7 @@ typed access to the browser API.
 | [Releasing](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/releasing.md) | SemVer rules, trusted publishing setup |
 | [Development](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/development.md) | Build, test, the guard tests, package verification |
 | [Consuming-app `CLAUDE.md`](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/CLAUDE.consuming-app.md) | Drop-in rules for an app that uses this |
-| [Migrating from DR.Simple_UI](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/migrating-from-dr-simple-ui.md) | Upgrading from the old package ID and brand |
+| [Migrating from DR.Simple_UI](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/migrating-to-sedna-ui.md) | Upgrading from the old package ID and brand |
 
 **The catalogue** — every class with a page of copy-pasteable HTML, at
 **[www.sedna-ui.com](https://www.sedna-ui.com/)**. It is a Blazor app built with this

@@ -8,7 +8,7 @@ dotnet add package Sedna.UI
 
 Pin the version. Do not use a floating version range.
 
-Upgrading from `DR.Simple_UI`? See [Migrating from DR.Simple_UI](migrating-from-dr-simple-ui.md) instead
+Upgrading from `DR.Simple_UI`? See [Migrating from DR.Simple_UI](migrating-to-sedna-ui.md) instead
 of this page.
 
 ## Host page

@@ -13,8 +13,9 @@ namespace Sedna.UI.Tests;
 /// renders unstyled, a stale storage prefix loses a stored setting. This is the cheap
 /// check that stops one returning through a copy-pasted part.
 ///
-/// Deliberately not repository-wide: docs/migrating-from-dr-simple-ui.md exists in
-/// order to name the old brand.
+/// Deliberately not repository-wide: docs/migrating-to-sedna-ui.md's body names the
+/// old brand throughout, in order to describe it, and <c>docs/</c> is out of scope
+/// for exactly that reason.
 ///
 /// The two test projects — <c>Sedna.UI.Tests</c> and <c>Sedna.UI.Catalogue.Tests</c> —
 /// are themselves outside both guards' scope, and that is deliberate too: this very
