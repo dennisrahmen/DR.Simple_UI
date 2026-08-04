@@ -1058,6 +1058,24 @@ the JSON key `"sedna-ui"`. Both files are embedded and printed by the catalogue,
 Scope this to those two files by name. A broader `dr-simple-ui` sweep would hit the
 brand filenames, which must not move until Task 10.
 
+- [ ] **Step 1b: Delete the exception list this rename makes dead**
+
+Task 7's catalogue guard carries a `PendingRenameFiles` array excluding exactly these
+two files, because the guard had to be green before this rename existed. Once Step 1a
+lands the array excludes nothing, and a dead allowlist is how a real violation hides
+later.
+
+Delete the `PendingRenameFiles` field and the `if (PendingRenameFiles.Any(…)) continue;`
+guard clause from `src/Sedna.UI.Catalogue.Tests/BrandNamingTests.cs`, along with its
+`<remarks>` block. Then confirm the guard still passes on its own merits:
+
+```bash
+dotnet test src/Sedna.UI.Catalogue.Tests -c Debug --filter BrandNamingTests
+```
+
+Expected: PASS with nothing excluded. If it fails, Step 1a missed an occurrence —
+fix the occurrence, do not restore the array.
+
 - [ ] **Step 2: Point the GitHub URLs at the renamed repository**
 
 ```bash
