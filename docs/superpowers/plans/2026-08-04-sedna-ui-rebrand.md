@@ -753,10 +753,16 @@ git ls-files -z -- ':!:assets/brand/*' ':!:docs/superpowers/*' \
 
 ```bash
 git ls-files -z -- ':!:docs/superpowers/*' \
-  | xargs -0 grep -nI -e 'drSimpleUi' -e 'drui\.' -e 'drsimpleui' -e 'dr-ui\.test'
+  | xargs -0 grep -nI -e 'drSimpleUi' -e 'drui\.' -e 'drsimpleui://' -e 'dr-ui\.test'
 ```
 
 Expected: no output.
+
+**The pattern is `drsimpleui://`, not bare `drsimpleui`.** A bare `drsimpleui` also
+matches the docker tag `drsimpleui-catalogue` in `.github/workflows/ci.yml` and
+`src/Sedna.UI.Catalogue/Dockerfile`, which rule R5 assigns to **Task 8**. The first
+execution of this task hand-fixed that tag before catching the ownership in the spec
+and reverting it. Leave both files untouched here.
 
 - [ ] **Step 3: Confirm the two storage-prefix defaults still agree**
 
