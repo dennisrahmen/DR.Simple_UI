@@ -96,7 +96,7 @@ else
 fi
 
 # And the app itself must never be packed with the library.
-if grep -qi 'DR\.Simple_UI\.Catalogue' <<<"$CONTENTS"; then
+if grep -qi 'Sedna\.UI\.Catalogue' <<<"$CONTENTS"; then
     echo "::error::The catalogue application leaked into the package."
     failed=1
 else
@@ -118,7 +118,7 @@ fi
 
 # Blazor CSS isolation: the library ships no components, so no scoped CSS exists.
 # If one ever appears its bundle must be packed too, or those styles vanish.
-if grep -q '^staticwebassets/DR\.Simple_UI\.bundle\.scp\.css$' <<<"$CONTENTS"; then
+if grep -q '^staticwebassets/Sedna\.UI\.bundle\.scp\.css$' <<<"$CONTENTS"; then
     echo "  ok      scoped-CSS bundle packed"
 elif grep -Erq '\.razor\.css$' <<<"$(find src/Sedna.UI -name '*.razor.css' 2>/dev/null || true)"; then
     echo "::error::Scoped CSS files exist in the project but no .bundle.scp.css was packed."
