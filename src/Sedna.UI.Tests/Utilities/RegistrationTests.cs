@@ -54,7 +54,7 @@ public class RegistrationTests
 
         // The same default the boot script uses. ScriptContractTests asserts the two
         // scripts agree; this is the third place the value appears.
-        Assert.Equal("drui.", options.StoragePrefix);
+        Assert.Equal("sedna.", options.StoragePrefix);
         Assert.Null(options.NotifyIcon);
         Assert.False(options.LangCookie);
     }

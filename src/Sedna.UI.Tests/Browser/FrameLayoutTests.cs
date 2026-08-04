@@ -184,7 +184,7 @@ public class FrameLayoutTests : ScriptTestBase
         Assert.Equal(box[1] + 6, box[3]);
         Assert.True(box[4] <= 320);
 
-        // Light dismiss is the platform's, and the reason there is no drSimpleUi.popover.
+        // Light dismiss is the platform's, and the reason there is no sednaUi.popover.
         await page.Keyboard.PressAsync("Escape");
         Assert.False(await page.Locator("#p1").IsVisibleAsync());
 

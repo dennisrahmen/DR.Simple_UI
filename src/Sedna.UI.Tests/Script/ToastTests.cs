@@ -17,9 +17,9 @@ public class ToastTests : ScriptTestBase
 
         var result = await page.EvaluateAsync<JsonElement>("""
             () => {
-                const remove1 = drSimpleUi.toast('First', { timeout: 0 });
+                const remove1 = sednaUi.toast('First', { timeout: 0 });
                 const afterFirst = document.querySelectorAll('.toast-stack').length;
-                drSimpleUi.toast('Second', { timeout: 0 });
+                sednaUi.toast('Second', { timeout: 0 });
                 const afterSecond = document.querySelectorAll('.toast-stack').length;
                 const toasts = document.querySelectorAll('.toast').length;
                 const role = document.querySelector('.toast-stack').getAttribute('role');
@@ -46,12 +46,12 @@ public class ToastTests : ScriptTestBase
         var page = await Open("<div></div>");
 
         var polite = await page.EvaluateAsync<string>(
-            "() => { drSimpleUi.toast('Saved', { kind: 'go', timeout: 0 }); "
+            "() => { sednaUi.toast('Saved', { kind: 'go', timeout: 0 }); "
             + "return document.querySelector('.toast-stack').getAttribute('aria-live'); }");
         Assert.Equal("polite", polite);
 
         var assertive = await page.EvaluateAsync<string>(
-            "() => { drSimpleUi.toast('Transfer failed', { kind: 'danger', timeout: 0 }); "
+            "() => { sednaUi.toast('Transfer failed', { kind: 'danger', timeout: 0 }); "
             + "return document.querySelector('.toast-stack').getAttribute('aria-live'); }");
         Assert.Equal("assertive", assertive);
     }
@@ -67,7 +67,7 @@ public class ToastTests : ScriptTestBase
         var probe = await page.EvaluateAsync<JsonElement>("""
             () => {
                 window.__pwned = false;
-                drSimpleUi.toast('<img src=x onerror="window.__pwned=true">', { timeout: 0 });
+                sednaUi.toast('<img src=x onerror="window.__pwned=true">', { timeout: 0 });
                 const body = document.querySelector('.toast-body');
                 return { pwned: window.__pwned, imgs: body.querySelectorAll('img').length,
                          text: body.textContent };
@@ -100,7 +100,7 @@ public class ToastTests : ScriptTestBase
         var probe = await page.EvaluateAsync<JsonElement>("""
             () => {
                 const theirs = document.getElementById('theirs');
-                const remove = drSimpleUi.toast('From the library', { timeout: 0 });
+                const remove = sednaUi.toast('From the library', { timeout: 0 });
                 const ours = document.querySelector('[data-sedna-toasts]');
                 const before = {
                     separate: ours !== theirs,
@@ -134,7 +134,7 @@ public class ToastTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open("<div></div>");
 
-        await page.EvaluateAsync("() => drSimpleUi.toast('Read me', { timeout: 0 })");
+        await page.EvaluateAsync("() => sednaUi.toast('Read me', { timeout: 0 })");
         // Well past the 4000ms default, so a default-timeout regression fails here.
         await page.WaitForTimeoutAsync(4300);
         Assert.Equal(1, await page.Locator(".toast").CountAsync());

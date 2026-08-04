@@ -2,8 +2,8 @@
    `.spotlight-hole` dims the page except one box. The box is what only the browser
    knows, so this measures a target and writes the four values onto the hole:
 
-     drSimpleUi.spotlight.at(hole, target)
-     drSimpleUi.spotlight.at(hole, target, { pad: 6 })
+     sednaUi.spotlight.at(hole, target)
+     sednaUi.spotlight.at(hole, target, { pad: 6 })
 
    The steps, the copy and the order are the app's. This is deliberately not a tour:
    a tour is a sequence with its own state, and a library that owned it would also own
@@ -66,4 +66,4 @@
         }
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);

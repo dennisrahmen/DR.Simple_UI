@@ -5,11 +5,11 @@ namespace Sedna.UI.Tests.TestSupport;
 
 /// <summary>
 /// Serves a fixture page carrying the shipped scripts, for testing the behaviour behind
-/// <c>window.drSimpleUi</c>.
+/// <c>window.sednaUi</c>.
 /// </summary>
 /// <remarks>
 /// <para>
-/// <c>drSimpleUi</c> is a contract several apps call into: adding a member is minor,
+/// <c>sednaUi</c> is a contract several apps call into: adding a member is minor,
 /// removing or renaming one is major. A source scan cannot test any of it — the
 /// interesting parts are what the platform does, such as whether a promise settles when
 /// a <c>&lt;dialog&gt;</c> closes, or whether a hidden element leaves the tab order.

@@ -61,4 +61,4 @@
         ui.copyText(text).then(function (ok) { flash(btn, ok); });
     });
 
-})(window.drSimpleUi);
+})(window.sednaUi);

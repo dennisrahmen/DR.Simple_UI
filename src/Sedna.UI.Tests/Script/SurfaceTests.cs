@@ -24,17 +24,17 @@ public class SurfaceTests : ScriptTestBase
                 'configure', 'settings', 'tips', 'toast', 'confirm', 'menu', 'tabs',
                 'palette', 'search', 'md', 'copyText', 'openTab', 'viewportWidth',
                 'getItem', 'setItem', 'requestNotify', 'notify', 'ping'
-            ].filter(k => window.drSimpleUi[k] === undefined)
+            ].filter(k => window.sednaUi[k] === undefined)
             """);
 
         Assert.True(missing.Length == 0,
-            "These documented members of drSimpleUi are gone. Removing or renaming one is a Major "
+            "These documented members of sednaUi are gone. Removing or renaming one is a Major "
             + $"change, and docs/architecture.md lists it: {string.Join(", ", missing)}");
 
         // The sub-objects are contracts too, not just present-ness.
         var shape = await page.EvaluateAsync<string[]>("""
             () => {
-                const u = window.drSimpleUi, bad = [];
+                const u = window.sednaUi, bad = [];
                 const need = {
                     settings: ['load', 'save', 'apply'],
                     menu: ['closeAll'],
@@ -50,7 +50,7 @@ public class SurfaceTests : ScriptTestBase
             }
             """);
 
-        Assert.True(shape.Length == 0, "Missing functions on drSimpleUi: " + string.Join(", ", shape));
+        Assert.True(shape.Length == 0, "Missing functions on sednaUi: " + string.Join(", ", shape));
     }
 
     // ── toast ───────────────────────────────────────────────────────────────

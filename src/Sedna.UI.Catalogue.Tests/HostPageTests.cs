@@ -62,7 +62,7 @@ public class HostPageTests(CatalogueAppFixture app)
     [Fact]
     public void Blazor_loads_after_the_library_script()
     {
-        // Otherwise an interactive component can run before window.drSimpleUi
+        // Otherwise an interactive component can run before window.sednaUi
         // exists, which fails intermittently and only under load.
         Assert.True(
             AppRazor.IndexOf("_framework/blazor.web.js", StringComparison.Ordinal)

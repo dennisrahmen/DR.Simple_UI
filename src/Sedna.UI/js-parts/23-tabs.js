@@ -80,4 +80,4 @@
         tabs[to].focus();
     });
 
-})(window.drSimpleUi);
+})(window.sednaUi);

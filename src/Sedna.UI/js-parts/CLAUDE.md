@@ -20,7 +20,7 @@ entire purpose.
 (function (ui) {
     var core = ui._;                 // only if you need the shared internals
     ui.something = { … };            // or ui.something = function () { … };
-})(window.drSimpleUi);
+})(window.sednaUi);
 ```
 
 Each part is a self-contained IIFE that extends the one global, so **a part is a valid script on its
@@ -32,7 +32,7 @@ first: it creates the global and the shared internals every other part reads.
 1. Create `NN-name.js` here. **The `NN-` prefix is the load order** — the generator discovers every
    `*.js` in the directory and concatenates them in byte-ordinal filename order. There is no manifest
    to update.
-2. End the file with a terminated IIFE: `})(window.drSimpleUi);`. **The semicolon is required** and the
+2. End the file with a terminated IIFE: `})(window.sednaUi);`. **The semicolon is required** and the
    build checks for it — without it, automatic semicolon insertion can splice your part into the next
    one as a call expression.
 3. Run `build/bundle-js.sh`.
@@ -59,13 +59,13 @@ member at load time.
 `00-core.js` puts `config`, `key()` and `readRaw()` on `ui._`. The underscore means exactly one thing:
 **not part of the public contract.** It exists so the parts can share state that used to live in one
 closure. Nothing outside this directory may read it, it is not documented for consuming apps, and it
-may change in a patch release. Everything an app may touch is a named member on `drSimpleUi` itself.
+may change in a patch release. Everything an app may touch is a named member on `sednaUi` itself.
 
 ## Rules
 
 - **Generic UI behaviour only.** App-specific interop stays in the app's own script. If it knows about
   incidents, approvals or tours, it does not belong here.
-- **The public API is a contract.** `drSimpleUi` is a pinned global and four apps call into it.
+- **The public API is a contract.** `sednaUi` is a pinned global and four apps call into it.
   Removing or renaming a member, or changing a signature, is a **major** version change. Adding one is
   minor.
 - **Never call back into .NET.** Parts manipulate the DOM and dispatch events that Blazor's bindings

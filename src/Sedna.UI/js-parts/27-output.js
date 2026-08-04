@@ -88,4 +88,4 @@
         }
     }).observe(document.documentElement, { childList: true, subtree: true });
 
-})(window.drSimpleUi);
+})(window.sednaUi);

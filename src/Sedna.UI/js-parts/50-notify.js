@@ -26,7 +26,7 @@
 
     // Short two-tone ping via WebAudio — no audio asset to ship. The context is
     // created lazily; browsers only allow it after a user gesture anyway. `this`
-    // is the drSimpleUi object when called as drSimpleUi.ping(), so the context is
+    // is the sednaUi object when called as sednaUi.ping(), so the context is
     // cached across calls on the global rather than rebuilt each time.
     ui.ping = function () {
         try {
@@ -46,4 +46,4 @@
         } catch (e) { /* audio unavailable — the visual notification still fires */ }
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);

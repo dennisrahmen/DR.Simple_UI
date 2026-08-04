@@ -1,5 +1,5 @@
 // JavaScript — a command may run a callback.
-drSimpleUi.palette.register([
+sednaUi.palette.register([
     { label: 'Dispatch this order', icon: 'ri-send-plane-line', group: 'Orders',
       note: 'Reserved lines only', keywords: 'send ship release',
       run: () => dispatchCurrentOrder() },

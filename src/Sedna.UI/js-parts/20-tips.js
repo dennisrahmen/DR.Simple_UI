@@ -28,7 +28,7 @@
             var el = t.closest('[data-tip]');
             if (!el || el.closest('.sidebar')) return null;
             // Optional app gate — e.g. a guided tour suppressing hints outside
-            // the live step. Set drSimpleUi.tips.gate = function (el) { … }.
+            // the live step. Set sednaUi.tips.gate = function (el) { … }.
             if (typeof api.gate === 'function' && !api.gate(el)) return null;
             return el;
         }
@@ -108,4 +108,4 @@
         return api;
     })();
 
-})(window.drSimpleUi);
+})(window.sednaUi);

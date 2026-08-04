@@ -153,7 +153,7 @@ internal static class CataloguePages
             "text-end truncate clamp visually-hidden sr-only sedna-row sedna-col sedna-fill gap margin print"),
         new("/script", Reference, "The script", "ri-code-s-slash-line",
             "Toasts, confirmations, clipboard, hover hints, and the delegated behaviours.",
-            "drSimpleUi toast confirm copy clipboard tips hover menu tabs dropzone follow interop javascript"),
+            "sednaUi toast confirm copy clipboard tips hover menu tabs dropzone follow interop javascript"),
         // Not "/mcp": that route is the MCP endpoint itself, mapped in Program.cs.
         new("/mcp-server", Reference, "MCP server", "ri-robot-2-line",
             "The read-only endpoint an agent points at, its six tools and four resources.",

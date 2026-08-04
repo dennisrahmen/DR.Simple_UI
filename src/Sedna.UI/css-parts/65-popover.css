@@ -18,7 +18,7 @@
    THE `popover` ATTRIBUTE IS REQUIRED, and so is opening it from a
    `popovertarget` control. The platform then supplies everything this file would
    otherwise need JavaScript for — the top layer, light dismiss, Escape, focus
-   handling, and `:popover-open`. There is no drSimpleUi.popover and there does
+   handling, and `:popover-open`. There is no sednaUi.popover and there does
    not need to be one.
 
    `popovertarget` also makes the invoker the popover's IMPLICIT ANCHOR, which is

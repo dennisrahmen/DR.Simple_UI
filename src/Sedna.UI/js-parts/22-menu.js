@@ -77,4 +77,4 @@
         try { open.focus(); } catch (err) { /* detached */ }
     });
 
-})(window.drSimpleUi);
+})(window.sednaUi);

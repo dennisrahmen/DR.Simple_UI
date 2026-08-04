@@ -4,7 +4,7 @@
 <CatHead Title="Markdown" Tier="@CatHead.Tier1">
     Two independent pieces: <code>.markdown-body</code> styles rendered Markdown wherever it
     appears, and <code>.md-editor</code> is a toolbar + textarea + live preview driven by
-    <code>drSimpleUi.md</code>.
+    <code>sednaUi.md</code>.
 </CatHead>
 
 <CatExample TExample="Examples.Markdown.MarkdownBody" Title="`.markdown-body`" Demo="ex-demo--block">
@@ -38,7 +38,7 @@
     <p>
         <strong>The markup alone does nothing.</strong> The toolbar, the preview and the
         Write/Preview switch are behaviour, so an editor renders perfectly and sits inert until
-        something calls <code>drSimpleUi.md.init()</code> — from C#,
+        something calls <code>sednaUi.md.init()</code> — from C#,
         <code>ISednaUi.InitMarkdownAsync()</code> in <code>OnAfterRenderAsync</code>, which is
         what this page does. It takes no element and wires every editor in the document, and it is
         idempotent per editor, so calling it again after a re-render only picks up new ones.
@@ -76,7 +76,7 @@
 
 <div class="cat-note">
     <i class="ri-shield-check-line"></i>
-    <code>drSimpleUi.md.render()</code> escapes all HTML <em>first</em> and only re-introduces a
+    <code>sednaUi.md.render()</code> escapes all HTML <em>first</em> and only re-introduces a
     fixed set of constructs, with link hrefs restricted to <code>http:</code>,
     <code>https:</code>, <code>mailto:</code> and root-relative paths. It is not a
     spec-complete parser. For untrusted input rendered to other users, sanitise server-side as

@@ -1,5 +1,5 @@
 /* ── Toasts ──────────────────────────────────────────────────────────────────
-   drSimpleUi.toast('Dispatched ORD-4182', { kind: 'go' })
+   sednaUi.toast('Dispatched ORD-4182', { kind: 'go' })
 
    For confirming something that already happened. Anything the user must act on is
    an .alert, which stays until the state changes — a toast that carries a required
@@ -106,4 +106,4 @@
         return remove;
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);

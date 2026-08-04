@@ -3,7 +3,7 @@ using Microsoft.JSInterop;
 namespace Sedna.UI;
 
 /// <summary>
-/// The default <see cref="ISednaUi"/>, calling the <c>drSimpleUi</c> global
+/// The default <see cref="ISednaUi"/>, calling the <c>sednaUi</c> global
 /// through <see cref="IJSRuntime"/>.
 /// </summary>
 /// <remarks>
@@ -37,7 +37,7 @@ public sealed class SednaUi : ISednaUi
         int timeoutMs = 4000,
         bool dismissible = true)
         => _js.InvokeVoidAsync(
-            "drSimpleUi.toast",
+            "sednaUi.toast",
             message,
             new { kind = Name(kind), title, timeout = timeoutMs, dismissible }).AsTask();
 
@@ -49,29 +49,29 @@ public sealed class SednaUi : ISednaUi
         string cancelLabel = "Cancel",
         bool danger = false)
         => _js.InvokeAsync<bool>(
-            "drSimpleUi.confirm",
+            "sednaUi.confirm",
             new { title, message, confirm = confirmLabel, cancel = cancelLabel, danger }).AsTask();
 
     /// <inheritdoc />
     public Task<bool> CopyTextAsync(string text)
-        => _js.InvokeAsync<bool>("drSimpleUi.copyText", text).AsTask();
+        => _js.InvokeAsync<bool>("sednaUi.copyText", text).AsTask();
 
     /// <inheritdoc />
     public Task InitMarkdownAsync()
-        => _js.InvokeVoidAsync("drSimpleUi.md.init").AsTask();
+        => _js.InvokeVoidAsync("sednaUi.md.init").AsTask();
 
     /// <inheritdoc />
     public Task<SednaUiSettings> LoadSettingsAsync()
-        => _js.InvokeAsync<SednaUiSettings>("drSimpleUi.settings.load").AsTask();
+        => _js.InvokeAsync<SednaUiSettings>("sednaUi.settings.load").AsTask();
 
     /// <inheritdoc />
     public Task SaveSettingAsync(string key, string value)
-        => _js.InvokeVoidAsync("drSimpleUi.settings.save", key, value).AsTask();
+        => _js.InvokeVoidAsync("sednaUi.settings.save", key, value).AsTask();
 
     /// <inheritdoc />
     public Task ConfigureAsync()
         => _js.InvokeVoidAsync(
-            "drSimpleUi.configure",
+            "sednaUi.configure",
             new
             {
                 storagePrefix = _options.StoragePrefix,
@@ -81,69 +81,69 @@ public sealed class SednaUi : ISednaUi
 
     /// <inheritdoc />
     public Task RegisterCommandsAsync(IReadOnlyList<PaletteCommand> commands)
-        => _js.InvokeVoidAsync("drSimpleUi.palette.register", commands).AsTask();
+        => _js.InvokeVoidAsync("sednaUi.palette.register", commands).AsTask();
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<PaletteCommand>> RankCommandsAsync(string query)
-        => await _js.InvokeAsync<PaletteCommand[]>("drSimpleUi.palette.rank", query)
+        => await _js.InvokeAsync<PaletteCommand[]>("sednaUi.palette.rank", query)
             .ConfigureAwait(false);
 
     /// <inheritdoc />
-    public Task OpenPaletteAsync() => _js.InvokeVoidAsync("drSimpleUi.palette.open").AsTask();
+    public Task OpenPaletteAsync() => _js.InvokeVoidAsync("sednaUi.palette.open").AsTask();
 
     /// <inheritdoc />
-    public Task ClosePaletteAsync() => _js.InvokeVoidAsync("drSimpleUi.palette.close").AsTask();
+    public Task ClosePaletteAsync() => _js.InvokeVoidAsync("sednaUi.palette.close").AsTask();
 
     /// <inheritdoc />
     public Task RegisterSearchAsync(IReadOnlyList<SearchItem> items)
-        => _js.InvokeVoidAsync("drSimpleUi.search.register", items).AsTask();
+        => _js.InvokeVoidAsync("sednaUi.search.register", items).AsTask();
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<SearchItem>> RankSearchAsync(string query)
-        => await _js.InvokeAsync<SearchItem[]>("drSimpleUi.search.rank", query)
+        => await _js.InvokeAsync<SearchItem[]>("sednaUi.search.rank", query)
             .ConfigureAwait(false);
 
     /// <inheritdoc />
-    public Task CloseSearchAsync() => _js.InvokeVoidAsync("drSimpleUi.search.close").AsTask();
+    public Task CloseSearchAsync() => _js.InvokeVoidAsync("sednaUi.search.close").AsTask();
 
     /// <inheritdoc />
-    public Task HideTipsAsync() => _js.InvokeVoidAsync("drSimpleUi.tips.hide").AsTask();
+    public Task HideTipsAsync() => _js.InvokeVoidAsync("sednaUi.tips.hide").AsTask();
 
     /// <inheritdoc />
-    public Task CloseMenusAsync() => _js.InvokeVoidAsync("drSimpleUi.menu.closeAll").AsTask();
+    public Task CloseMenusAsync() => _js.InvokeVoidAsync("sednaUi.menu.closeAll").AsTask();
 
     /// <inheritdoc />
-    public Task ScrollPageTopAsync() => _js.InvokeVoidAsync("drSimpleUi.scrollPageTop").AsTask();
+    public Task ScrollPageTopAsync() => _js.InvokeVoidAsync("sednaUi.scrollPageTop").AsTask();
 
     /// <inheritdoc />
     public Task SelectTabAsync(string tabOrPanelId)
-        => _js.InvokeVoidAsync("drSimpleUi.tabs.select", tabOrPanelId).AsTask();
+        => _js.InvokeVoidAsync("sednaUi.tabs.select", tabOrPanelId).AsTask();
 
     /// <inheritdoc />
-    public Task OpenTabAsync(string url) => _js.InvokeVoidAsync("drSimpleUi.openTab", url).AsTask();
+    public Task OpenTabAsync(string url) => _js.InvokeVoidAsync("sednaUi.openTab", url).AsTask();
 
     /// <inheritdoc />
     public Task<int> ViewportWidthAsync()
-        => _js.InvokeAsync<int>("drSimpleUi.viewportWidth").AsTask();
+        => _js.InvokeAsync<int>("sednaUi.viewportWidth").AsTask();
 
     /// <inheritdoc />
     public Task<string?> GetItemAsync(string key)
-        => _js.InvokeAsync<string?>("drSimpleUi.getItem", key).AsTask();
+        => _js.InvokeAsync<string?>("sednaUi.getItem", key).AsTask();
 
     /// <inheritdoc />
     public Task SetItemAsync(string key, string value)
-        => _js.InvokeVoidAsync("drSimpleUi.setItem", key, value).AsTask();
+        => _js.InvokeVoidAsync("sednaUi.setItem", key, value).AsTask();
 
     /// <inheritdoc />
     public Task<bool> RequestNotifyAsync()
-        => _js.InvokeAsync<bool>("drSimpleUi.requestNotify").AsTask();
+        => _js.InvokeAsync<bool>("sednaUi.requestNotify").AsTask();
 
     /// <inheritdoc />
     public Task NotifyAsync(string title, string? body = null)
-        => _js.InvokeVoidAsync("drSimpleUi.notify", title, body).AsTask();
+        => _js.InvokeVoidAsync("sednaUi.notify", title, body).AsTask();
 
     /// <inheritdoc />
-    public Task PingAsync() => _js.InvokeVoidAsync("drSimpleUi.ping").AsTask();
+    public Task PingAsync() => _js.InvokeVoidAsync("sednaUi.ping").AsTask();
 
     // The script's own vocabulary, which is also the CSS modifier suffix
     // (.toast-go, .toast-danger). Mapped explicitly rather than lower-casing the

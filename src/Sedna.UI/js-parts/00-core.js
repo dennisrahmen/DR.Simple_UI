@@ -6,15 +6,15 @@
 
    configure() is optional:
 
-     <script>drSimpleUi.configure({ notifyIcon: '/images/logo.png' });</script>
+     <script>sednaUi.configure({ notifyIcon: '/images/logo.png' });</script>
 
    Everything here is generic UI behaviour. App-specific interop stays in the
    app's own script — do not grow this file with business logic.
 
-   The global is `drSimpleUi` (the JS-identifier form of the package name; a
+   The global is `sednaUi` (the JS-identifier form of the package name; a
    single global cannot contain the dot).
    ─────────────────────────────────────────────────────────────────────────── */
-window.drSimpleUi = window.drSimpleUi || {};
+window.sednaUi = window.sednaUi || {};
 
 (function (ui) {
 
@@ -23,7 +23,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         // separate domains cannot collide and this needs no changing. Override it
         // only when two apps share one origin under different paths — and then set
         // the same value in data-prefix on the boot script.
-        storagePrefix: 'drui.',
+        storagePrefix: 'sedna.',
         // Icon used for desktop notifications. null = browser default.
         notifyIcon: null,
         // Also mirror the language into a "<prefix>lang" cookie, so a server-
@@ -100,4 +100,4 @@ window.drSimpleUi = window.drSimpleUi || {};
         if (ui.settings) ui.settings.apply();
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);

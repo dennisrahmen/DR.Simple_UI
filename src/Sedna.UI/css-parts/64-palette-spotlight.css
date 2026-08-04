@@ -8,7 +8,7 @@
 
    The list is a real role="listbox" of role="option" items, with the input as the
    combobox that owns it through aria-activedescendant. That claim is made only
-   because drSimpleUi.palette implements the keyboard contract behind it in full:
+   because sednaUi.palette implements the keyboard contract behind it in full:
    arrows, Home/End, Enter, and the highlight moving while focus stays in the input.
    aria-selected on a plain button is invalid and axe rejects it.
 

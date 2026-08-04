@@ -173,7 +173,7 @@ matters it is **calculated**, never typed:
   MCP server's `since` reports. `--check` in CI; regenerate and commit after cutting a tag.
 
 The landing page's figures are computed at runtime by the browser's own CSS parser
-(`drSimpleUiCatalogue.readInventory`), and a test compares them against a .NET regex over the same
+(`sednaUiCatalogue.readInventory`), and a test compares them against a .NET regex over the same
 file. **That duplication is the point:** every one of those figures was wrong while a single
 implementation agreed with itself — and the CSSOM implementation immediately found a fourth, because
 the browser re-serialises the icon font's `:before` as `::before`, so a regex copied from the .NET side
@@ -242,7 +242,7 @@ in `assets/brand/` are bespoke rather than built from an icon.
 - Semantic families across buttons, badges and alerts: `go` (sends outward), `warn` (control changes),
   `danger`, `info`, `secret`, plus `cyan` / `orange` / `teal` as categorical hues with no meaning.
 - Assets are named after the package. `Packaging/ShippedPathTests` pins the paths; consuming apps hard-code them.
-- The JS global is `drSimpleUi`.
+- The JS global is `sednaUi`.
 
 ## JavaScript
 
@@ -257,9 +257,9 @@ Markdown editor. App-specific interop stays in the app's own script. The member 
 
 - The hover-hint engine skips elements inside `.sidebar`; the collapsed rail has a CSS flyout, and both
   firing produces a double tooltip.
-- An app suppresses hints by setting `drSimpleUi.tips.gate = el => …`. The library has no knowledge of
+- An app suppresses hints by setting `sednaUi.tips.gate = el => …`. The library has no knowledge of
   what is suppressing them.
-- Settings are stored under the `drui.` prefix, which apps do not need to configure — `localStorage` is
+- Settings are stored under the `sedna.` prefix, which apps do not need to configure — `localStorage` is
   origin-scoped, so apps on separate domains cannot collide. The prefix exists to namespace against other
   code on the same origin, for apps sharing one origin under different paths, and for the language
   cookie, which is not origin-scoped. If an app does override it, `data-prefix` and `storagePrefix` must

@@ -3,7 +3,7 @@
    getItem / setItem take the RAW key and do not apply the storage prefix — they
    are a plain localStorage bridge for an app's own keys, not a view onto the
    library's settings, which live under the prefix and are reached through
-   drSimpleUi.settings.
+   sednaUi.settings.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -61,4 +61,4 @@
         try { localStorage.setItem(k, value); } catch (e) { /* ignore */ }
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);

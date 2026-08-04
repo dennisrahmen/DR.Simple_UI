@@ -1,6 +1,6 @@
 /* ── Command palette ─────────────────────────────────────────────────────────
-   drSimpleUi.palette.register([{ label, icon, group, note, run, keywords }])
-   drSimpleUi.palette.open()      — or Ctrl/Cmd-K, which is wired for you
+   sednaUi.palette.register([{ label, icon, group, note, run, keywords }])
+   sednaUi.palette.open()      — or Ctrl/Cmd-K, which is wired for you
 
    The scorer is ui._.score in 00-core.js, shared with the header search so the
    two cannot rank the same query differently. Matches in `keywords` score below
@@ -227,4 +227,4 @@
         ui.palette.open();
     });
 
-})(window.drSimpleUi);
+})(window.sednaUi);

@@ -1,7 +1,7 @@
 namespace Sedna.UI;
 
 /// <summary>
-/// The options <c>drSimpleUi.configure()</c> accepts, in C# form.
+/// The options <c>sednaUi.configure()</c> accepts, in C# form.
 /// </summary>
 /// <remarks>
 /// Set these through <c>AddSednaUi</c>. They are pushed to the browser by
@@ -12,7 +12,7 @@ namespace Sedna.UI;
 public sealed class SednaUiOptions
 {
     /// <summary>
-    /// The <c>localStorage</c> key prefix. Defaults to <c>drui.</c>.
+    /// The <c>localStorage</c> key prefix. Defaults to <c>sedna.</c>.
     /// </summary>
     /// <remarks>
     /// <c>localStorage</c> is origin-scoped, so apps on separate domains cannot
@@ -20,7 +20,7 @@ public sealed class SednaUiOptions
     /// origin under different paths — and then set the same value in
     /// <c>data-prefix</c> on the boot script, or the theme is not found on reload.
     /// </remarks>
-    public string StoragePrefix { get; set; } = "drui.";
+    public string StoragePrefix { get; set; } = "sedna.";
 
     /// <summary>
     /// Icon for desktop notifications, as a URL. Null uses the browser's default.

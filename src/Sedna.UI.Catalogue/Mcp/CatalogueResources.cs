@@ -23,23 +23,23 @@ namespace Sedna.UI.Catalogue.Mcp;
 [McpServerResourceType]
 internal sealed class CatalogueResources(CatalogueIndex index, VersionEnvelope versions)
 {
-    [McpServerResource(UriTemplate = "drsimpleui://stylesheet", Name = "stylesheet",
+    [McpServerResource(UriTemplate = "sednaui://stylesheet", Name = "stylesheet",
         MimeType = "text/css")]
     [Description("The whole shipped stylesheet, exactly as the package delivers it.")]
     public string Stylesheet() => index.RawStylesheet;
 
-    [McpServerResource(UriTemplate = "drsimpleui://tokens", Name = "tokens",
+    [McpServerResource(UriTemplate = "sednaui://tokens", Name = "tokens",
         MimeType = "application/json")]
     [Description("The design-token export: an ordered array of blocks, media condition included.")]
     public string Tokens() => index.Tokens.RootElement.GetRawText();
 
-    [McpServerResource(UriTemplate = "drsimpleui://version", Name = "version",
+    [McpServerResource(UriTemplate = "sednaui://version", Name = "version",
         MimeType = "application/json")]
     [Description("What this catalogue was built from, and the latest released version.")]
     public string Version() =>
         System.Text.Json.JsonSerializer.Serialize(versions.For(null));
 
-    [McpServerResource(UriTemplate = "drsimpleui://docs/{name}", Name = "docs",
+    [McpServerResource(UriTemplate = "sednaui://docs/{name}", Name = "docs",
         MimeType = "text/markdown")]
     [Description("A documentation file: getting-started, architecture, CLAUDE.consuming-app, releasing.")]
     public string Doc(string name) =>

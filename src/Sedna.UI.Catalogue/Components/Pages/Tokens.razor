@@ -69,7 +69,7 @@
     private async Task Read()
     {
         _values = await Js.InvokeAsync<Dictionary<string, string>>(
-            "drSimpleUiCatalogue.readTokenValues", TokenGroups.AllTokens);
+            "sednaUiCatalogue.readTokenValues", TokenGroups.AllTokens);
         StateHasChanged();
     }
 

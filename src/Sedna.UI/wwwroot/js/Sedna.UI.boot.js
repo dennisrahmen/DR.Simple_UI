@@ -31,7 +31,7 @@
    somebody who has never chosen, which is what "system" means — and choosing light
    on a machine set to dark must not be silently reverted on the next load.
 
-   data-prefix       localStorage key prefix. Default "drui.". Only needed when
+   data-prefix       localStorage key prefix. Default "sedna.". Only needed when
                      two apps share an origin; must match storagePrefix.
    data-lang-cookie  "true" to also write a "<prefix>lang" cookie, so a
                      server-rendered app can prerender in the chosen language
@@ -40,7 +40,7 @@
                      prefers-color-scheme until the user chooses. */
 (function () {
     var el = document.currentScript;
-    var prefix = (el && el.dataset.prefix) || 'drui.';
+    var prefix = (el && el.dataset.prefix) || 'sedna.';
     var wantCookie = !!(el && el.dataset.langCookie === 'true');
     var fallback = (el && el.dataset.themeDefault) || 'dark';
 

@@ -35,15 +35,15 @@
 
    configure() is optional:
 
-     <script>drSimpleUi.configure({ notifyIcon: '/images/logo.png' });</script>
+     <script>sednaUi.configure({ notifyIcon: '/images/logo.png' });</script>
 
    Everything here is generic UI behaviour. App-specific interop stays in the
    app's own script — do not grow this file with business logic.
 
-   The global is `drSimpleUi` (the JS-identifier form of the package name; a
+   The global is `sednaUi` (the JS-identifier form of the package name; a
    single global cannot contain the dot).
    ─────────────────────────────────────────────────────────────────────────── */
-window.drSimpleUi = window.drSimpleUi || {};
+window.sednaUi = window.sednaUi || {};
 
 (function (ui) {
 
@@ -52,7 +52,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         // separate domains cannot collide and this needs no changing. Override it
         // only when two apps share one origin under different paths — and then set
         // the same value in data-prefix on the boot script.
-        storagePrefix: 'drui.',
+        storagePrefix: 'sedna.',
         // Icon used for desktop notifications. null = browser default.
         notifyIcon: null,
         // Also mirror the language into a "<prefix>lang" cookie, so a server-
@@ -129,7 +129,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         if (ui.settings) ui.settings.apply();
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 10-settings.js ──────────────────────────────────────────────── */
 /* ── Theme / accessibility settings ──────────────────────────────────────────
@@ -198,7 +198,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         }
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 20-tips.js ──────────────────────────────────────────────── */
 /* ── Hover hints (data-tip) ──────────────────────────────────────────────────
@@ -231,7 +231,7 @@ window.drSimpleUi = window.drSimpleUi || {};
             var el = t.closest('[data-tip]');
             if (!el || el.closest('.sidebar')) return null;
             // Optional app gate — e.g. a guided tour suppressing hints outside
-            // the live step. Set drSimpleUi.tips.gate = function (el) { … }.
+            // the live step. Set sednaUi.tips.gate = function (el) { … }.
             if (typeof api.gate === 'function' && !api.gate(el)) return null;
             return el;
         }
@@ -311,7 +311,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         return api;
     })();
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 21-copy.js ──────────────────────────────────────────────── */
 /* ── Declarative copy-to-clipboard ───────────────────────────────────────────
@@ -377,7 +377,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         ui.copyText(text).then(function (ok) { flash(btn, ok); });
     });
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 22-menu.js ──────────────────────────────────────────────── */
 /* ── Menus, delegated ────────────────────────────────────────────────────────
@@ -459,7 +459,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         try { open.focus(); } catch (err) { /* detached */ }
     });
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 23-tabs.js ──────────────────────────────────────────────── */
 /* ── Tabs, delegated ─────────────────────────────────────────────────────────
@@ -544,12 +544,12 @@ window.drSimpleUi = window.drSimpleUi || {};
         tabs[to].focus();
     });
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 24-palette.js ──────────────────────────────────────────────── */
 /* ── Command palette ─────────────────────────────────────────────────────────
-   drSimpleUi.palette.register([{ label, icon, group, note, run, keywords }])
-   drSimpleUi.palette.open()      — or Ctrl/Cmd-K, which is wired for you
+   sednaUi.palette.register([{ label, icon, group, note, run, keywords }])
+   sednaUi.palette.open()      — or Ctrl/Cmd-K, which is wired for you
 
    The scorer is ui._.score in 00-core.js, shared with the header search so the
    two cannot rank the same query differently. Matches in `keywords` score below
@@ -776,7 +776,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         ui.palette.open();
     });
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 25-search.js ──────────────────────────────────────────────── */
 /* ── Header search, delegated ────────────────────────────────────────────────
@@ -784,7 +784,7 @@ window.drSimpleUi = window.drSimpleUi || {};
    markup, and the dropdown, the ranking, the keyboard and the clear button come
    from here:
 
-     drSimpleUi.search.register([
+     sednaUi.search.register([
        { title, meta, code, tag, tone, href, keywords }, …
      ]);
 
@@ -1173,7 +1173,7 @@ window.drSimpleUi = window.drSimpleUi || {};
     window.addEventListener('resize', place);
     document.addEventListener('scroll', place, true);
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 26-dropzone.js ──────────────────────────────────────────────── */
 /* ── Dropzone, delegated ─────────────────────────────────────────────────────
@@ -1278,7 +1278,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         input.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 27-output.js ──────────────────────────────────────────────── */
 /* ── Output pane, follow-tail ─────────────────────────────────────────────────
@@ -1371,7 +1371,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         }
     }).observe(document.documentElement, { childList: true, subtree: true });
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 28-code-block.js ──────────────────────────────────────────────── */
 /* ── Code block, expand a clamped one ────────────────────────────────────────
@@ -1437,7 +1437,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         }
     });
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 30-markdown.js ──────────────────────────────────────────────── */
 /* ── Markdown editor ─────────────────────────────────────────────────────────
@@ -1625,7 +1625,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         }
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 40-interop.js ──────────────────────────────────────────────── */
 /* ── Small interop helpers ───────────────────────────────────────────────────
@@ -1633,7 +1633,7 @@ window.drSimpleUi = window.drSimpleUi || {};
    getItem / setItem take the RAW key and do not apply the storage prefix — they
    are a plain localStorage bridge for an app's own keys, not a view onto the
    library's settings, which live under the prefix and are reached through
-   drSimpleUi.settings.
+   sednaUi.settings.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -1691,15 +1691,15 @@ window.drSimpleUi = window.drSimpleUi || {};
         try { localStorage.setItem(k, value); } catch (e) { /* ignore */ }
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 41-spotlight.js ──────────────────────────────────────────────── */
 /* ── Spotlight positioning ───────────────────────────────────────────────────
    `.spotlight-hole` dims the page except one box. The box is what only the browser
    knows, so this measures a target and writes the four values onto the hole:
 
-     drSimpleUi.spotlight.at(hole, target)
-     drSimpleUi.spotlight.at(hole, target, { pad: 6 })
+     sednaUi.spotlight.at(hole, target)
+     sednaUi.spotlight.at(hole, target, { pad: 6 })
 
    The steps, the copy and the order are the app's. This is deliberately not a tour:
    a tour is a sequence with its own state, and a library that owned it would also own
@@ -1762,7 +1762,7 @@ window.drSimpleUi = window.drSimpleUi || {};
         }
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 50-notify.js ──────────────────────────────────────────────── */
 /* ── Desktop notifications and the audio ping ────────────────────────────────
@@ -1793,7 +1793,7 @@ window.drSimpleUi = window.drSimpleUi || {};
 
     // Short two-tone ping via WebAudio — no audio asset to ship. The context is
     // created lazily; browsers only allow it after a user gesture anyway. `this`
-    // is the drSimpleUi object when called as drSimpleUi.ping(), so the context is
+    // is the sednaUi object when called as sednaUi.ping(), so the context is
     // cached across calls on the global rather than rebuilt each time.
     ui.ping = function () {
         try {
@@ -1813,11 +1813,11 @@ window.drSimpleUi = window.drSimpleUi || {};
         } catch (e) { /* audio unavailable — the visual notification still fires */ }
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 51-toast.js ──────────────────────────────────────────────── */
 /* ── Toasts ──────────────────────────────────────────────────────────────────
-   drSimpleUi.toast('Dispatched ORD-4182', { kind: 'go' })
+   sednaUi.toast('Dispatched ORD-4182', { kind: 'go' })
 
    For confirming something that already happened. Anything the user must act on is
    an .alert, which stays until the state changes — a toast that carries a required
@@ -1924,11 +1924,11 @@ window.drSimpleUi = window.drSimpleUi || {};
         return remove;
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 
 /* ── 52-confirm.js ──────────────────────────────────────────────── */
 /* ── Confirmation dialog ─────────────────────────────────────────────────────
-   await drSimpleUi.confirm({ title, message, confirm, cancel, danger })
+   await sednaUi.confirm({ title, message, confirm, cancel, danger })
      → true if confirmed, false if cancelled or dismissed.
 
    Built on <dialog>.showModal(), which is the whole reason this exists rather than
@@ -2024,5 +2024,5 @@ window.drSimpleUi = window.drSimpleUi || {};
         });
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);
 

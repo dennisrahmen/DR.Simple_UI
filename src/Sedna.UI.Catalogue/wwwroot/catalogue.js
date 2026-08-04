@@ -14,7 +14,7 @@
    Nothing here is part of Sedna.UI. The library's own script is separate and
    loaded first.
    ─────────────────────────────────────────────────────────────────────────── */
-window.drSimpleUiCatalogue = (function () {
+window.sednaUiCatalogue = (function () {
 
     /* Computed values for a list of token names, in the theme currently applied.
        Read from the root element rather than from the stylesheet text: a token can
@@ -115,7 +115,7 @@ window.drSimpleUiCatalogue = (function () {
 
 /* "/" focuses the topbar search. A document-level key handler is not something
    Blazor offers, and focusing an element is not a DOM mutation, so this one stays
-   here. Everything the box then does is drSimpleUi.search.
+   here. Everything the box then does is sednaUi.search.
 
    Guarded on `e.target instanceof Element`: a keydown dispatched at `document`
    has no closest(). */

@@ -14,7 +14,7 @@
 #     4x  small interop helpers
 #     5x  notifications and the audio ping
 #
-# Each part is a self-contained IIFE that extends window.drSimpleUi, so a part is a
+# Each part is a self-contained IIFE that extends window.sednaUi, so a part is a
 # valid script on its own — take 00-core.js plus that part to use one feature
 # outside NuGet. Order still matters: 00-core.js creates the global and the shared
 # internals every other part reads.
@@ -58,7 +58,7 @@ for f in "${FILES[@]}"; do
     # Automatic semicolon insertion turns a missing terminator into a call
     # expression joining two parts. Every part ends with an IIFE, so require it.
     if [[ ! "$(tail -c 40 "$f" | tr -d '[:space:]')" =~ \)\;$ ]]; then
-        echo "::error::$base does not end with a terminated IIFE — '})(window.drSimpleUi);'"
+        echo "::error::$base does not end with a terminated IIFE — '})(window.sednaUi);'"
         echo "Without the semicolon, concatenation can splice it into the next part."
         exit 1
     fi

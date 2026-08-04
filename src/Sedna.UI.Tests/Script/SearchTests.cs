@@ -28,7 +28,7 @@ public class SearchTests : ScriptTestBase
 
     private const string Register =
         """
-        () => drSimpleUi.search.register([
+        () => sednaUi.search.register([
             { title: 'Approval queue', href: '/queue', code: '/queue', meta: 'Waiting on a human' },
             { title: 'Decided topics', href: '/decided', code: '/decided' },
             { title: 'Quality report', href: '/quality', keywords: 'metrics kpi' }
@@ -77,11 +77,11 @@ public class SearchTests : ScriptTestBase
 
         var ranked = await page.EvaluateAsync<string[]>("""
             () => {
-                drSimpleUi.search.register([
+                sednaUi.search.register([
                     { title: 'Autonomy settings', keywords: 'queue' },
                     { title: 'Approval queue' }
                 ]);
-                return drSimpleUi.search.rank('queue').map(i => i.title);
+                return sednaUi.search.rank('queue').map(i => i.title);
             }
             """);
 
@@ -143,7 +143,7 @@ public class SearchTests : ScriptTestBase
         // so the box sometimes holds the last search and sometimes does not.
         var page = await Open(Box);
         await page.EvaluateAsync(
-            "() => drSimpleUi.search.register([{ title: 'Approval queue', run: () => {} }])");
+            "() => sednaUi.search.register([{ title: 'Approval queue', run: () => {} }])");
 
         await page.FillAsync(".search-input", "queue");
         await page.ClickAsync(".search-item");
@@ -219,12 +219,12 @@ public class SearchTests : ScriptTestBase
 
         var ranked = await page.EvaluateAsync<string[]>("""
             () => {
-                drSimpleUi.search.register([
+                sednaUi.search.register([
                     { title: 'Semantic', keywords: 'badge badge-go badge-warn' },
                     { title: 'Head and body', keywords: 'card card-head badge badge-warn' },
                     { title: 'Badge go', keywords: 'badge' }
                 ]);
-                return drSimpleUi.search.rank('badge go').map(i => i.title);
+                return sednaUi.search.rank('badge go').map(i => i.title);
             }
             """);
 
@@ -244,11 +244,11 @@ public class SearchTests : ScriptTestBase
 
         var ranked = await page.EvaluateAsync<string[]>("""
             () => {
-                drSimpleUi.search.register([
+                sednaUi.search.register([
                     { title: 'Head and body', keywords: 'card card-head badge alert table-row grid' },
                     { title: 'Semantic', keywords: 'badge badge-go' }
                 ]);
-                return drSimpleUi.search.rank('badgo').map(i => i.title);
+                return sednaUi.search.rank('badgo').map(i => i.title);
             }
             """);
 
@@ -264,7 +264,7 @@ public class SearchTests : ScriptTestBase
         // A silently truncated list reads as "that is everything".
         var page = await Open(Box);
         await page.EvaluateAsync("""
-            () => drSimpleUi.search.register(
+            () => sednaUi.search.register(
                 Array.from({ length: 12 }, (_, i) => ({ title: 'Queue ' + i, href: '#' })))
             """);
 

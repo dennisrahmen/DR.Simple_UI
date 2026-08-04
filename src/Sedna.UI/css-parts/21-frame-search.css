@@ -7,7 +7,7 @@
        <input class="search-input" type="search" data-search placeholder="Search…">
      </div>
 
-   The clear button and the whole panel are built by drSimpleUi.search — see
+   The clear button and the whole panel are built by sednaUi.search — see
    js-parts/25-search.js — so the classes below the input have no markup an app
    writes. An app that wants to render the results itself (a Blazor component
    over its own database, say) uses the same classes and skips data-search.

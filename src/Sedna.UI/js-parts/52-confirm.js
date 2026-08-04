@@ -1,5 +1,5 @@
 /* ── Confirmation dialog ─────────────────────────────────────────────────────
-   await drSimpleUi.confirm({ title, message, confirm, cancel, danger })
+   await sednaUi.confirm({ title, message, confirm, cancel, danger })
      → true if confirmed, false if cancelled or dismissed.
 
    Built on <dialog>.showModal(), which is the whole reason this exists rather than
@@ -95,4 +95,4 @@
         });
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);

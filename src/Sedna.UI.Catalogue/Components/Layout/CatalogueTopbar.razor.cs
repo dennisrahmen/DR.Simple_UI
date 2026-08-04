@@ -72,7 +72,7 @@ public partial class CatalogueTopbar : ComponentBase
 
     private async Task Save(string key, string value)
     {
-        // settings.save stores the choice under the drui. prefix and stamps <html>,
+        // settings.save stores the choice under the sedna. prefix and stamps <html>,
         // which is what remaps the tokens. Nothing here touches data-* directly.
         await Ui.SaveSettingAsync(key, value);
 

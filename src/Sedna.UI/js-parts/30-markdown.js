@@ -183,4 +183,4 @@
         }
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);

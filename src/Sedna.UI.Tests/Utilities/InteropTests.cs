@@ -35,7 +35,7 @@ public class InteropTests : BunitContext
         await Wrapper().ToastAsync("Approved INC0031209", ToastKind.Go, title: "Done",
             timeoutMs: 0, dismissible: false);
 
-        var call = Only("drSimpleUi.toast");
+        var call = Only("sednaUi.toast");
         Assert.Equal("Approved INC0031209", call.Arguments[0]);
 
         var options = call.Arguments[1]!;
@@ -60,7 +60,7 @@ public class InteropTests : BunitContext
 
         await Wrapper().ToastAsync("x", kind);
 
-        Assert.Equal(expected, Read(Only("drSimpleUi.toast").Arguments[1]!, "kind"));
+        Assert.Equal(expected, Read(Only("sednaUi.toast").Arguments[1]!, "kind"));
         // .toast-go, .toast-warn, .toast-danger, .toast-info all exist.
         Assert.Contains($".toast-{expected}", Assets.Css, StringComparison.Ordinal);
     }
@@ -68,13 +68,13 @@ public class InteropTests : BunitContext
     [Fact]
     public async Task Confirm_maps_its_labels_onto_the_scripts_option_names()
     {
-        JSInterop.Setup<bool>("drSimpleUi.confirm", _ => true).SetResult(true);
+        JSInterop.Setup<bool>("sednaUi.confirm", _ => true).SetResult(true);
 
         var answer = await Wrapper().ConfirmAsync("Delete the queue?", "This cannot be undone.",
             confirmLabel: "Delete", cancelLabel: "Keep", danger: true);
 
         Assert.True(answer);
-        var options = Only("drSimpleUi.confirm").Arguments[0]!;
+        var options = Only("sednaUi.confirm").Arguments[0]!;
         Assert.Equal("Delete the queue?", Read(options, "title"));
         Assert.Equal("This cannot be undone.", Read(options, "message"));
         // The script reads `confirm` and `cancel`, not `confirmLabel`.
@@ -95,7 +95,7 @@ public class InteropTests : BunitContext
             LangCookie = true,
         }).ConfigureAsync();
 
-        var options = Only("drSimpleUi.configure").Arguments[0]!;
+        var options = Only("sednaUi.configure").Arguments[0]!;
         Assert.Equal("app-a.", Read(options, "storagePrefix"));
         Assert.Equal("/logo.png", Read(options, "notifyIcon"));
         Assert.Equal(true, Read(options, "langCookie"));
@@ -110,7 +110,7 @@ public class InteropTests : BunitContext
 
         // Not setItem: settings.save also stamps <html> and writes the language
         // cookie, which a raw localStorage write would skip.
-        var call = Only("drSimpleUi.settings.save");
+        var call = Only("sednaUi.settings.save");
         Assert.Equal("theme", call.Arguments[0]);
         Assert.Equal("light", call.Arguments[1]);
     }
@@ -124,7 +124,7 @@ public class InteropTests : BunitContext
             .SetItemAsync("lastQueue", "42");
 
         // A plain bridge for the app's own keys, not a view onto library settings.
-        Assert.Equal("lastQueue", Only("drSimpleUi.setItem").Arguments[0]);
+        Assert.Equal("lastQueue", Only("sednaUi.setItem").Arguments[0]);
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public class InteropTests : BunitContext
             [new PaletteCommand { Label = "Open the queue", Href = "/queue", Icon = "ri-inbox-line" }]);
 
         var commands = Assert.IsAssignableFrom<IReadOnlyList<PaletteCommand>>(
-            Only("drSimpleUi.palette.register").Arguments[0]!);
+            Only("sednaUi.palette.register").Arguments[0]!);
         var command = Assert.Single(commands);
 
         // A callback cannot cross the boundary — the library never calls back into
@@ -153,7 +153,7 @@ public class InteropTests : BunitContext
             [new SearchItem { Title = "Badges", Href = "/badge", Code = "/badge", Meta = "Semantic pills." }]);
 
         var items = Assert.IsAssignableFrom<IReadOnlyList<SearchItem>>(
-            Only("drSimpleUi.search.register").Arguments[0]!);
+            Only("sednaUi.search.register").Arguments[0]!);
         var item = Assert.Single(items);
 
         // Same boundary as the palette: the index is data, and navigation is the

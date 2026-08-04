@@ -1,7 +1,7 @@
 namespace Sedna.UI;
 
 /// <summary>
-/// Typed access to the <c>drSimpleUi</c> browser API from C#.
+/// Typed access to the <c>sednaUi</c> browser API from C#.
 /// </summary>
 /// <remarks>
 /// <para>

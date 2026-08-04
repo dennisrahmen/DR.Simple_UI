@@ -71,7 +71,7 @@
     {
         // The helper measures the target and writes the hole's four values; the app owns
         // which target, the copy and the order. That split is why there is no tour API.
-        var rect = await Js.InvokeAsync<object>("drSimpleUi.spotlight.at", _hole, _targets[_step]);
-        await Js.InvokeVoidAsync("drSimpleUi.spotlight.tipAt", _tip, rect, 12);
+        var rect = await Js.InvokeAsync<object>("sednaUi.spotlight.at", _hole, _targets[_step]);
+        await Js.InvokeVoidAsync("sednaUi.spotlight.tipAt", _tip, rect, 12);
     }
 }

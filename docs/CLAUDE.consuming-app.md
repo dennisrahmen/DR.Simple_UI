@@ -141,7 +141,7 @@ At the end of `<body>`:
 
 `brand.css` must load after the library stylesheet.
 
-Settings are stored under the default `drui.` prefix. Do not set `data-prefix` / `storagePrefix` unless
+Settings are stored under the default `sedna.` prefix. Do not set `data-prefix` / `storagePrefix` unless
 this app shares an origin with another app; if you do set one, both values must be identical.
 
 ### Upgrading

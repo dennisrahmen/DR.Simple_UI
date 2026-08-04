@@ -50,7 +50,7 @@ public class BootThemeTests : ScriptTestBase
         // reverted on the next load. Checked in both directions, and against
         // data-theme-default="system" where the machine would otherwise decide.
         const string tag = """<script src="/js/Sedna.UI.boot.js" data-theme-default="system"></script>""";
-        var storage = new Dictionary<string, string> { ["drui.theme"] = stored };
+        var storage = new Dictionary<string, string> { ["sedna.theme"] = stored };
 
         Assert.Equal(stored, await BootTheme(tag, machine, storage));
         Assert.Equal(stored, await BootTheme(BootTag, machine, storage));
@@ -63,9 +63,9 @@ public class BootThemeTests : ScriptTestBase
         var page = await Open("<p>x</p>", head: BootTag, withMainScript: false,
             storage: new Dictionary<string, string>
             {
-                ["drui.cvd"] = "1",
-                ["drui.density"] = "compact",
-                ["drui.lang"] = "de",
+                ["sedna.cvd"] = "1",
+                ["sedna.density"] = "compact",
+                ["sedna.lang"] = "de",
             });
 
         var root = await page.EvaluateAsync<JsonElement>("""
@@ -83,14 +83,14 @@ public class BootThemeTests : ScriptTestBase
     public async Task The_boot_and_main_scripts_agree_on_where_a_setting_is_stored()
     {
         if (NoBrowser) return;
-        // Both default to the "drui." prefix. If they disagreed, the theme boot would
+        // Both default to the "sedna." prefix. If they disagreed, the theme boot would
         // read a key the settings code never writes, and the choice would appear to be
         // forgotten on every reload. ShippedAssetsTests pins the two literals; this
         // checks the two implementations actually meet.
         var page = await Open("<p>x</p>", head: BootTag);
 
-        await page.EvaluateAsync("() => drSimpleUi.settings.save('theme', 'light')");
-        var storedKey = await page.EvaluateAsync<string?>("() => localStorage.getItem('drui.theme')");
+        await page.EvaluateAsync("() => sednaUi.settings.save('theme', 'light')");
+        var storedKey = await page.EvaluateAsync<string?>("() => localStorage.getItem('sedna.theme')");
         Assert.Equal("light", storedKey);
 
         await page.ReloadAsync();

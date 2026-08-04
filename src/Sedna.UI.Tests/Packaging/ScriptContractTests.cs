@@ -10,10 +10,10 @@ namespace Sedna.UI.Tests;
 public class ScriptContractTests
 {
     [Fact]
-    public void The_javascript_global_is_drSimpleUi()
+    public void The_javascript_global_is_sednaUi()
     {
         var js = File.ReadAllText(Assets.JsPath);
-        Assert.Contains("window.drSimpleUi", js, StringComparison.Ordinal);
+        Assert.Contains("window.sednaUi", js, StringComparison.Ordinal);
         Assert.Contains("configure", js, StringComparison.Ordinal);
     }
 

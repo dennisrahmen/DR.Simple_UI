@@ -30,7 +30,7 @@ Three things the package ships that markup cannot express:
 | Member | Purpose |
 |---|---|
 | `ActiveLink.IsActive` / `CssClass` / `AriaCurrent` | Which navigation link is the current page |
-| `ISednaUi` | Typed access to `drSimpleUi` — toasts, confirmations, clipboard, settings, palette, search, the Markdown editor |
+| `ISednaUi` | Typed access to `sednaUi` — toasts, confirmations, clipboard, settings, palette, search, the Markdown editor |
 | `AddSednaUi()` | Registers the above, scoped to the circuit |
 
 `ActiveLink` drops the query string and the fragment, treats a trailing slash as insignificant, and
@@ -173,7 +173,7 @@ Two consequences for a rule that sets a control's height:
 `data-theme="light"`, `data-cvd="1"`, `data-density="compact"` and `dir` are set on `<html>`.
 
 - `Sedna.UI.boot.js` applies them from `localStorage` before first paint.
-- `drSimpleUi.settings.save('theme', 'light')` updates them at runtime.
+- `sednaUi.settings.save('theme', 'light')` updates them at runtime.
 
 `dir` and `lang` are the two that are written **only from a stored choice**. Both are attributes the host
 page declares about itself, so with nothing stored they are left exactly as the document wrote them — the
@@ -241,7 +241,7 @@ Two things the flat list does not say:
 
 ## JavaScript
 
-`Sedna.UI.js` exposes the global `drSimpleUi`:
+`Sedna.UI.js` exposes the global `sednaUi`:
 
 | Member | Purpose |
 |---|---|
@@ -279,7 +279,7 @@ per keystroke owns that itself: the debounce length, cancelling a superseded key
 state are all decisions about *its* backend. It renders `.search-panel` with the same classes and
 leaves `data-search` off, and this file stays out of the way.
 
-`drSimpleUi.md.render()` escapes HTML before re-introducing a fixed set of Markdown constructs, and
+`sednaUi.md.render()` escapes HTML before re-introducing a fixed set of Markdown constructs, and
 restricts link hrefs to `http:`, `https:`, `mailto:` and root-relative paths. Sanitise untrusted input
 server-side as well.
 

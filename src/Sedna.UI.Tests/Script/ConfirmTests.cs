@@ -20,7 +20,7 @@ public class ConfirmTests : ScriptTestBase
         // The promise is parked on window so the click and the await are separate
         // steps — awaiting the evaluate call itself would deadlock on the dialog.
         await page.EvaluateAsync(
-            "() => { window.__answer = drSimpleUi.confirm({ title: 'Delete?' }); }");
+            "() => { window.__answer = sednaUi.confirm({ title: 'Delete?' }); }");
         await page.Locator($"dialog.modal .modal-footer {selector}").First.ClickAsync();
 
         Assert.Equal(expected, await page.EvaluateAsync<bool>("() => window.__answer"));
@@ -34,7 +34,7 @@ public class ConfirmTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open("<div></div>");
 
-        await page.EvaluateAsync("() => { window.__answer = drSimpleUi.confirm({ title: 'Delete?' }); }");
+        await page.EvaluateAsync("() => { window.__answer = sednaUi.confirm({ title: 'Delete?' }); }");
         await page.Locator("dialog.modal").WaitForAsync();
         await page.Keyboard.PressAsync("Escape");
 
@@ -58,7 +58,7 @@ public class ConfirmTests : ScriptTestBase
         // dialog does not close and `close` never arrives to cover for it.
         var page = await Open("<div></div>");
 
-        await page.EvaluateAsync("() => { window.__answer = drSimpleUi.confirm({ title: 'Delete?' }); }");
+        await page.EvaluateAsync("() => { window.__answer = sednaUi.confirm({ title: 'Delete?' }); }");
         await page.Locator("dialog.modal").WaitForAsync();
 
         // Raced against a timer so a hung promise fails in a second with a readable
@@ -83,7 +83,7 @@ public class ConfirmTests : ScriptTestBase
         var page = await Open("<div></div>");
 
         await page.EvaluateAsync(
-            "() => { window.__answer = drSimpleUi.confirm({ title: 'Delete?', danger: true }); }");
+            "() => { window.__answer = sednaUi.confirm({ title: 'Delete?', danger: true }); }");
         await page.Locator("dialog.modal").WaitForAsync();
 
         var focused = await page.EvaluateAsync<string>("() => document.activeElement.textContent");

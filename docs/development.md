@@ -49,7 +49,7 @@ src/Sedna.UI.Tests/
   Utilities/         ActiveLink, the interop wrappers and the DI registration
   Packaging/         shipped paths, csproj, the generated artefacts, brand assets, icons
   Browser/           what a CSS engine computes, and axe over every page
-  Script/            the drSimpleUi behaviour, one file per feature
+  Script/            the sednaUi behaviour, one file per feature
 ```
 
 Four layers, and they catch different things:
@@ -86,7 +86,7 @@ The guards, and what each is for:
 | The token export matches the stylesheet | The JSON is generated and committed, so it can drift |
 | Every class is shown somewhere in the catalogue | A class nobody can find is a class nobody uses |
 | The documented host page loads the assets in the right order | Every app copies that block; boot.js out of `<head>` flashes the wrong theme, and `brand.css` before the library never wins |
-| The `drSimpleUi` surface is pinned, and each member behaves | Removing or renaming a member is a Major change |
+| The `sednaUi` surface is pinned, and each member behaves | Removing or renaming a member is a Major change |
 | No `!important` | An app can always win an override |
 | Nothing is loaded or inlined | No runtime fetch, and no `data:` URI smuggling a colour past the colour guard |
 | Every `z-index` is on the documented scale | Overlay ordering stays reviewable |
@@ -124,7 +124,7 @@ DR_UI_BROWSER_TESTS=0 dotnet test Sedna.UI.slnx   # source scans only
 They assert computed values, never screenshots — see the decision note in
 [`architecture.md`](architecture.md#decisions-with-a-measurement-behind-them).
 
-`Script/` uses the same browser for the `drSimpleUi` behaviour, over a fake HTTPS origin served by request
+`Script/` uses the same browser for the `sednaUi` behaviour, over a fake HTTPS origin served by request
 interception rather than `file://`: `localStorage` needs a real origin, which `boot.js` depends on
 entirely, and the scripts have to be genuine `<script src>` tags because `boot.js` reads its options off
 `document.currentScript`.
@@ -211,7 +211,7 @@ The generated file opens with a contents block listing the parts in order and in
 a `── <file> ──` marker, so the single shipped stylesheet still reads as one section per component.
 
 The JS works the same way, with one extra rule the generator enforces: every part must end with a
-terminated IIFE (`})(window.drSimpleUi);`), because without the semicolon automatic semicolon insertion
+terminated IIFE (`})(window.sednaUi);`), because without the semicolon automatic semicolon insertion
 can splice a part into the next one. Each part extends the one global and is therefore a valid script
 on its own; `00-core.js` must come first, since it creates the global and the internals the others read.
 

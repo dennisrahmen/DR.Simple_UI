@@ -3,7 +3,7 @@
    markup, and the dropdown, the ranking, the keyboard and the clear button come
    from here:
 
-     drSimpleUi.search.register([
+     sednaUi.search.register([
        { title, meta, code, tag, tone, href, keywords }, …
      ]);
 
@@ -392,4 +392,4 @@
     window.addEventListener('resize', place);
     document.addEventListener('scroll', place, true);
 
-})(window.drSimpleUi);
+})(window.sednaUi);

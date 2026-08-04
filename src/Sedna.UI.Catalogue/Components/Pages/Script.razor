@@ -1,7 +1,7 @@
 @page "/script"
 
 <CatHead Title="The script">
-    <code>drSimpleUi</code> holds generic UI behaviour only: hover hints, theme settings,
+    <code>sednaUi</code> holds generic UI behaviour only: hover hints, theme settings,
     clipboard, toasts, confirmations, and delegated wiring for menus and tabs. App-specific
     interop stays in the app's own script.
 </CatHead>
@@ -57,7 +57,7 @@
 
 <CatExample TExample="Examples.Script.Toasts" Title="Toasts" Demo="ex-demo--block">
     <p>
-        <code>drSimpleUi.toast(message, opts)</code> creates the stack on first use, so the app
+        <code>sednaUi.toast(message, opts)</code> creates the stack on first use, so the app
         renders nothing and positions nothing. It returns a function that removes that toast early.
     </p>
     <p>
@@ -69,7 +69,7 @@
 
 <CatExample TExample="Examples.Script.Confirmation" Title="Confirmation" Demo="ex-demo--block">
     <p>
-        <code>await drSimpleUi.confirm({ … })</code> resolves <code>true</code> or
+        <code>await sednaUi.confirm({ … })</code> resolves <code>true</code> or
         <code>false</code>. It is built on <code>&lt;dialog&gt;.showModal()</code>, which is the
         point: the platform supplies the top layer, a focus trap, Escape-to-close and inert content
         behind, none of which a div-based overlay gets without a lot of code that is usually
@@ -138,14 +138,14 @@
     <p>
         Elements inside <code>.sidebar</code> are skipped on purpose: the collapsed rail has a CSS
         flyout, and both firing draws two tooltips. An app suppresses hints of its own with
-        <code>drSimpleUi.tips.gate</code>; the library has no knowledge of what is suppressing
+        <code>sednaUi.tips.gate</code>; the library has no knowledge of what is suppressing
         them.
     </p>
 </CatExample>
 
 <CatSnippet Name="Script/TipGate.txt" Title="Suppressing hints">
     <p>
-        Assign a predicate to <code>drSimpleUi.tips.gate</code> and it is asked before every hint. It
+        Assign a predicate to <code>sednaUi.tips.gate</code> and it is asked before every hint. It
         stays JavaScript-only, because a predicate cannot cross the interop boundary.
     </p>
 </CatSnippet>

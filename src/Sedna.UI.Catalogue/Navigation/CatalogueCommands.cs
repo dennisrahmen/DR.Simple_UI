@@ -5,7 +5,7 @@ namespace Sedna.UI.Catalogue.Navigation;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <c>drSimpleUi.palette</c> leaves the browser's own Ctrl-K binding alone until
+/// <c>sednaUi.palette</c> leaves the browser's own Ctrl-K binding alone until
 /// something is registered, so a site that never calls <c>register</c> has a
 /// command palette in the stylesheet and none in the browser. This site
 /// demonstrates the palette, so it has to have one.

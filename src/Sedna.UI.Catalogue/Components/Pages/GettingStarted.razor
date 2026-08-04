@@ -17,7 +17,7 @@
         The order matters. <code>boot.js</code> goes in <code>&lt;head&gt;</code> so the stored theme
         is applied before first paint; your own override file comes after the library stylesheet, and
         <code>Sedna.UI.js</code> comes before <code>blazor.web.js</code> so
-        <code>window.drSimpleUi</code> exists before an interactive component can call into it.
+        <code>window.sednaUi</code> exists before an interactive component can call into it.
     </p>
     <p>
         This is the block this site runs, and a test compares the two — so what you copy is what is
@@ -99,7 +99,7 @@
         links</strong>, not in the layout around it. When a parent re-renders, Blazor only hands new
         parameters to a child whose parameters differ, so a sidebar whose parameters are unchanged is
         skipped and goes on rendering the previous address. Call
-        <code>drSimpleUi.scrollPageTop</code> from the same handler:
+        <code>sednaUi.scrollPageTop</code> from the same handler:
         <code>.page</code> is the only scroll container, so navigation otherwise leaves the new page
         at the old one's offset.
     </p>

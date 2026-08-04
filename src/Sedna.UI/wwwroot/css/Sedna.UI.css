@@ -1555,7 +1555,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
        <input class="search-input" type="search" data-search placeholder="Search…">
      </div>
 
-   The clear button and the whole panel are built by drSimpleUi.search — see
+   The clear button and the whole panel are built by sednaUi.search — see
    js-parts/25-search.js — so the classes below the input have no markup an app
    writes. An app that wants to render the results itself (a Blazor component
    over its own database, say) uses the same classes and skips data-search.
@@ -2077,7 +2077,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 /* ── As a <dialog> ──────────────────────────────────────────────────────────
    `.modal` on a <dialog> opened with showModal() gets the top layer, a focus trap,
    Escape-to-close and inert content behind it — none of which a div-based backdrop
-   can do without a lot of code that is usually subtly wrong. drSimpleUi.confirm()
+   can do without a lot of code that is usually subtly wrong. sednaUi.confirm()
    uses this, and an app should too wherever its markup can be a <dialog>.
 
    No .modal-backdrop is involved: ::backdrop is the platform's own, so the
@@ -4806,7 +4806,7 @@ dialog.drawer[open] { visibility: visible; transform: none; }
 
    The list is a real role="listbox" of role="option" items, with the input as the
    combobox that owns it through aria-activedescendant. That claim is made only
-   because drSimpleUi.palette implements the keyboard contract behind it in full:
+   because sednaUi.palette implements the keyboard contract behind it in full:
    arrows, Home/End, Enter, and the highlight moving while focus stays in the input.
    aria-selected on a plain button is invalid and axe rejects it.
 
@@ -4974,7 +4974,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
    THE `popover` ATTRIBUTE IS REQUIRED, and so is opening it from a
    `popovertarget` control. The platform then supplies everything this file would
    otherwise need JavaScript for — the top layer, light dismiss, Escape, focus
-   handling, and `:popover-open`. There is no drSimpleUi.popover and there does
+   handling, and `:popover-open`. There is no sednaUi.popover and there does
    not need to be one.
 
    `popovertarget` also makes the invoker the popover's IMPLICIT ANCHOR, which is

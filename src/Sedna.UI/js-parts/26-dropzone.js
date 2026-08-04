@@ -100,4 +100,4 @@
         input.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
-})(window.drSimpleUi);
+})(window.sednaUi);

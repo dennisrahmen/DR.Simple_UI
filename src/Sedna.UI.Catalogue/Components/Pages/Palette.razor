@@ -9,7 +9,7 @@
 <CatExample TExample="Examples.Palette.CommandPalette" Title="Open it" Demo="ex-demo--block">
     <p>
         <strong>Live.</strong> This site registers one command per page with
-        <code>drSimpleUi.palette.register</code>. Until something is registered the library leaves
+        <code>sednaUi.palette.register</code>. Until something is registered the library leaves
         the browser's own <kbd>Ctrl</kbd>+<kbd>K</kbd> alone, so a site that documents the palette and
         never calls <code>register</code> has one in the stylesheet and none in the browser.
     </p>
@@ -71,7 +71,7 @@
         &ldquo;no results&rdquo;.
     </p>
     <p>
-        There is no fuzzy-match library. The scorer is <code>drSimpleUi._.score</code>, shared with
+        There is no fuzzy-match library. The scorer is <code>sednaUi._.score</code>, shared with
         the <a href="/frame">header search</a> so the two cannot rank the same query differently.
     </p>
 </CatSnippet>

@@ -21,11 +21,11 @@ public class PaletteTests : ScriptTestBase
         Assert.Equal(0, await page.Locator("dialog.palette").CountAsync());
 
         await page.EvaluateAsync(
-            "() => drSimpleUi.palette.register([{ label: 'Open queue', run: () => {} }])");
+            "() => sednaUi.palette.register([{ label: 'Open queue', run: () => {} }])");
         await page.Keyboard.PressAsync("Control+k");
         Assert.Equal(1, await page.Locator("dialog.palette[open]").CountAsync());
 
-        await page.EvaluateAsync("() => drSimpleUi.palette.close()");
+        await page.EvaluateAsync("() => sednaUi.palette.close()");
         Assert.Equal(0, await page.Locator("dialog.palette[open]").CountAsync());
     }
 
@@ -37,12 +37,12 @@ public class PaletteTests : ScriptTestBase
 
         var ranked = await page.EvaluateAsync<string[]>("""
             () => {
-                drSimpleUi.palette.register([
+                sednaUi.palette.register([
                     { label: 'Approve transfer', run: () => {} },
                     { label: 'Open queue', run: () => {} },
                     { label: 'Open quality report', run: () => {} }
                 ]);
-                return drSimpleUi.palette.rank('opq').map(c => c.label);
+                return sednaUi.palette.rank('opq').map(c => c.label);
             }
             """);
 

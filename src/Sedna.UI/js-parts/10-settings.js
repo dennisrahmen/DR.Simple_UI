@@ -64,4 +64,4 @@
         }
     };
 
-})(window.drSimpleUi);
+})(window.sednaUi);

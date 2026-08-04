@@ -43,7 +43,7 @@ optional and falls back to the attempting row. Blazor puts the state classes on
 `#components-reconnect-modal` itself and the stylesheet shows one row at a time — omit a required row
 and that state renders as an empty bar.
 
-No configuration is required. `drSimpleUi.configure()` is only needed for the options below.
+No configuration is required. `sednaUi.configure()` is only needed for the options below.
 
 ### `configure()` options
 
@@ -51,15 +51,15 @@ No configuration is required. `drSimpleUi.configure()` is only needed for the op
 |---|---|---|
 | `notifyIcon` | `null` | Icon for desktop notifications. |
 | `langCookie` | `false` | Mirror the language into a cookie for server-side prerendering. |
-| `storagePrefix` | `drui.` | See below. Rarely needed. |
+| `storagePrefix` | `sedna.` | See below. Rarely needed. |
 
 ### Storage keys
 
-Settings are stored under `drui.theme`, `drui.cvd`, `drui.density`, `drui.dir` and `drui.lang`.
+Settings are stored under `sedna.theme`, `sedna.cvd`, `sedna.density`, `sedna.dir` and `sedna.lang`.
 `localStorage` is scoped per origin, so apps on different domains never share state and the default
 prefix is fine.
 
-`drui.dir` and `drui.lang` are the two that are only applied **once stored**. Both are attributes the
+`sedna.dir` and `sedna.lang` are the two that are only applied **once stored**. Both are attributes the
 host page declares about itself, so with nothing stored `<html dir>` and `<html lang>` are left exactly
 as written — the library never infers a document's direction or language from the browser's.
 
@@ -71,7 +71,7 @@ If you override it, set the same value in both places or the theme is not found 
 
 ```html
 <script src="_content/Sedna.UI/js/Sedna.UI.boot.js" data-prefix="app-a."></script>
-<script>drSimpleUi.configure({ storagePrefix: 'app-a.' });</script>
+<script>sednaUi.configure({ storagePrefix: 'app-a.' });</script>
 ```
 
 ## Branding
@@ -181,7 +181,7 @@ builder.Services.AddSednaUi();
 ```
 
 That registers `ISednaUi`, a typed wrapper over the browser API — `ToastAsync`, `ConfirmAsync`,
-`CopyTextAsync`, `SaveSettingAsync`, the command palette, and the rest of `drSimpleUi`.
+`CopyTextAsync`, `SaveSettingAsync`, the command palette, and the rest of `sednaUi`.
 
 Every member is a JavaScript call, so **none of them can run during prerendering**. Call them from an
 event handler, or from `OnAfterRenderAsync(firstRender: true)`. They deliberately do not swallow the

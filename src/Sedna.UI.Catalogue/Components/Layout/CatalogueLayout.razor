@@ -58,7 +58,7 @@
         if (!firstRender) return;
         await Ui.RegisterSearchAsync(Search.Items);
 
-        // Until something is registered, drSimpleUi.palette deliberately leaves the
+        // Until something is registered, sednaUi.palette deliberately leaves the
         // browser's own Ctrl-K alone — so a site that documents the palette and
         // never calls this has one in the stylesheet and none in the browser.
         await Ui.RegisterCommandsAsync(CatalogueCommands.All);

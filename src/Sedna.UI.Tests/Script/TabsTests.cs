@@ -77,7 +77,7 @@ public class TabsTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Open(TabsFixture);
 
-        await page.EvaluateAsync("() => drSimpleUi.tabs.select('p3')");
+        await page.EvaluateAsync("() => sednaUi.tabs.select('p3')");
 
         Assert.Equal("true", await page.Locator("#t3").GetAttributeAsync("aria-selected"));
         Assert.False(await page.EvaluateAsync<bool>("() => document.getElementById('p3').hidden"));

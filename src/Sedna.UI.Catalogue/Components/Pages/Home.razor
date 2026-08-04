@@ -100,7 +100,7 @@
     {
         if (!firstRender) return;
 
-        _inventory = await Js.InvokeAsync<Inventory>("drSimpleUiCatalogue.readInventory");
+        _inventory = await Js.InvokeAsync<Inventory>("sednaUiCatalogue.readInventory");
         StateHasChanged();
     }
 }
