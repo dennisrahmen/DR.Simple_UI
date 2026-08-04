@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Rename `Sedna.UI` to `Sedna.UI` across every surface the library owns — package, namespace, C# types, JavaScript global, CSS utility and cascade-layer namespaces, storage prefix, shipped asset paths, build scripts, guards, docs, CI and deploy config — without changing a single design-token value.
+**Goal:** Rename `DR.Simple_UI` to `Sedna.UI` across every surface the library owns — package, namespace, C# types, JavaScript global, CSS utility and cascade-layer namespaces, storage prefix, shipped asset paths, build scripts, guards, docs, CI and deploy config — without changing a single design-token value.
 
 **Architecture:** Four stages on branch `rebrand/sedna-ui`, merged as one PR so `main` is never half-renamed. Stage 3 (brand assets) is blocked on artwork and is the last task here, marked BLOCKED. Substitutions are applied with `perl -pi` using an ordered, case-sensitive rule list; directory moves use `git mv` so history follows. Generated artefacts are never hand-edited — the generators are edited and re-run.
 
@@ -27,9 +27,15 @@
 
 Applied with `perl -pi -e` so lookahead is available. Case-sensitive. The order within a task matters where noted.
 
+**Every sweep must exclude `docs/superpowers/*`.** The spec and this plan are the
+only files that legitimately contain "old → new" tables, and a blind sweep turns
+each row into "new → new", destroying the record of what changed. Task 1's first
+run did exactly that and the documents had to be restored from git.
+
 | # | Pattern (perl) | Replacement | Task |
 |---|---|---|---|
 | R1 | `DR\.Simple_UI` | `Sedna.UI` | 1 |
+| R1b | `DR\\\.Simple_UI` (a literal backslash before each dot) | `Sedna\.UI` | 1 |
 | R2 | `DR_UI_BROWSER_TESTS` | `SEDNA_UI_BROWSER_TESTS` | 8 |
 | R3 | `dr\.simple_ui` | `sedna.ui` | 8 |
 | R4 | `DrSimpleUi` | `SednaUi` | 2 |
@@ -42,7 +48,16 @@ Applied with `perl -pi -e` so lookahead is available. Case-sensitive. The order 
 | R11 | `\bdr-(?!simple-ui)` | `sedna-` | 5 |
 | R12 | `dr-simple-ui` | `sedna-ui` | **10 (BLOCKED)** |
 
-R1 covers `Sedna.UI.Tests`, `Sedna.UI.Catalogue` and `Sedna.UI.Catalogue.Tests` because the suffixes survive. R4 covers `IDrSimpleUi` → `ISednaUi` and `DrSimpleUiServiceCollectionExtensions`. R7 covers `drSimpleUiCatalogue`. R5 must precede any `drsimpleui` rule. R10 must precede R11. R11's negative lookahead is what protects the brand filenames.
+R1 covers `DR.Simple_UI.Tests`, `DR.Simple_UI.Catalogue` and `DR.Simple_UI.Catalogue.Tests` because the suffixes survive.
+
+**R1b exists because R1 cannot match an escaped form.** `build/verify-package.sh`
+greps the package listing with `'DR\.Simple_UI\.Catalogue'` and
+`'^staticwebassets/DR\.Simple_UI\.bundle\.scp\.css$'` — regex literals in which
+each dot is backslash-escaped. R1's pattern expects a bare dot, so it leaves them
+untouched, and the guard then searches for an assembly name that can no longer
+exist: **the "catalogue leaked into the package" check goes silently inert while
+still printing `ok`.** These two lines are the only escaped survivors in the
+repository, confirmed with `grep -nI 'DR\\\.Simple'`. R4 covers `IDrSimpleUi` → `ISednaUi` and `DrSimpleUiServiceCollectionExtensions`. R7 covers `drSimpleUiCatalogue`. R5 must precede any `drsimpleui` rule. R10 must precede R11. R11's negative lookahead is what protects the brand filenames.
 
 **What R11 renames**, beyond the 36 utility class selectors:
 
@@ -72,28 +87,28 @@ The existing guard tests **are** the specification. For Tasks 1, 2, 3, 5, 6 and 
 
 | From | To |
 |---|---|
-| `Sedna.UI.slnx` | `Sedna.UI.slnx` |
-| `src/Sedna.UI/` | `src/Sedna.UI/` |
-| `src/Sedna.UI/Sedna.UI.csproj` | `src/Sedna.UI/Sedna.UI.csproj` |
-| `src/Sedna.UI.Tests/` | `src/Sedna.UI.Tests/` |
-| `src/Sedna.UI.Catalogue/` | `src/Sedna.UI.Catalogue/` |
-| `src/Sedna.UI.Catalogue.Tests/` | `src/Sedna.UI.Catalogue.Tests/` |
+| `DR.Simple_UI.slnx` | `Sedna.UI.slnx` |
+| `src/DR.Simple_UI/` | `src/Sedna.UI/` |
+| `src/DR.Simple_UI/DR.Simple_UI.csproj` | `src/Sedna.UI/Sedna.UI.csproj` |
+| `src/DR.Simple_UI.Tests/` | `src/Sedna.UI.Tests/` |
+| `src/DR.Simple_UI.Catalogue/` | `src/Sedna.UI.Catalogue/` |
+| `src/DR.Simple_UI.Catalogue.Tests/` | `src/Sedna.UI.Catalogue.Tests/` |
 | `src/Sedna.UI/Interop/DrSimpleUi.cs` | `src/Sedna.UI/Interop/SednaUi.cs` |
 | `src/Sedna.UI/Interop/IDrSimpleUi.cs` | `src/Sedna.UI/Interop/ISednaUi.cs` |
 | `src/Sedna.UI/Interop/DrSimpleUiOptions.cs` | `src/Sedna.UI/Interop/SednaUiOptions.cs` |
 | `src/Sedna.UI/Interop/DrSimpleUiSettings.cs` | `src/Sedna.UI/Interop/SednaUiSettings.cs` |
 | `src/Sedna.UI/DependencyInjection/DrSimpleUiServiceCollectionExtensions.cs` | `.../SednaUiServiceCollectionExtensions.cs` |
-| `src/Sedna.UI/wwwroot/css/Sedna.UI.css` | `src/Sedna.UI/wwwroot/css/Sedna.UI.css` |
-| `src/Sedna.UI/wwwroot/js/Sedna.UI.js` | `src/Sedna.UI/wwwroot/js/Sedna.UI.js` |
-| `src/Sedna.UI/wwwroot/js/Sedna.UI.boot.js` | `src/Sedna.UI/wwwroot/js/Sedna.UI.boot.js` |
-| `src/Sedna.UI/wwwroot/tokens/Sedna.UI.tokens.json` | `src/Sedna.UI/wwwroot/tokens/Sedna.UI.tokens.json` |
+| `src/Sedna.UI/wwwroot/css/DR.Simple_UI.css` | `src/Sedna.UI/wwwroot/css/Sedna.UI.css` |
+| `src/Sedna.UI/wwwroot/js/DR.Simple_UI.js` | `src/Sedna.UI/wwwroot/js/Sedna.UI.js` |
+| `src/Sedna.UI/wwwroot/js/DR.Simple_UI.boot.js` | `src/Sedna.UI/wwwroot/js/Sedna.UI.boot.js` |
+| `src/Sedna.UI/wwwroot/tokens/DR.Simple_UI.tokens.json` | `src/Sedna.UI/wwwroot/tokens/Sedna.UI.tokens.json` |
 
 **Created:**
 
 | File | Responsibility |
 |---|---|
 | `build/css-path.sh` | The single implementation of "where did the stylesheet live at this git ref". Consumed by `class-history.sh` and `release-inventory.sh`. |
-| `src/Sedna.UI.Tests/Packaging/BrandNamingTests.cs` | The old-brand regression guard: no `dr-`, `Sedna.UI`, `drSimpleUi`, `drui.` or `@layer dr.` in the shipped assets or the catalogue's sources. |
+| `src/Sedna.UI.Tests/Packaging/BrandNamingTests.cs` | The old-brand regression guard: no `dr-`, `DR.Simple_UI`, `drSimpleUi`, `drui.` or `@layer dr.` in the shipped assets or the catalogue's sources. |
 | `docs/migrating-from-dr-simple-ui.md` | The consumer migration guide. Published by the MCP server — see Task 8. |
 
 ---
@@ -102,7 +117,7 @@ The existing guard tests **are** the specification. For Tasks 1, 2, 3, 5, 6 and 
 
 **Files:**
 - Move: the six project/solution paths in the File Structure table
-- Modify: all four `.csproj`, `Sedna.UI.slnx`, every `.cs` and `.razor` with a `Sedna.UI` namespace or `using`, `src/Sedna.UI.Tests/TestSupport/Assets.cs`, `src/Sedna.UI.Catalogue.Tests/TestSupport/CatalogueAssets.cs`, `.editorconfig`, `build/*.sh` path variables, `railway.json`, `src/Sedna.UI.Catalogue/Dockerfile`, `.github/workflows/*.yml`
+- Modify: all four `.csproj`, `Sedna.UI.slnx`, every `.cs` and `.razor` with a `DR.Simple_UI` namespace or `using`, `src/Sedna.UI.Tests/TestSupport/Assets.cs`, `src/Sedna.UI.Catalogue.Tests/TestSupport/CatalogueAssets.cs`, `.editorconfig`, `build/*.sh` path variables, `railway.json`, `src/Sedna.UI.Catalogue/Dockerfile`, `.github/workflows/*.yml`
 - Test: the whole existing suite is the test
 
 **Interfaces:**
@@ -121,37 +136,47 @@ git status --short   # expect: only the spec/plan additions, nothing deleted
 - [ ] **Step 2: Move the solution file and the four project directories**
 
 ```bash
-git mv Sedna.UI.slnx Sedna.UI.slnx
-git mv src/Sedna.UI.Catalogue.Tests src/Sedna.UI.Catalogue.Tests
-git mv src/Sedna.UI.Catalogue      src/Sedna.UI.Catalogue
-git mv src/Sedna.UI.Tests          src/Sedna.UI.Tests
-git mv src/Sedna.UI                src/Sedna.UI
-git mv src/Sedna.UI/Sedna.UI.csproj                             src/Sedna.UI/Sedna.UI.csproj
-git mv src/Sedna.UI.Tests/Sedna.UI.Tests.csproj                 src/Sedna.UI.Tests/Sedna.UI.Tests.csproj
-git mv src/Sedna.UI.Catalogue/Sedna.UI.Catalogue.csproj         src/Sedna.UI.Catalogue/Sedna.UI.Catalogue.csproj
-git mv src/Sedna.UI.Catalogue.Tests/Sedna.UI.Catalogue.Tests.csproj src/Sedna.UI.Catalogue.Tests/Sedna.UI.Catalogue.Tests.csproj
+git mv DR.Simple_UI.slnx Sedna.UI.slnx
+git mv src/DR.Simple_UI.Catalogue.Tests src/Sedna.UI.Catalogue.Tests
+git mv src/DR.Simple_UI.Catalogue      src/Sedna.UI.Catalogue
+git mv src/DR.Simple_UI.Tests          src/Sedna.UI.Tests
+git mv src/DR.Simple_UI                src/Sedna.UI
+git mv src/Sedna.UI/DR.Simple_UI.csproj                             src/Sedna.UI/Sedna.UI.csproj
+git mv src/Sedna.UI.Tests/DR.Simple_UI.Tests.csproj                 src/Sedna.UI.Tests/Sedna.UI.Tests.csproj
+git mv src/Sedna.UI.Catalogue/DR.Simple_UI.Catalogue.csproj         src/Sedna.UI.Catalogue/Sedna.UI.Catalogue.csproj
+git mv src/Sedna.UI.Catalogue.Tests/DR.Simple_UI.Catalogue.Tests.csproj src/Sedna.UI.Catalogue.Tests/Sedna.UI.Catalogue.Tests.csproj
 ```
 
-Order matters: the two `.Catalogue*` directories move before `src/Sedna.UI`, because moving the shorter path first would leave the longer ones dangling.
+Order matters: the two `.Catalogue*` directories move before `src/DR.Simple_UI`, because moving the shorter path first would leave the longer ones dangling.
 
-- [ ] **Step 3: Apply R1 to every tracked text file, excluding the brand assets**
+- [ ] **Step 3: Apply R1 and R1b to every tracked text file, excluding the brand assets and this plan's own documents**
 
 ```bash
-git ls-files -z -- ':!:assets/brand/*' \
+git ls-files -z -- ':!:assets/brand/*' ':!:docs/superpowers/*' \
   | xargs -0 grep -lIZ 'DR\.Simple_UI' \
-  | xargs -0 perl -pi -e 's/DR\.Simple_UI/Sedna.UI/g'
+  | xargs -0 perl -pi \
+      -e 's/DR\\\.Simple_UI/Sedna\\.UI/g;' \
+      -e 's/DR\.Simple_UI/Sedna.UI/g;'
 ```
 
-`-I` skips binary files. `assets/brand/*` is excluded because its `.svg` files carry the old name in metadata and belong to Task 10.
+`-I` skips binary files. `assets/brand/*` is excluded because its `.svg` files carry the old name in metadata and belong to Task 10. **`docs/superpowers/*` is excluded because the spec and this plan are the only files whose "old → new" tables must keep the old name** — a blind sweep rewrites every row to "new → new". R1b runs first, so the escaped forms in `build/verify-package.sh` become `Sedna\.UI` and stay valid grep patterns rather than being missed.
 
-- [ ] **Step 4: Verify no `Sedna.UI` survives outside the brand directory and the spec**
+- [ ] **Step 4: Verify no `DR.Simple_UI` survives, in either spelling, outside the brand directory and this plan's documents**
 
 ```bash
-git ls-files -z | xargs -0 grep -nI 'DR\.Simple_UI' \
+git ls-files -z | xargs -0 grep -nI -e 'DR\.Simple_UI' -e 'DR\\\.Simple_UI' \
   | grep -v '^assets/brand/' | grep -v '^docs/superpowers/'
 ```
 
-Expected: no output. The spec and this plan legitimately name the old brand and are excluded.
+Expected: no output.
+
+- [ ] **Step 4a: Confirm the two package guards are still live patterns, not inert ones**
+
+```bash
+grep -n 'Sedna' build/verify-package.sh | grep 'grep -'
+```
+
+Expected: `grep -qi 'Sedna\.UI\.Catalogue'` and `grep -q '^staticwebassets/Sedna\.UI\.bundle\.scp\.css$'`. If either still names `DR`, the guard prints `ok` while checking for something that cannot exist.
 
 - [ ] **Step 5: Confirm the four csproj identity properties**
 
@@ -173,16 +198,52 @@ grep -n '^\[src/' .editorconfig
 
 Expected: `[src/Sedna.UI.Tests/**.cs]` and `[src/Sedna.UI.Catalogue{,.Tests}/**.cs]`.
 
-- [ ] **Step 7: Run the gate**
+- [ ] **Step 7: Move the four generated assets — this task cannot be green without it**
+
+R1 rewrote the asset-path *literals* in `Assets.cs`, `ShippedPathTests`, `verify-package.sh`, `App.razor`, `getting-started.md` and the three generators. The files on disk still carry the old names, so the literals now point at nothing. The first execution of this plan separated these moves into Task 3 and Task 1's gate failed with 224 tests red for exactly this reason: **the rename of a path and the move of the file it names are one atomic change, not two.**
+
+```bash
+git mv src/Sedna.UI/wwwroot/css/DR.Simple_UI.css            src/Sedna.UI/wwwroot/css/Sedna.UI.css
+git mv src/Sedna.UI/wwwroot/js/DR.Simple_UI.js              src/Sedna.UI/wwwroot/js/Sedna.UI.js
+git mv src/Sedna.UI/wwwroot/js/DR.Simple_UI.boot.js         src/Sedna.UI/wwwroot/js/Sedna.UI.boot.js
+git mv src/Sedna.UI/wwwroot/tokens/DR.Simple_UI.tokens.json src/Sedna.UI/wwwroot/tokens/Sedna.UI.tokens.json
+ls src/Sedna.UI/wwwroot/css src/Sedna.UI/wwwroot/js src/Sedna.UI/wwwroot/tokens
+```
+
+Expected: no filename under `wwwroot` contains `DR`.
+
+- [ ] **Step 8: Regenerate the three generated artefacts**
+
+Their header comments name their generator and source directory, both of which moved.
+
+```bash
+bash build/bundle-css.sh
+bash build/bundle-js.sh
+bash build/export-tokens.sh
+git status --short src/Sedna.UI/wwwroot
+```
+
+Expected: the three generated files show as modified. `Sedna.UI.boot.js` is hand-maintained and must NOT appear — no generator writes it.
+
+- [ ] **Step 9: Run the gate**
 
 ```bash
 dotnet build Sedna.UI.slnx -c Debug
 DR_UI_BROWSER_TESTS=1 dotnet test Sedna.UI.slnx -c Debug --no-build
 ```
 
-Expected: PASS. `Assets.FindRepoRoot()` now looks for `Sedna.UI.slnx`; if every test fails with "Could not find Sedna.UI.slnx", R1 missed `Assets.cs`.
+Expected: PASS. Two failure modes worth naming: every test failing with "Could not find Sedna.UI.slnx" means R1 missed `Assets.cs`; a cluster of missing-file assertions plus 30-second Playwright navigation timeouts means Step 7's moves are incomplete.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 10: Pack and verify the package**
+
+```bash
+dotnet pack src/Sedna.UI/Sedna.UI.csproj -c Release -o artifacts
+bash build/verify-package.sh artifacts/Sedna.UI.0.1.0.nupkg
+```
+
+Expected: every asserted path present, no catalogue, exactly one dependency. The packed icon is still `dr-simple-ui-icon-128.png` renamed to `icon.png` — correct until Task 10.
+
+- [ ] **Step 11: Commit**
 
 ```bash
 git add -A
@@ -250,76 +311,64 @@ git commit -m "Rename the public C# surface to SednaUi"
 
 ---
 
-### Task 3: Rename the shipped asset filenames and teach the generators
+### Task 3: Verify the asset-path coupling — moves ABSORBED INTO TASK 1
+
+**This task's `git mv`s moved into Task 1 Steps 7–10.** The first execution of
+this plan separated them and Task 1's gate failed with 224 tests red: R1 rewrites
+the asset-path *literals*, so the files must move in the same commit or every
+path-based assertion points at nothing. Renaming a path and moving the file it
+names is one atomic change.
+
+Task 3 is kept as a numbered slot rather than renumbered, because
+`scripts/task-brief` extracts by task number and renumbering would silently
+misalign every later brief.
 
 **Files:**
-- Move: the four `wwwroot` assets in the File Structure table
-- Modify: `build/bundle-css.sh`, `build/bundle-js.sh`, `build/export-tokens.sh`, `build/verify-package.sh`, `build/class-history.sh`, `build/release-inventory.sh`, `src/Sedna.UI.Catalogue/Components/App.razor`, `docs/getting-started.md`
-- Test: `Packaging/ShippedPathTests.cs`, `Packaging/DocumentationTests.cs`, `Packaging/GeneratedArtefactTests.cs`, `src/Sedna.UI.Catalogue.Tests/HostPageTests.cs`
+- Verify only: `src/Sedna.UI.Catalogue/Components/App.razor`, `docs/getting-started.md`, `build/verify-package.sh`
+- Test: `src/Sedna.UI.Catalogue.Tests/HostPageTests.cs`
 
 **Interfaces:**
-- Consumes: Task 1's paths.
-- Produces: `_content/Sedna.UI/css/Sedna.UI.css`, `_content/Sedna.UI/js/Sedna.UI.js`, `_content/Sedna.UI/js/Sedna.UI.boot.js`, `_content/Sedna.UI/tokens/Sedna.UI.tokens.json`. `Assets.CssPath`, `JsPath`, `BootJsPath`, `TokensPath` resolve to the new filenames. Later tasks re-run `build/bundle-css.sh` and `build/bundle-js.sh`, which now write these names.
+- Consumes: Task 1's moved assets and swept literals.
+- Produces: nothing new. This is a checkpoint.
 
-Task 1's R1 already rewrote the *contents* of these scripts and of `App.razor`, because the strings contained `Sedna.UI`. This task moves the files on disk so the strings and the filesystem agree again, and verifies the coupling.
+- [ ] **Step 1: Confirm the host page and the documented block still agree**
 
-- [ ] **Step 1: Move the four generated assets**
-
-```bash
-git mv src/Sedna.UI/wwwroot/css/Sedna.UI.css        src/Sedna.UI/wwwroot/css/Sedna.UI.css
-git mv src/Sedna.UI/wwwroot/js/Sedna.UI.js          src/Sedna.UI/wwwroot/js/Sedna.UI.js
-git mv src/Sedna.UI/wwwroot/js/Sedna.UI.boot.js     src/Sedna.UI/wwwroot/js/Sedna.UI.boot.js
-git mv src/Sedna.UI/wwwroot/tokens/Sedna.UI.tokens.json src/Sedna.UI/wwwroot/tokens/Sedna.UI.tokens.json
-```
-
-- [ ] **Step 2: Confirm the generators point at the new names**
-
-```bash
-grep -n 'OUT=\|PARTS=\|"name"' build/bundle-css.sh build/bundle-js.sh build/export-tokens.sh
-```
-
-Expected: `OUT="$ROOT/src/Sedna.UI/wwwroot/css/Sedna.UI.css"`, `OUT="$ROOT/src/Sedna.UI/wwwroot/js/Sedna.UI.js"`, `OUT="$ROOT/src/Sedna.UI/wwwroot/tokens/Sedna.UI.tokens.json"`, `PARTS="$ROOT/src/Sedna.UI/css-parts"`, `PARTS="$ROOT/src/Sedna.UI/js-parts"`, and `"name": "Sedna.UI",` in `export-tokens.sh`.
-
-- [ ] **Step 3: Regenerate all three artefacts and confirm the byte-for-byte guard passes**
-
-```bash
-bash build/bundle-css.sh
-bash build/bundle-js.sh
-bash build/export-tokens.sh
-git status --short src/Sedna.UI/wwwroot
-```
-
-The header comment inside each bundle names its generator and source directory, so regenerating updates that text too. Expected: the three generated files show as modified.
-
-- [ ] **Step 4: Confirm the host page and the documented block still agree**
-
-`HostPageTests` asserts `docs/getting-started.md`'s block is a substring of `App.razor` with comments stripped, so the two must carry identical asset paths.
+`HostPageTests` asserts `docs/getting-started.md`'s block is a substring of
+`App.razor` with comments stripped, so the two must carry identical asset paths.
+Neither file is generated, so a mismatch here is a real drift.
 
 ```bash
 grep -n '_content/Sedna.UI' src/Sedna.UI.Catalogue/Components/App.razor docs/getting-started.md
 ```
 
-Expected: `js/Sedna.UI.boot.js`, `lib/remixicon/remixicon.css`, `css/Sedna.UI.css` and `js/Sedna.UI.js` in both, in that order.
+Expected, in both and in this order: `js/Sedna.UI.boot.js`,
+`lib/remixicon/remixicon.css`, `css/Sedna.UI.css`, `js/Sedna.UI.js`.
 
-- [ ] **Step 5: Run the gate, then pack and verify the package**
+- [ ] **Step 2: Confirm no generated artefact disagrees with its parts**
 
 ```bash
-dotnet build Sedna.UI.slnx -c Debug
-DR_UI_BROWSER_TESTS=1 dotnet test Sedna.UI.slnx -c Debug --no-build
-dotnet pack src/Sedna.UI/Sedna.UI.csproj -c Release -o artifacts
+bash build/bundle-css.sh && bash build/bundle-js.sh && bash build/export-tokens.sh
+git status --porcelain src/Sedna.UI/wwwroot
+```
+
+Expected: empty. Task 1 already regenerated them, so a diff here means a
+generator is non-deterministic or Task 1's commit missed a file.
+
+- [ ] **Step 3: Confirm both package guards are live patterns**
+
+```bash
 bash build/verify-package.sh artifacts/Sedna.UI.0.1.0.nupkg
+grep -n 'Sedna' build/verify-package.sh | grep 'grep -'
 ```
 
-Expected: tests PASS; `verify-package.sh` reports every asserted path present, no `staticwebassets/catalogue/`, no catalogue assembly, exactly one dependency. The packed icon is still `dr-simple-ui-icon-128.png` renamed to `icon.png` — correct until Task 10.
+Expected: the script green, and both greps naming `Sedna\.UI\.Catalogue` and
+`^staticwebassets/Sedna\.UI\.bundle\.scp\.css$`. A pattern still naming `DR`
+prints `ok` while checking for something that cannot exist.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 4: Nothing to commit**
 
-```bash
-git add -A
-git commit -m "Rename the shipped asset filenames to Sedna.UI"
-```
-
----
+If Steps 1–3 are clean this task produces no commit. Say so rather than
+manufacturing an empty one.
 
 ### Task 4: Add `build/css-path.sh` and fix the two historical-path readers
 
@@ -408,7 +457,7 @@ Expected: FAIL — `Assert.Equal() Failure: Expected "0.1.0", Actual: null`.
 #!/usr/bin/env bash
 # Where did the shipped stylesheet live at a given git ref?
 #
-#     build/css-path.sh v0.1.0      -> src/Sedna.UI/wwwroot/css/Sedna.UI.css
+#     build/css-path.sh v0.1.0      -> src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css
 #     build/css-path.sh HEAD        -> src/Sedna.UI/wwwroot/css/Sedna.UI.css
 #
 # One implementation, because two scripts read the stylesheet out of a tag and both
@@ -427,7 +476,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 PATHS=(
     "src/Sedna.UI/wwwroot/css/Sedna.UI.css"
-    "src/Sedna.UI/wwwroot/css/Sedna.UI.css"
+    "src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
 )
 
 REF="${1:-}"
@@ -453,7 +502,7 @@ git on Windows does not record the bit by default, and `set -e` cannot see a fai
 chmod +x build/css-path.sh
 git update-index --add --chmod=+x build/css-path.sh
 git ls-files -s build/css-path.sh    # expect mode 100755
-bash build/css-path.sh v0.1.0        # expect src/Sedna.UI/wwwroot/css/Sedna.UI.css
+bash build/css-path.sh v0.1.0        # expect src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css
 bash build/css-path.sh HEAD          # expect src/Sedna.UI/wwwroot/css/Sedna.UI.css
 ```
 
@@ -462,7 +511,7 @@ bash build/css-path.sh HEAD          # expect src/Sedna.UI/wwwroot/css/Sedna.UI.
 Replace the fixed `sheet=` assignment with the working-tree lookup, and resolve each tag's own path inside the loop. In `build/class-history.sh`, change:
 
 ```bash
-sheet="src/Sedna.UI/wwwroot/css/Sedna.UI.css"
+sheet="src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
 ```
 
 to:
@@ -509,7 +558,7 @@ Declare `local tag_sheet` and `local resolved=0` beside the existing locals, and
 In `build/release-inventory.sh`, change:
 
 ```bash
-REL_CSS="src/Sedna.UI/wwwroot/css/Sedna.UI.css"
+REL_CSS="src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
 CSS="$ROOT/$REL_CSS"
 ```
 
@@ -1052,9 +1101,9 @@ bash build/release-inventory.sh v0.1.0 --notes
 Write the document to this structure, in this order:
 
 ```markdown
-# Migrating from Sedna.UI
+# Migrating from DR.Simple_UI
 
-`Sedna.UI` is now `Sedna.UI`. The package ID, the namespace, the asset paths,
+`DR.Simple_UI` is now `Sedna.UI`. The package ID, the namespace, the asset paths,
 the JavaScript global, the CSS utility prefix, the cascade layers and the
 `localStorage` prefix all change. There are no aliases and no compatibility
 shims: a shim is a second code path nobody tests, and it outlives the migration
@@ -1370,4 +1419,4 @@ These are not implementation tasks and are gated on Dennis, in this order. The R
 4. Draft the release notes: level Major shipping as `0.2.0`, every added and removed class name from `build/release-inventory.sh`, the identifier table, and the stored-state loss. Confirm with Dennis.
 5. `git tag -a v0.2.0 -F notes.md && git push origin v0.2.0`, with `notes.md` written outside the repository.
 6. After the tag: re-run `bash build/class-history.sh` and commit, so the `sedna-*` classes move from `null` to `0.2.0`.
-7. **Dennis:** deprecate `DR.Simple_UI` 0.1.0 on nuget.org pointing at `Sedna.UI`; DNS for `www.sedna-ui.com` (the records Railway lists for the domain — one CNAME as of the 2026-08-04 setup — with a trailing dot on the target, since Hetzner DNS appends the zone to an unqualified value); upload the social preview in GitHub repository settings.
+7. **Dennis:** deprecate `DR.Simple_UI` 0.1.0 on nuget.org pointing at `Sedna.UI`; DNS for `www.sedna-ui.com` — the records Railway lists for the domain (one CNAME as of the 2026-08-04 setup), remembering that Hetzner DNS appends the zone to an unqualified CNAME value so the target needs its trailing dot; upload the social preview in GitHub repository settings.

@@ -1,4 +1,4 @@
-# Rebrand `Sedna.UI` → `Sedna.UI`
+# Rebrand `DR.Simple_UI` → `Sedna.UI`
 
 **Date:** 2026-08-04
 **Status:** approved, not yet implemented
@@ -32,7 +32,7 @@ Out of scope, deliberately:
 - **Semantic class names.** `.card`, `.badge-go`, `.btn-warn` carry no brand and
   do not move. Only the `dr-` utility namespace does.
 - **Remix Icon.** The vendored `ri-` prefix is upstream's and is untouched.
-- **Consuming applications.** `AI_Console` / Athene consumes `Sedna.UI`
+- **Consuming applications.** `AI_Console` / Athene consumes `DR.Simple_UI`
   0.1.0 from a different repository. It is not migrated here.
 
 ## 2. Decisions
@@ -59,19 +59,19 @@ and an exact-ID search returns `totalHits: 0`.
 
 | Old | New |
 |---|---|
-| `Sedna.UI` | `Sedna.UI` |
-| `Sedna.UI.slnx` | `Sedna.UI.slnx` |
-| `src/Sedna.UI/` | `src/Sedna.UI/` |
-| `src/Sedna.UI.Tests/` | `src/Sedna.UI.Tests/` |
-| `src/Sedna.UI.Catalogue/` | `src/Sedna.UI.Catalogue/` |
-| `src/Sedna.UI.Catalogue.Tests/` | `src/Sedna.UI.Catalogue.Tests/` |
+| `DR.Simple_UI` | `Sedna.UI` |
+| `DR.Simple_UI.slnx` | `Sedna.UI.slnx` |
+| `src/DR.Simple_UI/` | `src/Sedna.UI/` |
+| `src/DR.Simple_UI.Tests/` | `src/Sedna.UI.Tests/` |
+| `src/DR.Simple_UI.Catalogue/` | `src/Sedna.UI.Catalogue/` |
+| `src/DR.Simple_UI.Catalogue.Tests/` | `src/Sedna.UI.Catalogue.Tests/` |
 
 `PackageId`, `AssemblyName`, `RootNamespace` and `Title` all become `Sedna.UI`.
 Directory moves use `git mv` so history follows.
 
 The namespace keeps its dot, so the sub-namespaces map straight across:
-`Sedna.UI.Interop` → `Sedna.UI.Interop`, `Sedna.UI.Navigation` →
-`Sedna.UI.Navigation`, `Sedna.UI.Tests.TestSupport` →
+`DR.Simple_UI.Interop` → `Sedna.UI.Interop`, `DR.Simple_UI.Navigation` →
+`Sedna.UI.Navigation`, `DR.Simple_UI.Tests.TestSupport` →
 `Sedna.UI.Tests.TestSupport`, and so on.
 
 ### 3.2 Shipped asset paths
@@ -81,11 +81,11 @@ them.
 
 | Old | New |
 |---|---|
-| `_content/Sedna.UI/css/Sedna.UI.css` | `_content/Sedna.UI/css/Sedna.UI.css` |
-| `_content/Sedna.UI/js/Sedna.UI.js` | `_content/Sedna.UI/js/Sedna.UI.js` |
-| `_content/Sedna.UI/js/Sedna.UI.boot.js` | `_content/Sedna.UI/js/Sedna.UI.boot.js` |
-| `_content/Sedna.UI/tokens/Sedna.UI.tokens.json` | `_content/Sedna.UI/tokens/Sedna.UI.tokens.json` |
-| `_content/Sedna.UI/lib/remixicon/…` | `_content/Sedna.UI/lib/remixicon/…` |
+| `_content/DR.Simple_UI/css/DR.Simple_UI.css` | `_content/Sedna.UI/css/Sedna.UI.css` |
+| `_content/DR.Simple_UI/js/DR.Simple_UI.js` | `_content/Sedna.UI/js/Sedna.UI.js` |
+| `_content/DR.Simple_UI/js/DR.Simple_UI.boot.js` | `_content/Sedna.UI/js/Sedna.UI.boot.js` |
+| `_content/DR.Simple_UI/tokens/DR.Simple_UI.tokens.json` | `_content/Sedna.UI/tokens/Sedna.UI.tokens.json` |
+| `_content/DR.Simple_UI/lib/remixicon/…` | `_content/Sedna.UI/lib/remixicon/…` |
 
 The `"name"` field `export-tokens.sh` writes into the tokens JSON becomes
 `Sedna.UI`.
@@ -169,7 +169,7 @@ stylesheet **out of a git tag** using the same path variable they use for the
 working tree:
 
 ```bash
-sheet="src/Sedna.UI/wwwroot/css/Sedna.UI.css"
+sheet="src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
 git -C "$root" show "$tag:$sheet" >"$tmp/sheet.css" 2>/dev/null || continue
 ```
 
@@ -198,7 +198,7 @@ It holds a newest-first list of historical paths and echoes the first that
 
 ```
 src/Sedna.UI/wwwroot/css/Sedna.UI.css
-src/Sedna.UI/wwwroot/css/Sedna.UI.css
+src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css
 ```
 
 A future rename adds one line. Both callers use it.
@@ -216,7 +216,7 @@ tagged, because the name `.sedna-row` genuinely has never shipped.
 ## 5. Guard tests
 
 `TestSupport/Assets.FindRepoRoot()` walks upward looking for
-`Sedna.UI.slnx`. Renaming the solution file breaks every test in both
+`DR.Simple_UI.slnx`. Renaming the solution file breaks every test in both
 projects until that one line changes. This is a single hinge that fails loudly
 and immediately, which is the desired behaviour; it is listed so it is not
 mistaken for a broken rename.
@@ -241,7 +241,7 @@ Tests that change:
 
 `ScriptContractTests` already asserts the shipped script and stylesheet carry no
 application-specific naming. Add the symmetric assertion: no `\.dr-`,
-`Sedna.UI`, `drSimpleUi`, `drui.` or `@layer dr.` appears in the shipped
+`DR.Simple_UI`, `drSimpleUi`, `drui.` or `@layer dr.` appears in the shipped
 stylesheet, the shipped script, the boot script or the tokens JSON — extended
 over `src/Sedna.UI.Catalogue/Examples/` and `Components/`, because a stale
 `.dr-row` in an example renders unstyled with no error.
@@ -353,8 +353,8 @@ The README badge accent moves from the old brand blue `2563eb` to Sedna Red
   `development.md`, `accessibility.md`, `CLAUDE.consuming-app.md`.
 - `CONTRIBUTING.md`, `THIRD-PARTY-NOTICES.md`, and the `.gitattributes` comment
   naming the tokens file.
-- **`.editorconfig`** — path-scoped sections `[src/Sedna.UI.Tests/**.cs]` and
-  `[src/Sedna.UI.Catalogue{,.Tests}/**.cs]`. A glob that stops matching
+- **`.editorconfig`** — path-scoped sections `[src/DR.Simple_UI.Tests/**.cs]` and
+  `[src/DR.Simple_UI.Catalogue{,.Tests}/**.cs]`. A glob that stops matching
   raises no error at all; analysis rules just silently change.
 - `.github/workflows/ci.yml` — solution path, `playwright.ps1` path, the browser
   env var, the pack path, the `verify-package.sh` artefact glob, the docker tag.
