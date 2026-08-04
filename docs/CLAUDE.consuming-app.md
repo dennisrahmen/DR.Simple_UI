@@ -53,7 +53,7 @@ own prefix should move onto these classes rather than keep a parallel copy.
 There are two ways to use it, and the choice is about where the results come from:
 
 - **A fixed, known set** — the app's pages, reports, settings screens. Register it once with
-  `IDrSimpleUi.RegisterSearchAsync`, add `data-search` to the input, and the panel, the ranking and the
+  `ISednaUi.RegisterSearchAsync`, add `data-search` to the input, and the panel, the ranking and the
   keyboard come from the library.
 - **A database.** Leave `data-search` off and render `.search-panel` yourself. The debounce length,
   cancelling a superseded keystroke and the busy state are decisions about your backend, and the

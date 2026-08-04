@@ -177,10 +177,10 @@ private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => St
 
 ```csharp
 // Program.cs
-builder.Services.AddDrSimpleUi();
+builder.Services.AddSednaUi();
 ```
 
-That registers `IDrSimpleUi`, a typed wrapper over the browser API — `ToastAsync`, `ConfirmAsync`,
+That registers `ISednaUi`, a typed wrapper over the browser API — `ToastAsync`, `ConfirmAsync`,
 `CopyTextAsync`, `SaveSettingAsync`, the command palette, and the rest of `drSimpleUi`.
 
 Every member is a JavaScript call, so **none of them can run during prerendering**. Call them from an

@@ -18,8 +18,8 @@ namespace Sedna.UI.Tests;
 /// </remarks>
 public class InteropTests : BunitContext
 {
-    private IDrSimpleUi Wrapper(DrSimpleUiOptions? options = null) =>
-        new DrSimpleUi(JSInterop.JSRuntime, options ?? new DrSimpleUiOptions());
+    private ISednaUi Wrapper(SednaUiOptions? options = null) =>
+        new SednaUi(JSInterop.JSRuntime, options ?? new SednaUiOptions());
 
     private JSRuntimeInvocation Only(string identifier)
     {
@@ -88,7 +88,7 @@ public class InteropTests : BunitContext
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
 
-        await Wrapper(new DrSimpleUiOptions
+        await Wrapper(new SednaUiOptions
         {
             StoragePrefix = "app-a.",
             NotifyIcon = "/logo.png",
@@ -120,7 +120,7 @@ public class InteropTests : BunitContext
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
 
-        await Wrapper(new DrSimpleUiOptions { StoragePrefix = "app-a." })
+        await Wrapper(new SednaUiOptions { StoragePrefix = "app-a." })
             .SetItemAsync("lastQueue", "42");
 
         // A plain bridge for the app's own keys, not a view onto library settings.

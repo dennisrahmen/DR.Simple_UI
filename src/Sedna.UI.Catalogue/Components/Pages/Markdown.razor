@@ -1,5 +1,5 @@
 @page "/markdown"
-@inject IDrSimpleUi Ui
+@inject ISednaUi Ui
 
 <CatHead Title="Markdown" Tier="@CatHead.Tier1">
     Two independent pieces: <code>.markdown-body</code> styles rendered Markdown wherever it
@@ -39,7 +39,7 @@
         <strong>The markup alone does nothing.</strong> The toolbar, the preview and the
         Write/Preview switch are behaviour, so an editor renders perfectly and sits inert until
         something calls <code>drSimpleUi.md.init()</code> — from C#,
-        <code>IDrSimpleUi.InitMarkdownAsync()</code> in <code>OnAfterRenderAsync</code>, which is
+        <code>ISednaUi.InitMarkdownAsync()</code> in <code>OnAfterRenderAsync</code>, which is
         what this page does. It takes no element and wires every editor in the document, and it is
         idempotent per editor, so calling it again after a re-render only picks up new ones.
     </p>

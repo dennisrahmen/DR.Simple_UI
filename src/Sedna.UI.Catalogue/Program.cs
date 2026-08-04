@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.RateLimiting;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
-builder.Services.AddDrSimpleUi();
+builder.Services.AddSednaUi();
 
 // Scoped: one circuit is one browser, and the toggles are per-browser state.
 builder.Services.AddScoped<ThemeState>();

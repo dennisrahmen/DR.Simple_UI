@@ -16,7 +16,7 @@ public partial class CatalogueTopbar : ComponentBase
     [Parameter] public bool Collapsed { get; set; }
     [Parameter] public EventCallback<bool> CollapsedChanged { get; set; }
 
-    [Inject] private IDrSimpleUi Ui { get; set; } = default!;
+    [Inject] private ISednaUi Ui { get; set; } = default!;
     [Inject] private ThemeState Theme { get; set; } = default!;
 
     private static string Pressed(bool on) => on ? "true" : "false";

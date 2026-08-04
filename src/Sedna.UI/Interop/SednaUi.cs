@@ -3,24 +3,24 @@ using Microsoft.JSInterop;
 namespace Sedna.UI;
 
 /// <summary>
-/// The default <see cref="IDrSimpleUi"/>, calling the <c>drSimpleUi</c> global
+/// The default <see cref="ISednaUi"/>, calling the <c>drSimpleUi</c> global
 /// through <see cref="IJSRuntime"/>.
 /// </summary>
 /// <remarks>
-/// Registered by <c>AddDrSimpleUi</c>. Every method is a thin, untyped call onto
+/// Registered by <c>AddSednaUi</c>. Every method is a thin, untyped call onto
 /// the shipped script: this class holds no state and no logic beyond mapping
 /// arguments, so the browser stays the single implementation of every behaviour.
 /// </remarks>
-public sealed class DrSimpleUi : IDrSimpleUi
+public sealed class SednaUi : ISednaUi
 {
     private readonly IJSRuntime _js;
-    private readonly DrSimpleUiOptions _options;
+    private readonly SednaUiOptions _options;
 
     /// <summary>Creates the service.</summary>
     /// <param name="jsRuntime">The app's JavaScript runtime.</param>
     /// <param name="options">The options to push in <see cref="ConfigureAsync"/>.</param>
     /// <exception cref="ArgumentNullException">Either argument is null.</exception>
-    public DrSimpleUi(IJSRuntime jsRuntime, DrSimpleUiOptions options)
+    public SednaUi(IJSRuntime jsRuntime, SednaUiOptions options)
     {
         ArgumentNullException.ThrowIfNull(jsRuntime);
         ArgumentNullException.ThrowIfNull(options);
@@ -61,8 +61,8 @@ public sealed class DrSimpleUi : IDrSimpleUi
         => _js.InvokeVoidAsync("drSimpleUi.md.init").AsTask();
 
     /// <inheritdoc />
-    public Task<DrSimpleUiSettings> LoadSettingsAsync()
-        => _js.InvokeAsync<DrSimpleUiSettings>("drSimpleUi.settings.load").AsTask();
+    public Task<SednaUiSettings> LoadSettingsAsync()
+        => _js.InvokeAsync<SednaUiSettings>("drSimpleUi.settings.load").AsTask();
 
     /// <inheritdoc />
     public Task SaveSettingAsync(string key, string value)

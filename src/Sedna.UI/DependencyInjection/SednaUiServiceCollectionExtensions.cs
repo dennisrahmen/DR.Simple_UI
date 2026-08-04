@@ -8,16 +8,16 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 /// <remarks>
 /// In the <c>Microsoft.Extensions.DependencyInjection</c> namespace by convention,
-/// so <c>AddDrSimpleUi()</c> is reachable in <c>Program.cs</c> without a using
+/// so <c>AddSednaUi()</c> is reachable in <c>Program.cs</c> without a using
 /// directive.
 /// </remarks>
-public static class DrSimpleUiServiceCollectionExtensions
+public static class SednaUiServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds <see cref="IDrSimpleUi"/>, the typed wrapper over the browser API.
+    /// Adds <see cref="ISednaUi"/>, the typed wrapper over the browser API.
     /// </summary>
     /// <param name="services">The service collection.</param>
-    /// <param name="configure">Optional: the options to push with <see cref="IDrSimpleUi.ConfigureAsync"/>.</param>
+    /// <param name="configure">Optional: the options to push with <see cref="ISednaUi.ConfigureAsync"/>.</param>
     /// <returns>The same collection, so calls chain.</returns>
     /// <remarks>
     /// <para>
@@ -32,17 +32,17 @@ public static class DrSimpleUiServiceCollectionExtensions
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="services"/> is null.</exception>
-    public static IServiceCollection AddDrSimpleUi(
+    public static IServiceCollection AddSednaUi(
         this IServiceCollection services,
-        Action<DrSimpleUiOptions>? configure = null)
+        Action<SednaUiOptions>? configure = null)
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        var options = new DrSimpleUiOptions();
+        var options = new SednaUiOptions();
         configure?.Invoke(options);
 
         services.TryAddSingleton(options);
-        services.TryAddScoped<IDrSimpleUi, DrSimpleUi>();
+        services.TryAddScoped<ISednaUi, SednaUi>();
 
         return services;
     }

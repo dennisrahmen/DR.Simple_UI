@@ -16,8 +16,8 @@
 
 <div class="cat-note">
     <i class="ri-code-s-slash-line"></i>
-    <strong>From C#, inject <code>IDrSimpleUi</code>.</strong> Register it once with
-    <code>builder.Services.AddDrSimpleUi()</code>. Every member is a JavaScript call, so none of
+    <strong>From C#, inject <code>ISednaUi</code>.</strong> Register it once with
+    <code>builder.Services.AddSednaUi()</code>. Every member is a JavaScript call, so none of
     them can run during prerendering — call them from an event handler, or from
     <code>OnAfterRenderAsync(firstRender: true)</code>. The wrappers do not swallow that exception:
     a call that silently did nothing would be far harder to find than one that threw.

@@ -30,8 +30,8 @@ Three things the package ships that markup cannot express:
 | Member | Purpose |
 |---|---|
 | `ActiveLink.IsActive` / `CssClass` / `AriaCurrent` | Which navigation link is the current page |
-| `IDrSimpleUi` | Typed access to `drSimpleUi` — toasts, confirmations, clipboard, settings, palette, search, the Markdown editor |
-| `AddDrSimpleUi()` | Registers the above, scoped to the circuit |
+| `ISednaUi` | Typed access to `drSimpleUi` — toasts, confirmations, clipboard, settings, palette, search, the Markdown editor |
+| `AddSednaUi()` | Registers the above, scoped to the circuit |
 
 `ActiveLink` drops the query string and the fragment, treats a trailing slash as insignificant, and
 requires a prefix match to end on a path segment, so `/queue` does not light up on `/queue-archive`. The
@@ -41,7 +41,7 @@ markup that survives navigation subscribes itself — **in the component that re
 the layout around it. Blazor only hands new parameters to a child whose parameters differ, so a
 subscription one level too high re-renders the layout and leaves the links reading the previous address.
 
-`IDrSimpleUi` is `IJSRuntime` calls, so none of it can run during prerendering. Two members of the
+`ISednaUi` is `IJSRuntime` calls, so none of it can run during prerendering. Two members of the
 JavaScript surface have no wrapper because neither can cross the boundary: `toast()` returns a remover
 function, and `tips.gate` is a predicate an app assigns.
 

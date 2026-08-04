@@ -4,12 +4,12 @@ namespace Sedna.UI;
 /// The options <c>drSimpleUi.configure()</c> accepts, in C# form.
 /// </summary>
 /// <remarks>
-/// Set these through <c>AddDrSimpleUi</c>. They are pushed to the browser by
-/// <see cref="IDrSimpleUi.ConfigureAsync"/>, which an app calls once from
+/// Set these through <c>AddSednaUi</c>. They are pushed to the browser by
+/// <see cref="ISednaUi.ConfigureAsync"/>, which an app calls once from
 /// <c>OnAfterRenderAsync(firstRender)</c> — an interop call cannot run during
 /// prerendering.
 /// </remarks>
-public sealed class DrSimpleUiOptions
+public sealed class SednaUiOptions
 {
     /// <summary>
     /// The <c>localStorage</c> key prefix. Defaults to <c>drui.</c>.

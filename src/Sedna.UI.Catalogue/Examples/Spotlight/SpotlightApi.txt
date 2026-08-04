@@ -9,7 +9,7 @@ const wide = drSimpleUi.spotlight.at(hole, target, { pad: 8 });
 drSimpleUi.spotlight.tipAt(tip, rect);
 drSimpleUi.spotlight.tipAt(tip, rect, 14);                     // a wider gap
 
-// From Blazor. There is no IDrSimpleUi member for this: both calls take
+// From Blazor. There is no ISednaUi member for this: both calls take
 // element references, which only IJSRuntime can pass. Position after every
 // render, not only on a step change — the bubble's own size decides where it
 // fits, and that is known only once it has been laid out with this step's

@@ -6,12 +6,12 @@ namespace Sedna.UI;
 /// The accessibility and appearance settings the browser is currently applying.
 /// </summary>
 /// <remarks>
-/// Read with <see cref="IDrSimpleUi.LoadSettingsAsync"/>. These live in
+/// Read with <see cref="ISednaUi.LoadSettingsAsync"/>. These live in
 /// <c>localStorage</c> and are applied to <c>&lt;html&gt;</c> before first paint by
 /// <c>Sedna.UI.boot.js</c>, so the server has no way to know them until the
 /// circuit is connected.
 /// </remarks>
-public sealed record DrSimpleUiSettings
+public sealed record SednaUiSettings
 {
     /// <summary>
     /// The two-letter language code, falling back to the browser's own when

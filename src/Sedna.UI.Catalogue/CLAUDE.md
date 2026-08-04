@@ -34,7 +34,7 @@ bytes, so a demo and its snippet cannot drift.
   must **never** be named `.razor`: the Razor SDK's own `<Content Include="**\*.razor">` glob would
   sweep it into a component and the build would fail somewhere confusing. No two-dot filenames either —
   that breaks default manifest naming.
-- **`Examples/Interop/` is the one place Razor is allowed**, for demonstrating `IDrSimpleUi` and
+- **`Examples/Interop/` is the one place Razor is allowed**, for demonstrating `ISednaUi` and
   `ActiveLink`, where the thing being shown *is* C#. A test asserts from both directions that it is used
   for nothing else, so it cannot become a home for examples that failed the scan.
 - `Demo="ex-demo--block"` lays the demo out as a block instead of a centred row; add `ex-demo--pad` for
@@ -77,7 +77,7 @@ survives re-renders by construction.
 
 Global `InteractiveServer`, with one invariant: **every example demo and every code block renders
 identically before the circuit connects.** Interactivity adds behaviour; it is never required to see an
-example. Three things genuinely need it — the `IDrSimpleUi` demos on `/script`, the theme toggles, and
+example. Three things genuinely need it — the `ISednaUi` demos on `/script`, the theme toggles, and
 the sidebar's active link.
 
 The trap to know: with prerendering, the server's HTML is replaced when the circuit connects, so

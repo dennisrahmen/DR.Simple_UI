@@ -5,7 +5,7 @@ namespace Sedna.UI;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Register it with <c>AddDrSimpleUi</c> and inject it. Every member is a
+/// Register it with <c>AddSednaUi</c> and inject it. Every member is a
 /// JavaScript interop call, so <b>none of them can run during prerendering</b> —
 /// call them from an event handler, or from
 /// <c>OnAfterRenderAsync(firstRender: true)</c>. They deliberately do not swallow
@@ -19,7 +19,7 @@ namespace Sedna.UI;
 /// conditionally. Both stay JavaScript.
 /// </para>
 /// </remarks>
-public interface IDrSimpleUi
+public interface ISednaUi
 {
     /// <summary>
     /// Shows a toast: a short line confirming something that already happened.
@@ -94,7 +94,7 @@ public interface IDrSimpleUi
 
     /// <summary>Reads the stored theme, colour-blind, density, direction and language settings.</summary>
     /// <returns>The settings currently applied.</returns>
-    Task<DrSimpleUiSettings> LoadSettingsAsync();
+    Task<SednaUiSettings> LoadSettingsAsync();
 
     /// <summary>
     /// Stores one setting and applies it immediately.
