@@ -1028,6 +1028,30 @@ git ls-files -z -- ':!:assets/brand/*' ':!:docs/superpowers/*' \
       -e 's{simpleui\.dennisrahmen\.dev}{www.sedna-ui.com}g;'
 ```
 
+- [ ] **Step 1a: Rename the MCP server name users register**
+
+`Examples/Mcp/ClaudeCode.txt` and `Examples/Mcp/Config.txt` name the server
+`dr-simple-ui`. That is **not** a brand filename — it is the identifier a user types
+into their MCP client — so it belongs here, beside the URL Step 1 just changed, not
+in the brand task. R11's `(?!simple-ui)` lookahead shielded it in Task 5, and R12
+in Task 10 would eventually rename it by accident; but Task 10 is blocked on
+artwork, and leaving it would ship an example telling users to register a server
+called `dr-simple-ui` pointing at the new domain.
+
+```bash
+perl -pi -e 's/\bdr-simple-ui\b/sedna-ui/g' \
+  src/Sedna.UI.Catalogue/Examples/Mcp/ClaudeCode.txt \
+  src/Sedna.UI.Catalogue/Examples/Mcp/Config.txt
+cat src/Sedna.UI.Catalogue/Examples/Mcp/ClaudeCode.txt src/Sedna.UI.Catalogue/Examples/Mcp/Config.txt
+```
+
+Expected: `claude mcp add --transport http sedna-ui https://www.sedna-ui.com/mcp`, and
+the JSON key `"sedna-ui"`. Both files are embedded and printed by the catalogue, so
+`ExampleSourceTests` covers them.
+
+Scope this to those two files by name. A broader `dr-simple-ui` sweep would hit the
+brand filenames, which must not move until Task 10.
+
 - [ ] **Step 2: Point the GitHub URLs at the renamed repository**
 
 ```bash
