@@ -3,7 +3,7 @@
 # Build context is the REPOSITORY ROOT, not this directory: the app
 # project-references the library and needs its wwwroot and its parts.
 #
-#     docker build -f src/Sedna.UI.Catalogue/Dockerfile -t drsimpleui-catalogue .
+#     docker build -f src/Sedna.UI.Catalogue/Dockerfile -t sedna-ui-catalogue .
 #
 # syntax=docker/dockerfile:1
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build

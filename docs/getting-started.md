@@ -35,7 +35,7 @@ Add three stylesheets and two scripts to `App.razor` (or `_Host.cshtml`). Your o
 
 Blazor Server injects its own reconnect UI — unstyled, with inline styles — unless the host page
 supplies one. Add the block from the catalogue's
-[Shell and nav](https://simpleui.dennisrahmen.dev/frame) page inside `<body>`, before the component that
+[Shell and nav](https://www.sedna-ui.com/frame) page inside `<body>`, before the component that
 carries the render mode.
 
 Supply `.reconnect-attempting`, `.reconnect-failed` and `.reconnect-rejected`; `.reconnect-paused` is
@@ -108,7 +108,7 @@ If a value is missing, [request it](../CONTRIBUTING.md). Until it ships, use an 
 (`--myapp-…`) in your own stylesheet rather than a bare name in the shared namespace. Do not override
 library classes to work around it. See [architecture](architecture.md#the-token-contract).
 
-The full token list is on the [Tokens](https://simpleui.dennisrahmen.dev/tokens) catalogue
+The full token list is on the [Tokens](https://www.sedna-ui.com/tokens) catalogue
 page.
 
 ## Icons
@@ -138,7 +138,7 @@ that you may not redistribute them as a standalone icon pack, or use one as a lo
 
 The shell, sidebar, header and user widget are CSS classes, like everything else. There is no
 `<AppShell>` and there will not be one — copy the markup from the catalogue's
-[Shell and nav](https://simpleui.dennisrahmen.dev/frame) page.
+[Shell and nav](https://www.sedna-ui.com/frame) page.
 
 One thing markup cannot express is which navigation link is the current page. The package supplies it:
 
@@ -193,7 +193,7 @@ suppress hover hints. Both stay JavaScript.
 
 ## Writing pages
 
-Copy markup from the catalogue at <https://simpleui.dennisrahmen.dev/> rather than writing it from
+Copy markup from the catalogue at <https://www.sedna-ui.com/> rather than writing it from
 scratch. Every page carries copy-pasteable HTML for its class family.
 
 The site is built from `main` and can be ahead of the version you have installed. Each class, token and
@@ -204,7 +204,7 @@ example says which release first shipped it, so check that before copying someth
 The catalogue has an MCP server. Add one URL:
 
 ```json
-{ "type": "http", "url": "https://simpleui.dennisrahmen.dev/mcp" }
+{ "type": "http", "url": "https://www.sedna-ui.com/mcp" }
 ```
 
 | Tool | What it answers |

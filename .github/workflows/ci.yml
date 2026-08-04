@@ -48,7 +48,7 @@ jobs:
         run: dotnet build Sedna.UI.slnx -c Release --no-restore
 
       # The binaries are not restored with the package. Without them the browser
-      # tests pass while asserting nothing, which is why DR_UI_BROWSER_TESTS below
+      # tests pass while asserting nothing, which is why SEDNA_UI_BROWSER_TESTS below
       # turns a missing browser into a failure rather than a silent skip.
       - name: Install Chromium for the browser tests
         run: pwsh src/Sedna.UI.Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
@@ -60,7 +60,7 @@ jobs:
       # silently loses to a more specific one.
       - name: Test
         env:
-          DR_UI_BROWSER_TESTS: '1'
+          SEDNA_UI_BROWSER_TESTS: '1'
         run: dotnet test Sedna.UI.slnx -c Release --no-build --verbosity normal
 
       # Packing on every build, not just on a tag: a packaging mistake should
@@ -79,7 +79,7 @@ jobs:
       # the same argument this workflow already makes for packing on every build.
       # Railway builds the image it actually deploys, from the GitHub source.
       - name: Build the catalogue image
-        run: docker build -f src/Sedna.UI.Catalogue/Dockerfile -t drsimpleui-catalogue:ci .
+        run: docker build -f src/Sedna.UI.Catalogue/Dockerfile -t sedna-ui-catalogue:ci .
 
       - name: Upload package
         uses: actions/upload-artifact@v4

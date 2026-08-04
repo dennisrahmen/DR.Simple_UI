@@ -19,7 +19,7 @@ This project uses `Sedna.UI` version `<VERSION>` for all shared UI.
 The catalogue is a hosted site with an MCP server. Add it to this project's MCP configuration:
 
 ```json
-{ "type": "http", "url": "https://simpleui.dennisrahmen.dev/mcp" }
+{ "type": "http", "url": "https://www.sedna-ui.com/mcp" }
 ```
 
 Search it, then fetch the exact markup — `search` → `get_example`. Use `describe_class` to choose
@@ -31,7 +31,7 @@ class, token and example it returns carries `since`: the release it first shippe
 `"unreleased"`. **Pass `installedVersion: "<VERSION>"` to the tools, and do not copy anything whose
 `since` is newer than that or is `"unreleased"`.**
 
-Without an MCP client, browse <https://simpleui.dennisrahmen.dev/> and read the strip under the header.
+Without an MCP client, browse <https://www.sedna-ui.com/> and read the strip under the header.
 
 ### Content UI is a CSS class, not a component
 

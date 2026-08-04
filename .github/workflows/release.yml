@@ -67,7 +67,7 @@ jobs:
       # The same gates as CI. A tag does not get to skip them.
       - name: Test
         env:
-          DR_UI_BROWSER_TESTS: '1'
+          SEDNA_UI_BROWSER_TESTS: '1'
         run: dotnet test Sedna.UI.slnx -c Release --no-build --verbosity normal
 
       - name: Pack

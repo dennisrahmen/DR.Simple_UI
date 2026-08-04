@@ -2,7 +2,7 @@
    Page content. Classes only, never components: pages write plain HTML and apply
    these, so the markup — and the spacing that emerges from it — stays visible in
    the .razor file. Copy-pasteable examples for every class below are on the
-   catalogue at https://simpleui.dennisrahmen.dev/. */
+   catalogue at https://www.sedna-ui.com/. */
 
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .card {

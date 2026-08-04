@@ -1,1 +1,1 @@
-claude mcp add --transport http dr-simple-ui https://simpleui.dennisrahmen.dev/mcp
+claude mcp add --transport http sedna-ui https://www.sedna-ui.com/mcp

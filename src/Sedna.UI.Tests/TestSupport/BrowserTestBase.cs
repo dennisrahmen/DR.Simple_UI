@@ -14,7 +14,7 @@ namespace Sedna.UI.Tests.TestSupport;
 /// </para>
 /// <code>pwsh bin/Debug/net10.0/playwright.ps1 install chromium</code>
 /// <para>
-/// <c>DR_UI_BROWSER_TESTS=0</c> opts out, for the rare case of running the source scans
+/// <c>SEDNA_UI_BROWSER_TESTS=0</c> opts out, for the rare case of running the source scans
 /// on a machine that genuinely cannot host a browser. It has to be set deliberately,
 /// which is the point: the quiet path is the honest one.
 /// </para>
@@ -27,7 +27,7 @@ namespace Sedna.UI.Tests.TestSupport;
 /// </remarks>
 public abstract class BrowserTestBase : IAsyncLifetime
 {
-    private const string OptOutEnvVar = "DR_UI_BROWSER_TESTS";
+    private const string OptOutEnvVar = "SEDNA_UI_BROWSER_TESTS";
 
     private IPlaywright? _playwright;
 
@@ -66,7 +66,7 @@ public abstract class BrowserTestBase : IAsyncLifetime
     /// True when no browser started. Every browser-dependent test returns early on this,
     /// and <c>A_browser_is_available</c> is the single test that fails — so a browserless
     /// machine reports one clear failure instead of dozens of confusing ones, and
-    /// <c>DR_UI_BROWSER_TESTS=0</c> turns even that one into a quiet pass.
+    /// <c>SEDNA_UI_BROWSER_TESTS=0</c> turns even that one into a quiet pass.
     /// </summary>
     protected bool NoBrowser => Unavailable is not null;
 

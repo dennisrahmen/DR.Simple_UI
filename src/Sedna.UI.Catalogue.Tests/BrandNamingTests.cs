@@ -36,37 +36,6 @@ public class BrandNamingTests
         RegexOptions.Compiled);
 
     /// <summary>
-    /// Files that name the old brand on purpose, pending a later, already-planned
-    /// task, and so are not a regression.
-    /// </summary>
-    /// <remarks>
-    /// <c>Examples/Mcp/ClaudeCode.txt</c> and <c>Examples/Mcp/Config.txt</c> register
-    /// an MCP server named <c>dr-simple-ui</c> against the still-current domain.
-    /// <c>docs/superpowers/plans/2026-08-04-sedna-ui-rebrand.md</c> Task 5's sweep
-    /// deliberately shields this exact string with a negative lookahead
-    /// (<c>\bdr-(?!simple-ui)</c>, rule R11), and Task 8 Step 1a renames both files
-    /// alongside the domain swap — not this task, whose own file list is only the two
-    /// BrandNamingTests files. This mirrors <c>CatalogueAssets.ContentFiles()</c>
-    /// already excluding <c>wwwroot/catalogue.css</c> for the same kind of reason: a
-    /// known, tracked exception is not a use of the old brand this guard exists to
-    /// catch. Remove this exception once Task 8 lands — at that point it excludes
-    /// nothing, which is the point.
-    /// </remarks>
-    private static readonly string[] PendingRenameFiles =
-    [
-        Path.Combine("Examples", "Mcp", "ClaudeCode.txt"),
-        Path.Combine("Examples", "Mcp", "Config.txt"),
-    ];
-
-    /// <summary>
-    /// The exact text <see cref="PendingRenameFiles"/> is allowed to carry. Stripped
-    /// out before matching, so the rest of each file — everything that is not this
-    /// one sanctioned occurrence — stays covered. Skipping the whole file would hide
-    /// unrelated old-brand text landing in either before Task 8 runs.
-    /// </summary>
-    private const string SanctionedOccurrence = "dr-simple-ui";
-
-    /// <summary>
     /// Files <see cref="CatalogueAssets.ContentFiles"/> doesn't walk, but which still
     /// ship user-visible or externally-served text.
     /// </summary>
@@ -97,9 +66,6 @@ public class BrandNamingTests
         foreach (var file in CatalogueAssets.ContentFiles().Concat(ExtraContentFiles()))
         {
             var text = File.ReadAllText(file);
-
-            if (PendingRenameFiles.Any(pending => file.EndsWith(pending, StringComparison.Ordinal)))
-                text = text.Replace(SanctionedOccurrence, "", StringComparison.Ordinal);
 
             var found = OldBrand
                 .Matches(text)

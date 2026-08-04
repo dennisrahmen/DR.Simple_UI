@@ -130,7 +130,7 @@ declaration. The library uses none, and a test enforces it.
 Theme differences are expressed only as token values, so the light and colour-blind blocks contain no
 selector overrides and CSS load order does not affect them.
 
-The full token list is on the [Tokens](https://simpleui.dennisrahmen.dev/tokens) catalogue
+The full token list is on the [Tokens](https://www.sedna-ui.com/tokens) catalogue
 page, which reads its values from the live stylesheet.
 
 Every token also ships as JSON, for a design tool that needs the values without parsing CSS:
@@ -139,7 +139,7 @@ Every token also ships as JSON, for a design tool that needs the values without 
 |---|---|
 | In a running app | `_content/Sedna.UI/tokens/Sedna.UI.tokens.json` |
 | In the repo, and in the restored package | `wwwroot/tokens/Sedna.UI.tokens.json` |
-| Hosted | <https://simpleui.dennisrahmen.dev/_content/Sedna.UI/tokens/Sedna.UI.tokens.json> |
+| Hosted | <https://www.sedna-ui.com/_content/Sedna.UI/tokens/Sedna.UI.tokens.json> |
 
 `blocks` is an **ordered** array of `{ media, selector, tokens }` — merge them in order, applying a block
 when its media condition matches and its selector matches the document root. It is not a map keyed by

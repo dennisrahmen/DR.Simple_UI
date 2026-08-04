@@ -114,11 +114,11 @@ pwsh src/Sedna.UI.Tests/bin/Debug/net10.0/playwright.ps1 install chromium
 The browser binaries are not restored with the package, and a test that passes without asserting anything
 is worse than one that fails — so **a missing browser is a failure**. `A_browser_is_available` is the one
 test that reports it; the rest return early, so a browserless machine gives one clear reason instead of
-dozens. `DR_UI_BROWSER_TESTS=0` is the deliberate opt-out, for a machine that genuinely cannot host a
+dozens. `SEDNA_UI_BROWSER_TESTS=0` is the deliberate opt-out, for a machine that genuinely cannot host a
 browser:
 
 ```bash
-DR_UI_BROWSER_TESTS=0 dotnet test Sedna.UI.slnx   # source scans only
+SEDNA_UI_BROWSER_TESTS=0 dotnet test Sedna.UI.slnx   # source scans only
 ```
 
 They assert computed values, never screenshots — see the decision note in

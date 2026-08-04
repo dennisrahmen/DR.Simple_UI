@@ -1,7 +1,7 @@
 # `Sedna.UI.Catalogue/` — the hosted catalogue and the MCP server
 
 A Blazor Web App with global interactive server rendering, deployed to
-<https://simpleui.dennisrahmen.dev/>. It is **not** packaged: one package ships from this repo and it is
+<https://www.sedna-ui.com/>. It is **not** packaged: one package ships from this repo and it is
 the library.
 
 This site is an application built with Sedna.UI, not a site describing one. Its shell, sidebar,

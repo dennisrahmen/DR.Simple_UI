@@ -79,7 +79,7 @@ Permanently out of scope:
 ## The catalogue
 
 `src/Sedna.UI.Catalogue/` — a Blazor Web App with interactive server rendering, deployed to
-<https://simpleui.dennisrahmen.dev/>. One page per class family, with copy-pasteable markup. Add
+<https://www.sedna-ui.com/>. One page per class family, with copy-pasteable markup. Add
 catalogue pages as classes are added; a class with no page is a class nobody can find.
 
 Two rules, both test-enforced:

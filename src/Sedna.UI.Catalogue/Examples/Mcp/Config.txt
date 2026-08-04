@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "dr-simple-ui": {
+    "sedna-ui": {
       "type": "http",
-      "url": "https://simpleui.dennisrahmen.dev/mcp"
+      "url": "https://www.sedna-ui.com/mcp"
     }
   }
 }

@@ -29,7 +29,7 @@ namespace Sedna.UI.Catalogue.Tests.TestSupport;
 public sealed class CatalogueAppFixture : IAsyncLifetime
 {
     // Shared with the library's own suite. Two suites, one switch.
-    private const string OptOutEnvVar = "DR_UI_BROWSER_TESTS";
+    private const string OptOutEnvVar = "SEDNA_UI_BROWSER_TESTS";
 
     private WebApplicationFactory<Program>? _factory;
     private IPlaywright? _playwright;

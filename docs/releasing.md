@@ -111,7 +111,7 @@ long-lived API key is stored in the repository.
 
 The catalogue is an application, not a static site: `src/Sedna.UI.Catalogue`, containerised from
 `src/Sedna.UI.Catalogue/Dockerfile` and deployed to Railway at
-<https://simpleui.dennisrahmen.dev/>. `railway.json` at the repository root holds the build and deploy
+<https://www.sedna-ui.com/>. `railway.json` at the repository root holds the build and deploy
 configuration, so it is reviewable in a pull request rather than living only in a dashboard.
 
 **The site deploys from every push to `main`; the package ships from a `v*` tag.** That split is

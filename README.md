@@ -1,12 +1,12 @@
 ![Sedna.UI — one design-token contract. Semantic CSS. Consistent Blazor apps.](https://raw.githubusercontent.com/dennisrahmen/Sedna.UI/main/assets/brand/dr-simple-ui-social-preview.png)
 
 [![CI](https://img.shields.io/github/actions/workflow/status/dennisrahmen/Sedna.UI/ci.yml?branch=main&logo=github&style=flat-square&label=ci)](https://github.com/dennisrahmen/Sedna.UI/actions/workflows/ci.yml)
-[![Catalogue](https://img.shields.io/badge/catalogue-browse-2563eb?style=flat-square&logo=github)](https://simpleui.dennisrahmen.dev/)
-[![NuGet version](https://img.shields.io/nuget/v/Sedna.UI?color=2563eb&label=nuget&logo=nuget&style=flat-square)](https://www.nuget.org/packages/Sedna.UI/)
-[![NuGet downloads](https://img.shields.io/nuget/dt/Sedna.UI?color=2563eb&label=downloads&logo=nuget&style=flat-square)](https://www.nuget.org/packages/Sedna.UI/)
-[![.NET](https://img.shields.io/badge/.NET-10.0-2563eb?style=flat-square&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
-[![Licence](https://img.shields.io/github/license/dennisrahmen/Sedna.UI?color=2563eb&logo=github&style=flat-square)](https://github.com/dennisrahmen/Sedna.UI/blob/main/LICENSE)
-[![Stars](https://img.shields.io/github/stars/dennisrahmen/Sedna.UI?color=2563eb&logo=github&style=flat-square)](https://github.com/dennisrahmen/Sedna.UI/stargazers)
+[![Catalogue](https://img.shields.io/badge/catalogue-browse-FF6B4A?style=flat-square&logo=github)](https://www.sedna-ui.com/)
+[![NuGet version](https://img.shields.io/nuget/v/Sedna.UI?color=FF6B4A&label=nuget&logo=nuget&style=flat-square)](https://www.nuget.org/packages/Sedna.UI/)
+[![NuGet downloads](https://img.shields.io/nuget/dt/Sedna.UI?color=FF6B4A&label=downloads&logo=nuget&style=flat-square)](https://www.nuget.org/packages/Sedna.UI/)
+[![.NET](https://img.shields.io/badge/.NET-10.0-FF6B4A?style=flat-square&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
+[![Licence](https://img.shields.io/github/license/dennisrahmen/Sedna.UI?color=FF6B4A&logo=github&style=flat-square)](https://github.com/dennisrahmen/Sedna.UI/blob/main/LICENSE)
+[![Stars](https://img.shields.io/github/stars/dennisrahmen/Sedna.UI?color=FF6B4A&logo=github&style=flat-square)](https://github.com/dennisrahmen/Sedna.UI/stargazers)
 
 # Sedna.UI
 
@@ -43,10 +43,10 @@ typed access to the browser API.
 | [Consuming-app `CLAUDE.md`](https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/CLAUDE.consuming-app.md) | Drop-in rules for an app that uses this |
 
 **The catalogue** — every class with a page of copy-pasteable HTML, at
-**[simpleui.dennisrahmen.dev](https://simpleui.dennisrahmen.dev/)**. It is a Blazor app built with this
+**[www.sedna-ui.com](https://www.sedna-ui.com/)**. It is a Blazor app built with this
 library, so an example that renders correctly there renders correctly in yours.
 
-**An MCP server for AI agents** — `https://simpleui.dennisrahmen.dev/mcp`. One URL, and an agent can
+**An MCP server for AI agents** — `https://www.sedna-ui.com/mcp`. One URL, and an agent can
 search the catalogue, read what a class does and copy the exact markup. Every result names the release
 that introduced it, so an agent can check before copying something the installed version does not have.
 

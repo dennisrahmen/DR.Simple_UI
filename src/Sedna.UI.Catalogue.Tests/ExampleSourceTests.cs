@@ -160,7 +160,7 @@ public class ExampleSourceTests
         // The library's own published host and repository are not app-specific
         // naming — an MCP config example has to name the server it connects to.
         var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path))
-            .Replace("simpleui.dennisrahmen.dev", "«site»", StringComparison.OrdinalIgnoreCase)
+            .Replace("www.sedna-ui.com", "«site»", StringComparison.OrdinalIgnoreCase)
             .Replace("github.com/dennisrahmen", "«repo»", StringComparison.OrdinalIgnoreCase);
 
         var found = forbidden
