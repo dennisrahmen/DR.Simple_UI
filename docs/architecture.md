@@ -137,9 +137,9 @@ Every token also ships as JSON, for a design tool that needs the values without 
 
 | Where | Path |
 |---|---|
-| In a running app | `_content/DR.Simple_UI/tokens/DR.Simple_UI.tokens.json` |
-| In the repo, and in the restored package | `wwwroot/tokens/DR.Simple_UI.tokens.json` |
-| Hosted | <https://simpleui.dennisrahmen.dev/_content/DR.Simple_UI/tokens/DR.Simple_UI.tokens.json> |
+| In a running app | `_content/Sedna.UI/tokens/Sedna.UI.tokens.json` |
+| In the repo, and in the restored package | `wwwroot/tokens/Sedna.UI.tokens.json` |
+| Hosted | <https://simpleui.dennisrahmen.dev/_content/Sedna.UI/tokens/Sedna.UI.tokens.json> |
 
 `blocks` is an **ordered** array of `{ media, selector, tokens }` — merge them in order, applying a block
 when its media condition matches and its selector matches the document root. It is not a map keyed by
@@ -172,7 +172,7 @@ Two consequences for a rule that sets a control's height:
 
 `data-theme="light"`, `data-cvd="1"`, `data-density="compact"` and `dir` are set on `<html>`.
 
-- `DR.Simple_UI.boot.js` applies them from `localStorage` before first paint.
+- `Sedna.UI.boot.js` applies them from `localStorage` before first paint.
 - `drSimpleUi.settings.save('theme', 'light')` updates them at runtime.
 
 `dir` and `lang` are the two that are written **only from a stored choice**. Both are attributes the host
@@ -241,7 +241,7 @@ Two things the flat list does not say:
 
 ## JavaScript
 
-`DR.Simple_UI.js` exposes the global `drSimpleUi`:
+`Sedna.UI.js` exposes the global `drSimpleUi`:
 
 | Member | Purpose |
 |---|---|
@@ -285,7 +285,7 @@ server-side as well.
 
 ## Icons
 
-[Remix Icon](https://remixicon.com) 4.9.1 is bundled at `_content/DR.Simple_UI/lib/remixicon/`. It is the
+[Remix Icon](https://remixicon.com) 4.9.1 is bundled at `_content/Sedna.UI/lib/remixicon/`. It is the
 only icon set; the library styles `i` elements (`.btn i`, `.nav-link i`) and the icon classes come from
 this font.
 

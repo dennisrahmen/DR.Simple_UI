@@ -1,6 +1,6 @@
 # Consuming-app `CLAUDE.md` block
 
-Copy the section below into the `CLAUDE.md` of any app that uses `DR.Simple_UI`, so an AI agent working
+Copy the section below into the `CLAUDE.md` of any app that uses `Sedna.UI`, so an AI agent working
 in that app follows the library's rules instead of inventing its own UI.
 
 Replace:
@@ -10,9 +10,9 @@ Replace:
 
 ---
 
-## Shared UI — DR.Simple_UI
+## Shared UI — Sedna.UI
 
-This project uses `DR.Simple_UI` version `<VERSION>` for all shared UI.
+This project uses `Sedna.UI` version `<VERSION>` for all shared UI.
 
 ### Copy markup from the catalogue
 
@@ -71,7 +71,7 @@ into this app's own prefix.
 
 ### Icons
 
-Remix Icon is bundled in the package. Link `_content/DR.Simple_UI/lib/remixicon/remixicon.css` and use
+Remix Icon is bundled in the package. Link `_content/Sedna.UI/lib/remixicon/remixicon.css` and use
 `ri-*` classes on an `<i>`. Do not add a second icon set and do not load icons from a CDN.
 
 ### CSS variables
@@ -114,9 +114,9 @@ That makes discipline the only thing left protecting the shared design:
 
 ### Requesting a library change
 
-`DR.Simple_UI` is a separate, versioned package. This app cannot release it.
+`Sedna.UI` is a separate, versioned package. This app cannot release it.
 
-- Open an issue or pull request at <https://github.com/dennisrahmen/DR.Simple_UI>.
+- Open an issue or pull request at <https://github.com/dennisrahmen/Sedna.UI>.
 - Describe the value or variant needed and where it is used, not just the CSS you would have written.
 - Adding a token or variant is a minor release; renaming or removing one is major. A release can be
   major with nothing renamed or removed — changing an existing rule enough to move layout or colour, or
@@ -127,16 +127,16 @@ Once a version containing the change is published, bump the reference here.
 ### Load order
 
 ```html
-<script src="_content/DR.Simple_UI/js/DR.Simple_UI.boot.js"></script>
-<link rel="stylesheet" href="_content/DR.Simple_UI/lib/remixicon/remixicon.css" />
-<link rel="stylesheet" href="_content/DR.Simple_UI/css/DR.Simple_UI.css" />
+<script src="_content/Sedna.UI/js/Sedna.UI.boot.js"></script>
+<link rel="stylesheet" href="_content/Sedna.UI/lib/remixicon/remixicon.css" />
+<link rel="stylesheet" href="_content/Sedna.UI/css/Sedna.UI.css" />
 <link rel="stylesheet" href="css/brand.css" />
 ```
 
 At the end of `<body>`:
 
 ```html
-<script src="_content/DR.Simple_UI/js/DR.Simple_UI.js"></script>
+<script src="_content/Sedna.UI/js/Sedna.UI.js"></script>
 ```
 
 `brand.css` must load after the library stylesheet.
@@ -148,6 +148,6 @@ this app shares an origin with another app; if you do set one, both values must 
 
 The version is pinned and does not float. Before bumping it:
 
-1. Read the release notes at <https://github.com/dennisrahmen/DR.Simple_UI/releases>.
+1. Read the release notes at <https://github.com/dennisrahmen/Sedna.UI/releases>.
 2. Grep this app's stylesheets for every class name the release adds — see above.
 3. Check the pages this app renders, in each theme (`data-theme`, `data-cvd`, `data-density`).

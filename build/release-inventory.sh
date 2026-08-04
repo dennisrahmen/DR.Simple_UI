@@ -20,7 +20,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-REL_CSS="src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
+REL_CSS="src/Sedna.UI/wwwroot/css/Sedna.UI.css"
 CSS="$ROOT/$REL_CSS"
 INVENTORY="$ROOT/build/css-inventory.sh"
 

@@ -14,7 +14,7 @@
 # only *complete* after one. Cutting a release is therefore followed by running
 # this and committing; see docs/releasing.md.
 #
-# Deliberately NOT written under src/DR.Simple_UI/wwwroot/, where it would ship
+# Deliberately NOT written under src/Sedna.UI/wwwroot/, where it would ship
 # inside the package. It is the catalogue app's data.
 #
 # Sits on build/css-inventory.sh, which is the one implementation of "what does
@@ -24,8 +24,8 @@ set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 inventory="$root/build/css-inventory.sh"
-sheet="src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
-out="$root/src/DR.Simple_UI.Catalogue/Data/class-history.json"
+sheet="src/Sedna.UI/wwwroot/css/Sedna.UI.css"
+out="$root/src/Sedna.UI.Catalogue/Data/class-history.json"
 
 check=0
 [[ "${1:-}" == "--check" ]] && check=1

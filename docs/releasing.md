@@ -6,7 +6,7 @@
 The git tag is the version. Tag `v1.2.3` publishes `1.2.3`. No file in the repo records the version.
 
 Release notes come from the annotated tag message. There is no `CHANGELOG.md` — the
-[Releases page](https://github.com/dennisrahmen/DR.Simple_UI/releases) is the changelog.
+[Releases page](https://github.com/dennisrahmen/Sedna.UI/releases) is the changelog.
 
 ## Cutting a release
 
@@ -92,7 +92,7 @@ long-lived API key is stored in the repository.
    | Field | Value |
    |---|---|
    | Repository Owner | `dennisrahmen` |
-   | Repository | `DR.Simple_UI` |
+   | Repository | `Sedna.UI` |
    | Workflow File | `release.yml` |
    | Environment | *(empty)* |
 
@@ -109,8 +109,8 @@ long-lived API key is stored in the repository.
 
 ## The hosted catalogue
 
-The catalogue is an application, not a static site: `src/DR.Simple_UI.Catalogue`, containerised from
-`src/DR.Simple_UI.Catalogue/Dockerfile` and deployed to Railway at
+The catalogue is an application, not a static site: `src/Sedna.UI.Catalogue`, containerised from
+`src/Sedna.UI.Catalogue/Dockerfile` and deployed to Railway at
 <https://simpleui.dennisrahmen.dev/>. `railway.json` at the repository root holds the build and deploy
 configuration, so it is reviewable in a pull request rather than living only in a dashboard.
 

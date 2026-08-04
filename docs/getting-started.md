@@ -3,7 +3,7 @@
 ## Install
 
 ```bash
-dotnet add package DR.Simple_UI
+dotnet add package Sedna.UI
 ```
 
 Pin the version. Do not use a floating version range.
@@ -17,19 +17,19 @@ Add three stylesheets and two scripts to `App.razor` (or `_Host.cshtml`). Your o
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <script src="_content/DR.Simple_UI/js/DR.Simple_UI.boot.js"></script>
+    <script src="_content/Sedna.UI/js/Sedna.UI.boot.js"></script>
 
-    <link rel="stylesheet" href="_content/DR.Simple_UI/lib/remixicon/remixicon.css" />
-    <link rel="stylesheet" href="_content/DR.Simple_UI/css/DR.Simple_UI.css" />
+    <link rel="stylesheet" href="_content/Sedna.UI/lib/remixicon/remixicon.css" />
+    <link rel="stylesheet" href="_content/Sedna.UI/css/Sedna.UI.css" />
     <link rel="stylesheet" href="css/brand.css" />
 </head>
 <body>
     <!-- … -->
-    <script src="_content/DR.Simple_UI/js/DR.Simple_UI.js"></script>
+    <script src="_content/Sedna.UI/js/Sedna.UI.js"></script>
 </body>
 ```
 
-`DR.Simple_UI.boot.js` applies the stored theme before first paint. Load it in `<head>`.
+`Sedna.UI.boot.js` applies the stored theme before first paint. Load it in `<head>`.
 
 ### The reconnect banner
 
@@ -70,7 +70,7 @@ It also matters for `langCookie`, since cookies are not origin-scoped the way `l
 If you override it, set the same value in both places or the theme is not found on reload:
 
 ```html
-<script src="_content/DR.Simple_UI/js/DR.Simple_UI.boot.js" data-prefix="app-a."></script>
+<script src="_content/Sedna.UI/js/Sedna.UI.boot.js" data-prefix="app-a."></script>
 <script>drSimpleUi.configure({ storagePrefix: 'app-a.' });</script>
 ```
 
@@ -117,7 +117,7 @@ page.
 extra to install. Add the stylesheet:
 
 ```html
-<link rel="stylesheet" href="_content/DR.Simple_UI/lib/remixicon/remixicon.css" />
+<link rel="stylesheet" href="_content/Sedna.UI/lib/remixicon/remixicon.css" />
 ```
 
 Then use the classes on an `<i>`:
@@ -143,7 +143,7 @@ The shell, sidebar, header and user widget are CSS classes, like everything else
 One thing markup cannot express is which navigation link is the current page. The package supplies it:
 
 ```razor
-@using DR.Simple_UI
+@using Sedna.UI
 
 <a class="@Nav.CssClass("queue")" aria-current="@Nav.AriaCurrent("queue")" href="queue">
     <i class="ri-inbox-line"></i><span>Queue</span>

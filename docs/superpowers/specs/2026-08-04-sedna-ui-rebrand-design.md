@@ -1,4 +1,4 @@
-# Rebrand `DR.Simple_UI` → `Sedna.UI`
+# Rebrand `Sedna.UI` → `Sedna.UI`
 
 **Date:** 2026-08-04
 **Status:** approved, not yet implemented
@@ -32,7 +32,7 @@ Out of scope, deliberately:
 - **Semantic class names.** `.card`, `.badge-go`, `.btn-warn` carry no brand and
   do not move. Only the `dr-` utility namespace does.
 - **Remix Icon.** The vendored `ri-` prefix is upstream's and is untouched.
-- **Consuming applications.** `AI_Console` / Athene consumes `DR.Simple_UI`
+- **Consuming applications.** `AI_Console` / Athene consumes `Sedna.UI`
   0.1.0 from a different repository. It is not migrated here.
 
 ## 2. Decisions
@@ -45,7 +45,7 @@ Out of scope, deliberately:
 | JavaScript global | `window.sednaUi` | Dennis |
 | Version of the first Sedna release | `0.2.0` | Dennis |
 | GitHub repo rename | Claude, via the GitHub API, confirmed immediately before the call | Dennis |
-| Canonical URL | `https://sedna-ui.com/` (bare apex) | Dennis |
+| Canonical URL | `https://www.sedna-ui.com/` (`www` subdomain) | Dennis |
 | Palette | recorded as brand documentation; no theme change yet | Dennis |
 | Sequencing | four staged commits on one branch, merged as one PR | Dennis |
 | Old package | not aliased, not shimmed — clean break, documented | CLAUDE.md |
@@ -59,19 +59,19 @@ and an exact-ID search returns `totalHits: 0`.
 
 | Old | New |
 |---|---|
-| `DR.Simple_UI` | `Sedna.UI` |
-| `DR.Simple_UI.slnx` | `Sedna.UI.slnx` |
-| `src/DR.Simple_UI/` | `src/Sedna.UI/` |
-| `src/DR.Simple_UI.Tests/` | `src/Sedna.UI.Tests/` |
-| `src/DR.Simple_UI.Catalogue/` | `src/Sedna.UI.Catalogue/` |
-| `src/DR.Simple_UI.Catalogue.Tests/` | `src/Sedna.UI.Catalogue.Tests/` |
+| `Sedna.UI` | `Sedna.UI` |
+| `Sedna.UI.slnx` | `Sedna.UI.slnx` |
+| `src/Sedna.UI/` | `src/Sedna.UI/` |
+| `src/Sedna.UI.Tests/` | `src/Sedna.UI.Tests/` |
+| `src/Sedna.UI.Catalogue/` | `src/Sedna.UI.Catalogue/` |
+| `src/Sedna.UI.Catalogue.Tests/` | `src/Sedna.UI.Catalogue.Tests/` |
 
 `PackageId`, `AssemblyName`, `RootNamespace` and `Title` all become `Sedna.UI`.
 Directory moves use `git mv` so history follows.
 
 The namespace keeps its dot, so the sub-namespaces map straight across:
-`DR.Simple_UI.Interop` → `Sedna.UI.Interop`, `DR.Simple_UI.Navigation` →
-`Sedna.UI.Navigation`, `DR.Simple_UI.Tests.TestSupport` →
+`Sedna.UI.Interop` → `Sedna.UI.Interop`, `Sedna.UI.Navigation` →
+`Sedna.UI.Navigation`, `Sedna.UI.Tests.TestSupport` →
 `Sedna.UI.Tests.TestSupport`, and so on.
 
 ### 3.2 Shipped asset paths
@@ -81,11 +81,11 @@ them.
 
 | Old | New |
 |---|---|
-| `_content/DR.Simple_UI/css/DR.Simple_UI.css` | `_content/Sedna.UI/css/Sedna.UI.css` |
-| `_content/DR.Simple_UI/js/DR.Simple_UI.js` | `_content/Sedna.UI/js/Sedna.UI.js` |
-| `_content/DR.Simple_UI/js/DR.Simple_UI.boot.js` | `_content/Sedna.UI/js/Sedna.UI.boot.js` |
-| `_content/DR.Simple_UI/tokens/DR.Simple_UI.tokens.json` | `_content/Sedna.UI/tokens/Sedna.UI.tokens.json` |
-| `_content/DR.Simple_UI/lib/remixicon/…` | `_content/Sedna.UI/lib/remixicon/…` |
+| `_content/Sedna.UI/css/Sedna.UI.css` | `_content/Sedna.UI/css/Sedna.UI.css` |
+| `_content/Sedna.UI/js/Sedna.UI.js` | `_content/Sedna.UI/js/Sedna.UI.js` |
+| `_content/Sedna.UI/js/Sedna.UI.boot.js` | `_content/Sedna.UI/js/Sedna.UI.boot.js` |
+| `_content/Sedna.UI/tokens/Sedna.UI.tokens.json` | `_content/Sedna.UI/tokens/Sedna.UI.tokens.json` |
+| `_content/Sedna.UI/lib/remixicon/…` | `_content/Sedna.UI/lib/remixicon/…` |
 
 The `"name"` field `export-tokens.sh` writes into the tokens JSON becomes
 `Sedna.UI`.
@@ -169,7 +169,7 @@ stylesheet **out of a git tag** using the same path variable they use for the
 working tree:
 
 ```bash
-sheet="src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
+sheet="src/Sedna.UI/wwwroot/css/Sedna.UI.css"
 git -C "$root" show "$tag:$sheet" >"$tmp/sheet.css" 2>/dev/null || continue
 ```
 
@@ -198,7 +198,7 @@ It holds a newest-first list of historical paths and echoes the first that
 
 ```
 src/Sedna.UI/wwwroot/css/Sedna.UI.css
-src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css
+src/Sedna.UI/wwwroot/css/Sedna.UI.css
 ```
 
 A future rename adds one line. Both callers use it.
@@ -216,7 +216,7 @@ tagged, because the name `.sedna-row` genuinely has never shipped.
 ## 5. Guard tests
 
 `TestSupport/Assets.FindRepoRoot()` walks upward looking for
-`DR.Simple_UI.slnx`. Renaming the solution file breaks every test in both
+`Sedna.UI.slnx`. Renaming the solution file breaks every test in both
 projects until that one line changes. This is a single hinge that fails loudly
 and immediately, which is the desired behaviour; it is listed so it is not
 mistaken for a broken rename.
@@ -241,7 +241,7 @@ Tests that change:
 
 `ScriptContractTests` already asserts the shipped script and stylesheet carry no
 application-specific naming. Add the symmetric assertion: no `\.dr-`,
-`DR.Simple_UI`, `drSimpleUi`, `drui.` or `@layer dr.` appears in the shipped
+`Sedna.UI`, `drSimpleUi`, `drui.` or `@layer dr.` appears in the shipped
 stylesheet, the shipped script, the boot script or the tokens JSON — extended
 over `src/Sedna.UI.Catalogue/Examples/` and `Components/`, because a stale
 `.dr-row` in an example renders unstyled with no error.
@@ -353,8 +353,8 @@ The README badge accent moves from the old brand blue `2563eb` to Sedna Red
   `development.md`, `accessibility.md`, `CLAUDE.consuming-app.md`.
 - `CONTRIBUTING.md`, `THIRD-PARTY-NOTICES.md`, and the `.gitattributes` comment
   naming the tokens file.
-- **`.editorconfig`** — path-scoped sections `[src/DR.Simple_UI.Tests/**.cs]` and
-  `[src/DR.Simple_UI.Catalogue{,.Tests}/**.cs]`. A glob that stops matching
+- **`.editorconfig`** — path-scoped sections `[src/Sedna.UI.Tests/**.cs]` and
+  `[src/Sedna.UI.Catalogue{,.Tests}/**.cs]`. A glob that stops matching
   raises no error at all; analysis rules just silently change.
 - `.github/workflows/ci.yml` — solution path, `playwright.ps1` path, the browser
   env var, the pack path, the `verify-package.sh` artefact glob, the docker tag.
@@ -367,7 +367,7 @@ The README badge accent moves from the old brand blue `2563eb` to Sedna Red
   command in its header.
 - `railway.json` — `dockerfilePath` and `watchPatterns`. A stale watch pattern
   silently stops redeploying on library changes.
-- `sedna-ui.com` replaces `simpleui.dennisrahmen.dev` in `PackageProjectUrl`,
+- `www.sedna-ui.com` replaces `simpleui.dennisrahmen.dev` in `PackageProjectUrl`,
   `README.md`, `CLAUDE.md`, four `docs/*.md`, the catalogue's `CLAUDE.md`,
   `Navigation/CatalogueLinks.cs`, `Examples/Mcp/ClaudeCode.txt`,
   `Examples/Mcp/Config.txt`, the comment in `css-parts/30-cards.css`, and
@@ -406,7 +406,7 @@ that audience. The glob is single-level, so this spec, at
 |---|---|
 | nuget.org trusted publishing → repository `Sedna.UI` | `release.yml` fails at *Exchange OIDC token*, after build and tests have passed |
 | Deprecate `DR.Simple_UI` 0.1.0 with a pointer to `Sedna.UI` | old package looks current; it cannot be unpublished, only deprecated |
-| DNS for `sedna-ui.com` → Railway: a CNAME **and** Railway's TXT verification record | catalogue and `/mcp` unreachable at the new domain |
+| DNS for `www.sedna-ui.com` → Railway: the records Railway lists for the domain (one CNAME, as of the 2026-08-04 setup). Hetzner DNS hosts the zone and appends it to an unqualified CNAME value, so the target needs its trailing dot | catalogue and `/mcp` unreachable at the new domain |
 | GitHub social-preview image upload, repository description and website field | dashboard-only for the image; Claude can set description and homepage via the API on request |
 | `AI_Console` / Athene migration | separate repository; still pinned to `DR.Simple_UI` 0.1.0 |
 

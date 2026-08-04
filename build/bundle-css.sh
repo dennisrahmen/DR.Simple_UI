@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Generates wwwroot/css/DR.Simple_UI.css from every file in css-parts/.
+# Generates wwwroot/css/Sedna.UI.css from every file in css-parts/.
 #
 # The parts are DISCOVERED, never listed anywhere. Add a file to css-parts/ and it
 # is in the next build; there is no manifest to forget to update, which is the one
@@ -42,8 +42,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PARTS="$ROOT/src/DR.Simple_UI/css-parts"
-OUT="$ROOT/src/DR.Simple_UI/wwwroot/css/DR.Simple_UI.css"
+PARTS="$ROOT/src/Sedna.UI/css-parts"
+OUT="$ROOT/src/Sedna.UI/wwwroot/css/Sedna.UI.css"
 
 if [[ ! -d "$PARTS" ]]; then
     echo "::error::No css-parts directory at $PARTS"
@@ -63,7 +63,7 @@ for f in "${FILES[@]}"; do
     base="$(basename "$f")"
     if [[ ! "$base" =~ ^[0-9][0-9]- ]]; then
         echo "::error::$base has no NN- prefix, so its place in the cascade is undefined."
-        echo "Rename it, e.g. 45-$base — see src/DR.Simple_UI/css-parts/CLAUDE.md"
+        echo "Rename it, e.g. 45-$base — see src/Sedna.UI/css-parts/CLAUDE.md"
         exit 1
     fi
 done
@@ -88,7 +88,7 @@ layer_for() {
     echo "/* ═══════════════════════════════════════════════════════════════════════════"
     echo "   GENERATED FILE — DO NOT EDIT."
     echo ""
-    echo "   Built by build/bundle-css.sh from src/DR.Simple_UI/css-parts/. Edit the part"
+    echo "   Built by build/bundle-css.sh from src/Sedna.UI/css-parts/. Edit the part"
     echo "   that owns the rule and re-run that script; a guard test fails the build if"
     echo "   this file and the parts disagree. Adding a part needs no change here — the"
     echo "   directory is the source of truth."
